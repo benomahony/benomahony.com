@@ -1,0 +1,2 @@
+# Redirect default Netlify subdomain to primary domain
+http://affectionate-bhabha-2e7b48.netlify.com/* http://www.benomahony.com/:splat 301!
