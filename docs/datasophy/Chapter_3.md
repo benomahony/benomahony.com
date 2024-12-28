@@ -1,4 +1,4 @@
-#chapter 3: framing problems for data solutions
+# Framing problems for data solutions
 
 - defining the problem: aligning data efforts with real-world needs.
 - avoiding "data for data’s sake": focusing on impact.
