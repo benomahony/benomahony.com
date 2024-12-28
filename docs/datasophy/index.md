@@ -52,10 +52,10 @@
 
 ---
 
-# Appendices ## Practical tools and resources for data analysis and visualization
+## Appendices Practical tools and resources for data analysis and visualization
 
-## Templates for problem framing and decision-making
+### Templates for problem framing and decision-making
 
-## Further reading and references
+### Further reading and references
 
 ---

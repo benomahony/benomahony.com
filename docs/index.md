@@ -1,3 +1,3 @@
 # Welcome
 
-My first real attempt at writing
+My first real attempt at writing, seriously.
