@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: My Docs
+site_url: https://benomahony.command
+theme:
+  name: material
+
+plugins:
+  - blog
