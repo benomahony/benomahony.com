@@ -15,7 +15,8 @@
 - The data lifecycle: From collection to actionable insights.
 - The difference between data, information, knowledge, and wisdom.
 
-**Chapter 2: The Datasophic Mindset** Curiosity and critical thinking: Asking the right questions.
+**Chapter 2: The Datasophic Mindset**
+Curiosity and critical thinking: Asking the right questions.
 
 - Balancing intuition and evidence: When to trust data and when to question it.
 - Embracing uncertainty: Navigating ambiguity in data.
