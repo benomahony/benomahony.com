@@ -1,4 +1,4 @@
-# Chapter 12: Cultivating a Datasophic Life
+# Cultivating a Datasophic Life
 
 - Lifelong learning: Staying curious and adaptable.
 - Building a personal and organizational Datasophy practice.

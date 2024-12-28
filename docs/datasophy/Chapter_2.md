@@ -1,4 +1,4 @@
-# Chapter 2: The Datasophic Mindset
+# The Datasophic Mindset
 
 Curiosity and critical thinking: Asking the right questions.
 
