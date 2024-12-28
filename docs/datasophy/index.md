@@ -19,11 +19,11 @@
 
 ## Part II: Practical Mastery of Data
 
-### Chapter 4: Collecting Data Wisely\\
+### Chapter 4: Collecting Data Wisely
 
-### Chapter 5: Analyzing Data with Purpose\\
+### Chapter 5: Analyzing Data with Purpose
 
-### Chapter 6: Visualizing and Communicating Data\\
+### Chapter 6: Visualizing and Communicating Data
 
 ### Chapter 7: Data-Driven Decision-Making
 
@@ -31,7 +31,7 @@
 
 ## Part III: Applying Datasophy in the Real World
 
-### Chapter 8: Datasophy in Business\\
+### Chapter 8: Datasophy in Business
 
 ### Chapter 9: Datasophy in Public Policy and Social Good
 
@@ -47,7 +47,7 @@
 
 ---
 
-## Appendices - Practical tools and resources for data analysis and visualization
+# Appendices - Practical tools and resources for data analysis and visualization
 
 - Templates for problem framing and decision-making.
 - Further reading and references.
