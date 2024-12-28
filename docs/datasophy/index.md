@@ -2,10 +2,15 @@
 
 ## Introduction: The Art of Data Wisdom
 
-- The data revolution: Opportunities and challenges.
-- What is Datasophy? A practical philosophy for using data effectively and responsibly.
-- Why wisdom matters: Beyond technical skills to meaningful impact.
-- How this book will help you master the art of data.--
+### The data revolution: Opportunities and challenges
+
+### What is Datasophy? A practical philosophy for using data effectively and responsibly
+
+### Why wisdom matters: Beyond technical skills to meaningful impact
+
+### How this book will help you master the art of data.--
+
+---
 
 ## Part I: The Foundations of Datasophy
 
@@ -47,9 +52,10 @@
 
 ---
 
-# Appendices - Practical tools and resources for data analysis and visualization
+# Appendices ## Practical tools and resources for data analysis and visualization
 
-- Templates for problem framing and decision-making.
-- Further reading and references.
+## Templates for problem framing and decision-making
+
+## Further reading and references
 
 ---
