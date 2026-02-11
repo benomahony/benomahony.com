@@ -1,0 +1,21 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types: [python]
+
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+
+      - id: test-blog-examples
+        name: test blog examples
+        entry: uv run pytest docs/blog/ --examples-only
+        language: system
+        files: ^docs/blog/.*\.md$
+        pass_filenames: false

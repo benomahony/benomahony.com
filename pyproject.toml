@@ -1,9 +1,36 @@
 [project]
 name = "benomahony-com"
 version = "0.1.0"
-description = "Add your description here"
+description = "Ben O'Mahony's writing and Datasophy"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "mkdocs-material>=9.5.49",
+    "zensical>=0.0.21",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-examples>=0.0.10",
+    "ruff>=0.9.0",
+    "pre-commit>=4.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "docs"]
+python_files = ["test_*.py", "*_test.py", "*.md"]
+addopts = [
+    "--strict-markers",
+    "-v",
+]
+markers = [
+    "examples: Tests from documentation examples",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP"]
+ignore = ["E501"]  # Line too long (handled by formatter)
