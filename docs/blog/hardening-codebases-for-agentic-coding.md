@@ -423,9 +423,11 @@ markers = [
     "examples: Tests from documentation examples",
 ]
 addopts = [
-    "-m", "not integration",  # Skip integration tests by default
-    "--ff",                    # Run failures first
-    "-n", "auto",             # Parallel execution
+    "-m",
+    "not integration",  # Skip integration tests by default
+    "--ff",  # Run failures first
+    "-n",
+    "auto",  # Parallel execution
 ]
 ```
 
@@ -626,6 +628,7 @@ app = typer.Typer(
     help="My Application CLI",
     epilog="Examples:\n  myapp process path/to/data\n  myapp info path/to/data",
 )
+
 
 @app.command()
 def process(

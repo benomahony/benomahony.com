@@ -41,4 +41,6 @@ ignore = [
     "F821",  # Undefined name (OK for illustrative blog examples)
     "F704",  # await outside async function (OK for async examples)
     "F811",  # Redefined name (OK for BAD vs GOOD comparisons)
+    "B018",  # Useless expression (OK for TOML/YAML config examples)
+    "B008",  # Function call in argument defaults (OK for Typer CLI patterns)
 ]
