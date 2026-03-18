@@ -13,6 +13,7 @@ AI coding agents like Claude Code, GitHub Copilot, and Cursor are transforming h
 After building the [Taxonomy-Ontology-Accelerator](https://github.com/thoughtworks/Taxonomy-Ontology-Accelerator), a production system designed from the ground up for agentic coding, I've identified 10 essential techniques that make codebases safe and effective for AI agents to work with.
 
 This isn't theoretical—these are battle-tested patterns from a codebase with:
+
 - **1,927 defensive assertions** catching impossible conditions (NASA05 compliance)
 - **29,157 lines of test code** across 89 test files
 - **Property-based fuzzing** with Hypothesis (NASA/TIGER style)
@@ -54,6 +55,7 @@ class ExtractedConcept(BaseModel):
 ```
 
 **What this gives you**:
+
 - AI agents see the structure and constraints
 - Invalid data fails immediately with clear errors
 - Validators document business rules
@@ -106,6 +108,7 @@ Agents can implement new validators without touching existing code. Tests use fa
 ### NASA05: The Two-Assertion Rule
 
 NASA's Power of 10 rules for safety-critical code require **minimum 2 assertions per function**. This catches:
+
 - Invalid parameters before processing
 - Broken invariants before they propagate
 - State corruption before it cascades
@@ -144,6 +147,7 @@ def add_error(
 ### What to Assert
 
 **Always assert**:
+
 - Parameters are not `None` (unless explicitly `Optional`)
 - Types are correct (`isinstance` checks)
 - Numeric values are in valid ranges
@@ -151,6 +155,7 @@ def add_error(
 - State invariants hold before critical operations
 
 **Never assert**:
+
 - User input validation (use proper error handling)
 - Expected runtime errors (use try/except)
 - Business logic conditions (use if/else)
@@ -205,6 +210,7 @@ class TestSafeDivide:
 ```
 
 **What Hypothesis does**:
+
 - Generates thousands of test inputs automatically
 - Finds edge cases you didn't think of
 - Shrinks failing inputs to minimal examples
@@ -232,6 +238,7 @@ settings.load_profile("dev")
 ```
 
 **Usage**:
+
 - **dev**: 100 examples, fast feedback during development
 - **ci**: 1,000 examples, thorough validation before merge
 - **debug**: 10 examples with verbose output for investigating failures
@@ -240,6 +247,7 @@ settings.load_profile("dev")
 ### Properties to Test
 
 **Mathematical properties**:
+
 ```python
 @given(st.floats(), st.floats())
 def test_addition_commutative(a, b):
@@ -248,6 +256,7 @@ def test_addition_commutative(a, b):
 ```
 
 **Idempotency**:
+
 ```python
 @given(st.text())
 def test_normalization_idempotent(text):
@@ -258,6 +267,7 @@ def test_normalization_idempotent(text):
 ```
 
 **Invariants**:
+
 ```python
 @given(st.lists(st.integers()))
 def test_sort_preserves_length(lst):
@@ -266,6 +276,7 @@ def test_sort_preserves_length(lst):
 ```
 
 **Round-trip properties**:
+
 ```python
 @given(st.text())
 def test_encode_decode_roundtrip(text):
@@ -297,6 +308,7 @@ def test_readme_examples(file_path="README.md"):
 ```
 
 **Benefits**:
+
 - Documentation never goes stale
 - Agents see working examples
 - Examples serve as integration tests
@@ -392,6 +404,7 @@ def test_expected_directory_structure():
 ```
 
 **What architecture tests enforce**:
+
 - **Layer boundaries**: Commons can't import from engines
 - **Import hygiene**: No wildcard imports
 - **Structural rules**: Required directories exist
@@ -399,6 +412,7 @@ def test_expected_directory_structure():
 - **Module independence**: Engines don't cross-import
 
 **Run separately with markers**:
+
 ```bash
 # Run only architecture tests
 pytest -m architecture
@@ -602,6 +616,7 @@ def test_cli_with_system_interaction(monkeypatch):  # mockbuster: ignore - testi
 ```
 
 **What mockbuster enforces**:
+
 - No `unittest.mock.Mock` or `unittest.mock.MagicMock`
 - No `unittest.mock.patch` or `@patch` decorators
 - No `pytest.monkeypatch` (unless explicitly allowed)
@@ -660,6 +675,7 @@ def process(
 ```
 
 **What cliqa validates**:
+
 1. **Help text exists**: Every command and option has help text
 2. **Examples provided**: Commands include usage examples
 3. **Argument descriptions**: All arguments documented
@@ -667,6 +683,7 @@ def process(
 5. **Consistent naming**: Commands follow kebab-case convention
 
 **Pre-commit integration**:
+
 ```yaml
 - id: cliqa
   name: cliqa
@@ -704,6 +721,7 @@ myapp health
 **Why this matters**:
 
 1. **Reproducibility**: Agents can reproduce issues in isolation
+
    ```bash
    # Instead of: "The processing is failing somewhere"
    # Agents run: myapp process problematic_case/ --verbose
@@ -711,6 +729,7 @@ myapp health
    ```
 
 2. **Incremental testing**: Test components independently
+
    ```bash
    # Test just the validation step
    myapp validate-config config.yaml
@@ -723,6 +742,7 @@ myapp health
    ```
 
 3. **State inspection**: Examine system state at any point
+
    ```bash
    # Check what would be processed
    myapp list test_data/
@@ -735,6 +755,7 @@ myapp health
    ```
 
 4. **Hypothesis generation**: Quickly test theories about bugs
+
    ```bash
    # "Maybe it's the batch size?"
    myapp process test --batch-size 10
@@ -747,6 +768,7 @@ myapp health
 **Design principle**: Every major component should have a CLI command. If an agent can't invoke it from the command line, they can't debug it effectively.
 
 **Example pattern**: Break your pipeline into discrete CLI commands:
+
 - `myapp process` - Full processing pipeline
 - `myapp transform` - Just data transformation
 - `myapp validate` - Just validation
@@ -779,6 +801,7 @@ myproject/
 ```
 
 **Enforced rules**:
+
 1. `commons/` cannot import from engines
 2. Engines are independent
 3. Architecture tests fail if rules violated
@@ -1020,6 +1043,7 @@ class ExtractionMetrics:
 ```
 
 **Benefits**:
+
 - Beautiful progress output
 - Structured metrics for analysis
 - Easy debugging
@@ -1127,27 +1151,31 @@ Here's what changed in the Taxonomy-Ontology-Accelerator after implementing thes
 You don't need to implement all 10 techniques at once. Start with the highest-impact changes:
 
 ### Week 1: Quick Wins (Critical Foundation)
+
 1. Add **pre-commit hooks** (ruff + basedpyright)
 2. Add **NASA05 assertions** (2+ per function)
 3. Enable **pytest coverage** reporting
 4. Add **mockbuster** to prevent mock usage
 
 ### Week 2: Type Safety & Testing
+
 5. Convert config to **Pydantic models**
-6. Add **type hints** to public APIs
-7. Create **Protocol classes** for interfaces
-8. Add **Hypothesis** property-based tests for critical functions
+2. Add **type hints** to public APIs
+3. Create **Protocol classes** for interfaces
+4. Add **Hypothesis** property-based tests for critical functions
 
 ### Week 3: Architecture & Quality Gates
+
 9. Add **architecture tests** for layer boundaries
-10. Implement **dependency injection** in main classes
-11. Add **cliqa** for CLI validation
+2. Implement **dependency injection** in main classes
+3. Add **cliqa** for CLI validation
 
 ### Week 4: Documentation & Observability
+
 12. Write **contract specifications** for inputs/outputs
-13. Add **executable runbook** examples
-14. Test documentation with **pytest-examples**
-15. Add **Rich logging** with progress bars
+2. Add **executable runbook** examples
+3. Test documentation with **pytest-examples**
+4. Add **Rich logging** with progress bars
 
 ---
 
@@ -1177,7 +1205,5 @@ The most impactful combo: **NASA05 assertions + Hypothesis fuzzing + mockbuster*
 Your future self (and your AI coding agent) will thank you.
 
 ---
-
-*Want to see these techniques in action? Check out the [Taxonomy-Ontology-Accelerator](https://github.com/thoughtworks/Taxonomy-Ontology-Accelerator) on GitHub.*
 
 *Have questions or want to share your own hardening techniques? Reach out on [GitHub](https://github.com/benomahony).*
