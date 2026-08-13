@@ -34,4 +34,4 @@ The second matters much more. We had tests running in CI to protect the function
 
 For me, that’s the key point. The shared context in people’s heads did more work than any tooling. AI was filling in an implementation we’d already agreed on, not inventing one. When that shared understanding is missing, AI code generation tends to introduce duplication and unnecessary complexity because everyone is working from a slightly different mental model.
 
-Trunk-based development isn’t old advice becoming less relevant because of AI. It’s old advice becoming more and more important. AI can generate change far faster than a team can absorb it, making shared understanding and continuous integration even more important than they were before.
+Trunk-based development (like many other XP and Agile techniques) is becoming more and more important. AI can generate change far faster than a team can absorb it, making shared understanding and continuous integration even more important than they were before.
