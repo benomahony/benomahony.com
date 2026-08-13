@@ -14,7 +14,7 @@ We do a lot of workshops with companies looking to build agents and adopt agenti
 
 This was Sprint two. By this point we’d settled into a comfortable rhythm. We’d whiteboard together, discuss the architecture, occasionally sketching ideas, then work with AI agents to build what we’d agreed. As soon as we were happy, everything went straight to main. We’d split a number of tools and features between us so we could move faster, and trunk-based development was simply working.
 
-The problem came when we decided to switch from the basic agent to the new AWS Strands bidirectional conversation agent. None of us had used it before, and the change had knock-on effects across much of the codebase. The engineer working on it quite reasonably wanted to use a separate branch while he got it working and could test and deploy it independently.
+The problem came when we decided to switch from the basic agent to the new AWS Strands [bidirectional conversation agent](https://strandsagents.com/docs/user-guide/concepts/bidirectional-streaming/agent/). None of us had used it before, and the change had knock-on effects across much of the codebase. The engineer working on it quite reasonably wanted to use a separate branch while he got it working and could test and deploy it independently.
 
 ## The problem
 
@@ -28,7 +28,7 @@ What surprised me most was that we all agreed that it wasn’t the way. In the p
 
 The first is easy to admit: this was a throwaway proof of concept. That certainly helps.
 
-The second matters much more. We had tests running in CI to protect the functionality we’d already built, so we knew we weren’t going to regress the pieces we’d finished. More importantly, we had a shared architecture in our heads before we asked AI to write code. We’d spent time understanding the domain, agreeing the architecture and sketching it out together. One of the most validating moments came after one of the sprints when we pointed LikeC4 at the repository. It reconstructed almost exactly the same architecture we’d drawn on the whiteboard before we’d written the implementation.
+The second matters much more. We had tests running in CI to protect the functionality we’d already built, so we knew we weren’t going to regress the pieces we’d finished. More importantly, we had a shared architecture in our heads before we asked AI to write code. We’d spent time understanding the domain, agreeing the architecture and sketching it out together. One of the most validating moments came after one of the sprints when we pointed [LikeC4](https://likec4.dev/) at the repository. It reconstructed almost exactly the same architecture we’d drawn on the whiteboard before we’d written the implementation.
 
 ## My takeaway
 
