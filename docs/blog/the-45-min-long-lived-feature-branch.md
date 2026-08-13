@@ -1,4 +1,4 @@
-# The 45-Minute Long-Lived Feature Branch
+# The 45 Minute 'Long-Lived' Feature Branch
 
 We were mobbing with AI in the middle of a workshop when we hit an unexpected problem. One of us had started work on a slightly larger refactor and had branched off from our normal trunk-based workflow. It was a perfectly reasonable decision, but suddenly the rest of the room slowed to a crawl. Half of us were orbiting that feature branch instead of shipping.
 
@@ -8,28 +8,30 @@ The branch had existed for forty-five minutes.
 
 We started joking that forty-five minutes now counted as a long-lived feature branch.
 
-We do a lot of workshops with companies looking to build agents and adopt agentic coding. The format is simple but incredibly effective. Day one is about understanding the product and mapping customer value. That gives everyone a shared understanding of the domain, the problems we’re trying to solve and where the product creates value. Days two and three are four short build sprints. We spend ten or fifteen minutes deciding what we’re going to build, two or three hours mobbing with AI, regroup to demo what we’ve built, then repeat. I’m not certain I’d want to work like this every day, but the amount you can achieve in a week is astronomical.
+## The Workshop Structure
+
+We do a lot of workshops with companies looking to build agents and adopt agentic coding. The format is simple but incredibly effective. Day one is about understanding the product and mapping customer value. That gives everyone a shared understanding of the domain, the problems we’re trying to solve and where the product creates value. Days two and three are four short build sprints. We spend ten or fifteen minutes deciding what we’re going to build, two or three hours mobbing with AI, regroup to demo what we had built, then repeat. I’m not certain I’d want to work like this every day, but the amount you can achieve in a few days is astronomical.
 
 This was Sprint two. By this point we’d settled into a comfortable rhythm. We’d whiteboard together, discuss the architecture, occasionally sketching ideas, then work with AI agents to build what we’d agreed. As soon as we were happy, everything went straight to main. We’d split a number of tools and features between us so we could move faster, and trunk-based development was simply working.
 
 The problem came when we decided to switch from the basic agent to the new AWS Strands bidirectional conversation agent. None of us had used it before, and the change had knock-on effects across much of the codebase. The engineer working on it quite reasonably wanted to use a separate branch while he got it working and could test and deploy it independently.
 
-That decision wasn’t the problem.
-
-The waiting was.
+## The problem
 
 As we continued building, it became more and more obvious that the work we’d split out depended on this refactor landing. It stopped making sense to forge ahead. We were reading the Strands documentation, discussing different approaches, passing ideas to the AI, and the implementation took a couple more attempts than we’d hoped.
 
-We all quickly mobbed on the problem, thrashed out the implementation we felt happiest with, and merged the “long-lived feature branch”. We all breathed a sigh of relief. CI passed, everyone rebased, and within a few minutes we were back to building features. The merge conflicts were tiny. We joked that forty-five minutes now counted as a long-lived feature branch.
+We all quickly mobbed on the problem, thrashed out the implementation we felt happiest with, and merged the 'long-lived feature branch'. We all breathed a sigh of relief. CI passed, everyone rebased, and within a few minutes we were back to building features. The merge conflicts were tiny. We joked that forty-five minutes now counted as a long-lived feature branch.
 
 What surprised me most was that we all agreed that it wasn’t the way. In the past, when I’ve introduced trunk-based development, teams have usually worried about giving up long-lived branches and formal pull-request reviews. Here it was the opposite. Working outside trunk felt slow. The engineers not on the feature branch could feel the loss of productivity almost immediately.
 
-There were two reasons we could move this quickly.
+## There were two reasons we could move this quickly.
 
 The first is easy to admit: this was a throwaway proof of concept. That certainly helps.
 
 The second matters much more. We had tests running in CI to protect the functionality we’d already built, so we knew we weren’t going to regress the pieces we’d finished. More importantly, we had a shared architecture in our heads before we asked AI to write code. We’d spent time understanding the domain, agreeing the architecture and sketching it out together. One of the most validating moments came after one of the sprints when we pointed LikeC4 at the repository. It reconstructed almost exactly the same architecture we’d drawn on the whiteboard before we’d written the implementation.
 
+## My takeaway
+
 For me, that’s the key point. The shared context in people’s heads did more work than any tooling. AI was filling in an implementation we’d already agreed on, not inventing one. When that shared understanding is missing, AI code generation tends to introduce duplication and unnecessary complexity because everyone is working from a slightly different mental model.
 
-Trunk-based development isn’t old advice becoming less relevant because of AI. It’s old advice becoming more load-bearing. AI can generate change far faster than a team can absorb it, making shared understanding and continuous integration even more important than they were before.
+Trunk-based development isn’t old advice becoming less relevant because of AI. It’s old advice becoming more and more important. AI can generate change far faster than a team can absorb it, making shared understanding and continuous integration even more important than they were before.
