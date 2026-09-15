@@ -1,0 +1,46 @@
+# My Ten Rules of Agentic Engineering
+
+1. Natural language isn't specific enough for specification
+_Don't go chasing waterfalls_
+The more you write up front, the more room you leave for the agent to be confidently wrong.
+Specify in types, contracts and tests, and keep the batch small.
+
+2. Don't confuse guidance for guardrails
+A prompt asking nicely is not a constraint.
+If it matters, it belongs in something that can fail the build.
+
+3. Don't be a meat proxy
+Clicking approve on a diff you don't understand is not review.
+Either you're adding judgement or you should automate yourself out of the position.
+
+4. Trust but verify
+Build feedback sensors
+Verification can't be a person watching.
+Instrument the environment so the loop closes itself, with compilers, types, LSP, tests and traces feeding back into the run.
+
+5. Earn the right to automate
+Run it by hand often enough to know its failure modes.
+Automation before evidence just industrialises the parts you haven't seen go wrong yet.
+
+6. Tidy first
+Separate the structural change from the behavioural one.
+An agent will do both in a single diff, and then neither is reviewable.
+
+7. Know the value, not just the cost
+Spend is trivially instrumented, so it becomes the metric by default.
+Nobody optimises what they can't see, and almost nobody measures what the tokens bought.
+
+8. Make the implicit explicit
+Conventions, workarounds and tribal knowledge live in people's heads.
+An agent can't infer any of it, so it guesses.
+Write it down and the repo becomes somewhere agents can work.
+
+9. Every failure becomes a ratchet
+Fix the root cause, not the instance.
+Turn each failure into a check that can't be unturned, or you'll meet the same bug in eleven places.
+
+10. Sensible defaults are still sensible
+Agentic engineering is additive.
+It deprecates nothing.
+Containers, CI, small interfaces, composition over inheritance.
+All of it still holds, and holds harder when code arrives faster than you can read it.
