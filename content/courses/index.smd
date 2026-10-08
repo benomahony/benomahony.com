@@ -1,0 +1,6 @@
+---
+.title = "Courses",
+.description = "Live, hands-on courses for engineers building reliable software and AI agents.",
+.date = .date("2026-10-08T00:00:00"),
+.layout = "courses.shtml",
+---

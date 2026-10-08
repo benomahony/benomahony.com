@@ -1,0 +1,28 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta property="og:type" content="article">
+</head>
+
+<main id="main">
+	<article>
+		<header class="article-header">
+			<p class="eyebrow"><a href="$site.page('blog').link()">Blog</a></p>
+			<h1 :text="$page.title"></h1>
+			<p class="article-meta">
+				<time :text="$page.date.format('2 January 2006')"></time>
+				<span aria-hidden="true"> · </span>
+				<span :text="$page.authors.join(', ')"></span>
+			</p>
+		</header>
+		<div class="prose" :html="$page.content()"></div>
+	</article>
+	<nav class="post-navigation" aria-label="Post navigation">
+		<ctx :if="$page.prevPage?()">
+			<a href="$if.link()">← <span :text="$if.title"></span></a>
+		</ctx>
+		<ctx :if="$page.nextPage?()">
+			<a href="$if.link()"><span :text="$if.title"></span> →</a>
+		</ctx>
+	</nav>
+</main>

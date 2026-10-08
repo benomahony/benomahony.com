@@ -1,0 +1,46 @@
+code .comment {
+  color: #6a737d;
+  font-style: italic;
+}
+
+code .keyword,
+code .type {
+  color: #7c3aed;
+}
+
+code .string {
+  color: #067647;
+}
+
+code .numeric,
+code .constant {
+  color: #b54708;
+}
+
+code .function {
+  color: #175cd3;
+}
+
+@media (prefers-color-scheme: dark) {
+  code .comment {
+    color: #8b949e;
+  }
+
+  code .keyword,
+  code .type {
+    color: #d2a8ff;
+  }
+
+  code .string {
+    color: #7ee787;
+  }
+
+  code .numeric,
+  code .constant {
+    color: #ffa657;
+  }
+
+  code .function {
+    color: #79c0ff;
+  }
+}

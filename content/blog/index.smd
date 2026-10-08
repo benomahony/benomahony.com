@@ -1,0 +1,14 @@
+---
+.title = "Blog",
+.description = "Essays on software engineering, data, and building with AI.",
+.date = .date("2026-01-01T00:00:00"),
+.layout = "blog.shtml",
+.alternatives = [.{
+    .name = "rss",
+    .layout = "blog.xml",
+    .output = "index.xml",
+    .type = "application/rss+xml",
+}],
+---
+
+Essays on software engineering, data, and building with AI.

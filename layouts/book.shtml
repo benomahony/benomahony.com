@@ -1,0 +1,36 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta property="og:type" content="book">
+</head>
+
+<main id="main" class="book-page">
+	<section class="book-hero">
+		<div class="book-visual">
+			<img class="book-cover" src="$site.asset('book-cover.png').link()" alt="Cover of Building AI Agent Platforms" width="2100" height="2756">
+		</div>
+		<div class="book-details">
+			<img class="publisher-logo" src="$site.asset('oreilly-logo.svg').link()" alt="O'Reilly">
+			<p class="eyebrow">Available now in early release</p>
+			<h1 :text="$page.title"></h1>
+			<p class="book-subtitle">Tools and Tactics to Scale AI Applications Across the Enterprise</p>
+			<p class="book-authors">By Ben O’Mahony and Fabian Nonnenmacher</p>
+			<p>Building a single AI-powered application is relatively simple. Creating a platform that lets many teams build, deploy, and operate agents securely and reliably is the harder and more valuable problem.</p>
+			<p>This book is a practical roadmap through that entire lifecycle: platform strategy, architecture, model access, runtime, observability, experimentation, governance, and reliability.</p>
+			<a class="button primary external" href="https://learning.oreilly.com/library/view/building-ai-agent/0642572243906/" target="_blank" rel="noreferrer">Read on O’Reilly <span aria-hidden="true">↗</span></a>
+		</div>
+	</section>
+
+	<section class="book-topics">
+		<div class="section-heading">
+			<p class="eyebrow">Inside the book</p>
+			<h2>From first capability to production platform.</h2>
+		</div>
+		<div class="topic-grid">
+			<div><span>01</span><h3>Strategy</h3><p>Choose the capabilities worth investing in and build a platform teams actually want to use.</p></div>
+			<div><span>02</span><h3>Architecture</h3><p>Design model access, runtimes, orchestration, and developer workflows for scale.</p></div>
+			<div><span>03</span><h3>Evaluation</h3><p>Measure agent quality, learn from production signals, and improve through experimentation.</p></div>
+			<div><span>04</span><h3>Reliability</h3><p>Build in observability, security, guardrails, and operational discipline from the start.</p></div>
+		</div>
+	</section>
+</main>
