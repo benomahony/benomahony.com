@@ -30,6 +30,7 @@
 				<a href="$site.page('book').link()">Book</a>
 				<a href="$site.page('courses').link()">Courses</a>
 				<a href="$site.page('podcasts').link()">Podcasts</a>
+				<a href="$site.page('talks').link()">Talks</a>
 				<a href="$site.page('blog').link()">Blog</a>
 			</nav>
 		</header>
