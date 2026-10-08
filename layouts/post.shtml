@@ -5,24 +5,30 @@
 </head>
 
 <main id="main">
-	<article>
-		<header class="article-header">
-			<p class="eyebrow"><a href="$site.page('blog').link()">Blog</a></p>
-			<h1 :text="$page.title"></h1>
-			<p class="article-meta">
-				<time :text="$page.date.format('2 January 2006')"></time>
-				<span aria-hidden="true"> · </span>
-				<span :text="$page.authors.join(', ')"></span>
-			</p>
-		</header>
-		<div class="prose" :html="$page.content()"></div>
-	</article>
+	<div class="post-layout">
+		<article>
+			<header class="article-header">
+				<p class="eyebrow"><a href="$site.page('blog').link()">Blog</a></p>
+				<h1 :text="$page.title"></h1>
+				<p class="article-meta">
+					<time :text="$page.date.format('2 January 2006')"></time>
+					<span aria-hidden="true"> · </span>
+					<span :text="$page.authors.join(', ')"></span>
+				</p>
+			</header>
+			<div class="prose" :html="$page.content()"></div>
+		</article>
+		<aside class="article-toc">
+			<p class="article-toc-title">On this page</p>
+			<nav aria-label="Table of contents" :html="$page.toc()"></nav>
+		</aside>
+	</div>
 	<nav class="post-navigation" aria-label="Post navigation">
 		<ctx :if="$page.prevPage?()">
-			<a href="$if.link()">← <span :text="$if.title"></span></a>
+			<a href="$if.custom.getOr('external_url', $if.link())">← <span :text="$if.title"></span></a>
 		</ctx>
 		<ctx :if="$page.nextPage?()">
-			<a href="$if.link()"><span :text="$if.title"></span> →</a>
+			<a href="$if.custom.getOr('external_url', $if.link())"><span :text="$if.title"></span> →</a>
 		</ctx>
 	</nav>
 </main>

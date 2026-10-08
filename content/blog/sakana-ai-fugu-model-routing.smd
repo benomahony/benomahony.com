@@ -1,0 +1,13 @@
+---
+.title = "Sakana AI's Fugu: Is this where model routing should live?",
+.description = "Fugu shows that learned model routing can work, but application teams need routing they can control, observe and evaluate.",
+.date = .date("2026-07-23T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.layout = "external.shtml",
+.custom = .{
+    .external_url = "https://www.thoughtworks.com/insights/blog/generative-ai/sakana-ai-fugu-is-this-where-model-routing-should-live",
+    .publication = "Thoughtworks",
+},
+---
+
+This article is published on Thoughtworks Insights.

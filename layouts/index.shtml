@@ -65,8 +65,14 @@
 			<div class="home-post-grid">
 				<ctx :loop="$ctx.blog.subpages()">
 					<article>
-						<time :text="$loop.it.date.format('2 January 2006')"></time>
-						<h3><a href="$loop.it.link()" :text="$loop.it.title"></a></h3>
+						<div class="post-list-meta">
+							<time :text="$loop.it.date.format('2 January 2006')"></time>
+							<ctx :if="$loop.it.custom.get?('publication')">
+								<span aria-hidden="true">·</span>
+								<span class="post-publication"><span :text="$if"></span> <span aria-hidden="true">↗</span></span>
+							</ctx>
+						</div>
+						<h3><a href="$loop.it.custom.getOr('external_url', $loop.it.link())" :text="$loop.it.title"></a></h3>
 						<p :text="$loop.it.description"></p>
 					</article>
 				</ctx>

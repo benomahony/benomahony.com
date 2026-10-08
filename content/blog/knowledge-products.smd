@@ -20,7 +20,7 @@ We know how to make a dataset consumable, so the question is: what is the equiva
 
 **A knowledge product is an owned, governed and versioned body of knowledge that people, systems and agents can safely ground decisions in.**
 
-# Three products, one hotel
+# [Three products, one hotel]($heading.id('three-products-one-hotel'))
 
 Picture the systems for running a hotel.
 
@@ -32,7 +32,7 @@ The knowledge product tells that same revenue manager why. Taylor Swift is playi
 
 The concert could be modelled as data eventually, but in most organisations it first appears as unstructured context: a press release, an events calendar, a news feed, a note from sales. None of that belongs in the product raw. It enters when the owner has verified it, or when enough independent authoritative sources agree that confidence is earned rather than assumed. That act of curation is the work and added value of the knowledge product, and it is what lets the revenue manager, or an agent acting for them, trust the answer rather than hope about it.
 
-# The missing twin of the data product
+# [The missing twin of the data product]($heading.id('missing-twin-of-the-data-product'))
 
 Start from the structured side, because it is settled. A data product is what you get when a team treats a dataset the way a product team treats a product. Dehghani made this one of the founding principles of data mesh and called the data product the unit the whole architecture is built from. It has an owner, a published interface, documented quality, and consumers it is accountable to. DJ Patil framed the idea earlier still. The point has been understood for years. A dataset becomes useful at scale when somebody owns it and promises something about it.
 
@@ -55,7 +55,7 @@ We can apply the same proven design principles from the data product world to kn
 
 By baking these principles into the product specification, we move beyond simple file storage to a governed asset that agents and systems can reliably depend on.
 
-# What a knowledge product is not
+# [What a knowledge product is not]($heading.id('what-a-knowledge-product-is-not'))
 
 A knowledge product is not merely a knowledge base, although this is where the journey often starts. A knowledge base is storage. It will hold a decade of decayed wiki pages and tell you nothing about which are still true, which are authoritative, or who is accountable for their quality. Making that knowledge base useful and reusable is what sets it on the path to becoming a knowledge product. It needs an owner, a contract, metadata, freshness expectations and a way to act when the agent gets the wrong context at the wrong moment. Storage rots in silence. A product has someone whose job is to notice.
 
@@ -63,7 +63,7 @@ A knowledge product is not a single-use vector store. Standing one up does its o
 
 Nor is a knowledge product sealed off from the structured side. The relationship runs both ways. Classify a stream of customer comments into positive and negative and what was a knowledge product is now feeding a data product. The two product types are twins in discipline, not strangers in practice. They feed each other constantly, and a mature estate is the one that has made that exchange deliberate instead of accidental.
 
-# What a knowledge product can be
+# [What a knowledge product can be]($heading.id('what-a-knowledge-product-can-be'))
 
 Knowledge products are not a single thing. They range from document collections to formal models of meaning, and a mature estate will usually run several at once.
 
@@ -74,7 +74,7 @@ Knowledge products are not a single thing. They range from document collections 
 - **A knowledge graph.** Entities, typed relationships and a way to ask about both. This is where structured and unstructured knowledge join. Entity resolution alone often earns its keep before any full ontology does.
 - **A domain AI model.** A fine-tuned model, classifier, reranker, extraction model or specialist agent can embody knowledge about how to classify cases, recognise risk or apply policy. If other systems depend on that behaviour, it needs ownership, versioning, evaluation, scope and a retirement path.
 
-# The retrieval contract
+# [The retrieval contract]($heading.id('retrieval-contract'))
 
 For structured data the contract is the semantic layer, the thing that fixes what revenue means so an agent chooses a definition rather than guessing one from column names. For unstructured knowledge the equivalent is the retrieval contract. Retrieval is approximate by its nature. The contract is what makes it precise about which source, which version, and as of when.
 
@@ -90,7 +90,7 @@ A retrieval contract sets out:
 
 Encode it and enforce it and the heap becomes a governed product. Leave it implicit and you have storage with a vector index bolted on.
 
-# Ownership and governance
+# [Ownership and governance]($heading.id('ownership-and-governance'))
 
 Most governance for a knowledge product belongs with the product. The platform can provide tooling centrally, but the decisions have to be made locally: which sources are authoritative, who may use them, how freshness is defined, and what happens when the product fails.
 
@@ -100,13 +100,13 @@ The second is authority. The product must know which version of a thing is curre
 
 The third is lineage. Every answer should trace to the source, version, timestamp and retrieval that produced it, so the product can tell whether the agent is grounded in something current or something overdue for review. A knowledge product is not fixed once it is built. The policy behind a refund changes, the chemical lookup gets a new entry, the taxonomy picks up a node it did not have last quarter. Each change has a downstream impact on whatever was grounded in the old version, just as a schema change in a data product can break whatever queried it. A mature knowledge product tracks those dependencies and knows when a change should trigger review elsewhere, not just how to serve the latest version. This is the line between a system you can defend to a regulator and one you can only demo.
 
-# Scoping an agent's dependencies
+# [Scoping an agent's dependencies]($heading.id('scoping-agent-dependencies'))
 
 The range of knowledge products is most useful when it is applied backwards from a use case. Take what an agent is meant to do and ask what it depends on. An anti-money-laundering check on a split payment might need an operational product to confirm the transaction happened, a data product to confirm the threshold, and a knowledge product to confirm the current compliance policy and why it applies. Once a use case is broken down this way, you can audit what already exists against what is needed. Some dependencies will already be products. Some will be a folder no one has touched in two years. The gap between the two is the actual scope of the agent build, and it is a smaller and more honest scope than "connect an agent to everything we have."
 
 This is also how the estate becomes tractable. Instead of connecting an agent to "all company knowledge", you slice the problem into domain-owned knowledge products with clear consumers and explicit links to neighbouring products. Done well, that reduces cognitive load, accelerates reuse and starts to form something like a digital twin of the organisation's working knowledge.
 
-# Why build them
+# [Why build them]($heading.id('why-build-them'))
 
 The argument for building knowledge products, rather than creating a generic assistant pointed at your files, is trust. This is an engineered property of the knowledge product. If the sources behind an answer are owned, curated, versioned and fresh, the user does not have to guess whether the agent found the right page. The product carries that burden. It tells the agent what is authoritative, what is retired, what is overdue for review, and where each answer came from. A knowledge product does not make an agent correct by itself. It makes the evidence current, inspectable and governed; the agent (or human) still has to reason correctly from it.
 
@@ -116,10 +116,10 @@ Like any product, a knowledge product has a lifecycle. It is built, enriched, te
 
 Capture that signal and the estate improves as a by-product of being used. Each interaction leaves the next one a little better off. Organizations that wire up this loop pull steadily away from the ones that treat their knowledge as a static pile, and the gap compounds.
 
-# In short
+# [In short]($heading.id('in-short'))
 
 For AI to do knowledge work, it needs knowledge products: document collections, glossaries, graphs, embedding models and specialist AI models with owners, contracts, permissions, authority, freshness, lineage and evidence of quality. A data product stops an agent inventing the numbers, a knowledge product stops it silently trusting the wrong source. Product thinking is what turns either one from a pile of data into something people and systems can depend on. Customer centricity is what helps you find out what part of the organisation's IP might become a knowledge product.
 
-# Acknowledgements
+# [Acknowledgements]($heading.id('acknowledgements'))
 
 Big thanks to many of my Thoughtworks colleagues for their additions, questions and downright disagreement! Those who have made additions have been added as co-authors, but I would like to mention the following (in no particular order) for their discussions, comments and suggestions: Fabian Nonnenmacher, Moritz Wilke, Danilo Sato, Paola Attadio and Tim Harrison.

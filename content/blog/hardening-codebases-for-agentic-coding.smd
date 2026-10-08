@@ -12,7 +12,7 @@
 
 ---
 
-# Introduction
+# [Introduction]($heading.id('introduction'))
 
 AI coding agents like Claude Code, GitHub Copilot, and Cursor are transforming how we write software. But there's a catch: **not all codebases are ready for agentic development**. Without proper guardrails, AI agents can introduce bugs, violate architecture boundaries, or create unsafe code.
 
@@ -32,11 +32,11 @@ Let's dive into what makes a codebase "agent-ready."
 
 ---
 
-# 1. Type Safety: Teaching Agents Your Data Contracts
+# [1. Type Safety: Teaching Agents Your Data Contracts]($heading.id('type-safety'))
 
 **Why it matters**: AI agents need to understand what data looks like. Without type hints, agents guess, and guesses introduce bugs.
 
-## Pydantic Models as Single Source of Truth
+## [Pydantic Models as Single Source of Truth]($heading.id('pydantic-models'))
 
 Instead of loose dictionaries, use Pydantic models with validation:
 
@@ -67,7 +67,7 @@ class ExtractedConcept(BaseModel):
 - Validators document business rules
 - `Field` constraints prevent out-of-range values
 
-## TypedDict for Structured State
+## [TypedDict for Structured State]($heading.id('typed-dict'))
 
 For data structures that don't need validation logic, use `TypedDict`:
 
@@ -85,7 +85,7 @@ class FileProcessingStatus(TypedDict):
 
 Agents understand the structure, type checkers validate usage, and you avoid the overhead of full models.
 
-## Protocol Classes for Dependency Injection
+## [Protocol Classes for Dependency Injection]($heading.id('protocol-classes'))
 
 Define interfaces with Protocol classes to enable testability without mocks:
 
@@ -107,11 +107,11 @@ Agents can implement new validators without touching existing code. Tests use fa
 
 ---
 
-# 2. Defensive Assertions: NASA-Grade Safety
+# [2. Defensive Assertions: NASA-Grade Safety]($heading.id('defensive-assertions'))
 
 **Why it matters**: AI agents make assumptions. Assertions catch wrong assumptions before they corrupt state.
 
-## NASA05: The Two-Assertion Rule
+## [NASA05: The Two-Assertion Rule]($heading.id('nasa05-two-assertion-rule'))
 
 NASA's Power of 10 rules for safety-critical code require **minimum 2 assertions per function**. This catches:
 
@@ -150,7 +150,7 @@ def add_error(
     self._errors.append(error_dict)
 ```
 
-## What to Assert
+## [What to Assert]($heading.id('what-to-assert'))
 
 **Always assert**:
 
@@ -170,11 +170,11 @@ def add_error(
 
 ---
 
-# 3. Property-Based Fuzzing: NASA/TIGER Style Testing
+# [3. Property-Based Fuzzing: NASA/TIGER Style Testing]($heading.id('property-based-fuzzing'))
 
 **Why it matters**: Example-based tests only cover cases you think of. Property-based testing (fuzzing) generates thousands of random inputs to find edge cases agents might create.
 
-## Hypothesis: Generative Testing for Functions
+## [Hypothesis: Generative Testing for Functions]($heading.id('hypothesis-generative-testing'))
 
 Instead of writing individual test cases, define properties that should always hold:
 
@@ -222,7 +222,7 @@ class TestSafeDivide:
 - Shrinks failing inputs to minimal examples
 - Pairs perfectly with assertions (NASA/TIGER style)
 
-## Multiple Testing Profiles
+## [Multiple Testing Profiles]($heading.id('testing-profiles'))
 
 Configure Hypothesis for different contexts:
 
@@ -250,7 +250,7 @@ settings.load_profile("dev")
 - **debug**: 10 examples with verbose output for investigating failures
 - **fast**: 50 examples, skip slow checks for quick iterations
 
-## Properties to Test
+## [Properties to Test]($heading.id('properties-to-test'))
 
 **Mathematical properties**:
 
@@ -294,11 +294,11 @@ def test_encode_decode_roundtrip(text):
 
 ---
 
-# 4. Comprehensive Testing: Documentation That Runs
+# [4. Comprehensive Testing: Documentation That Runs]($heading.id('comprehensive-testing'))
 
 **Why it matters**: Agents need to understand what code does and be confident their changes don't break things.
 
-## Test Your Documentation Examples
+## [Test Your Documentation Examples]($heading.id('test-documentation-examples'))
 
 Use `pytest-examples` to test code examples in docstrings and markdown:
 
@@ -319,7 +319,7 @@ def test_readme_examples(file_path="README.md"):
 - Agents see working examples
 - Examples serve as integration tests
 
-## Architecture Tests: Enforce Boundaries with Code
+## [Architecture Tests: Enforce Boundaries with Code]($heading.id('architecture-tests'))
 
 Prevent agents from violating architecture rules using executable tests:
 
@@ -429,7 +429,7 @@ pytest -m "not architecture"
 
 **Impact**: Architecture tests caught **~15 boundary violations** during development. Agents can't accidentally create circular dependencies or violate layer rules.
 
-## Test Markers: Speed vs Thoroughness
+## [Test Markers: Speed vs Thoroughness]($heading.id('test-markers'))
 
 Organize tests by speed and scope:
 
@@ -457,11 +457,11 @@ Fast feedback for agents: run unit tests in <1 second, integration tests only in
 
 ---
 
-# 5. Pre-Commit Quality Gates: Fail Fast, Fail Local
+# [5. Pre-Commit Quality Gates: Fail Fast, Fail Local]($heading.id('pre-commit-quality-gates'))
 
 **Why it matters**: Agents generate code fast. Quality gates catch issues before they reach CI or production.
 
-## The Essential Pre-Commit Stack
+## [The Essential Pre-Commit Stack]($heading.id('essential-pre-commit-stack'))
 
 ```yaml
 # .pre-commit-config.yaml
@@ -533,7 +533,7 @@ repos:
         files: ^docs/RUNBOOK\.md$
 ```
 
-## Why Each Hook Matters
+## [Why Each Hook Matters]($heading.id('why-each-hook-matters'))
 
 1. **ruff**: Format and lint in one pass. Agents follow consistent style.
 2. **basedpyright**: Type checking catches type errors before runtime.
@@ -573,11 +573,11 @@ paths = ["myproject"]
 
 ---
 
-# 6. Mock Detection: Enforce Real Implementations
+# [6. Mock Detection: Enforce Real Implementations]($heading.id('mock-detection'))
 
 **Why it matters**: Mocks hide bugs. Tests with mocks pass even when real code is broken. Agents should use real implementations or test doubles.
 
-## mockbuster: Detect and Prevent Mock Usage
+## [mockbuster: Detect and Prevent Mock Usage]($heading.id('mockbuster'))
 
 ```python
 # BAD: Using mocks (will be caught by mockbuster)
@@ -610,7 +610,7 @@ def test_with_real_implementation():
     assert "get_data" in fake_api.calls
 ```
 
-## Allowed Exceptions
+## [Allowed Exceptions]($heading.id('allowed-exceptions'))
 
 Sometimes mocks are necessary (CLI testing, system calls). Use inline comments:
 
@@ -632,11 +632,11 @@ def test_cli_with_system_interaction(monkeypatch):  # mockbuster: ignore - testi
 
 ---
 
-# 7. CLI Quality Assurance: Validate Command Interfaces
+# [7. CLI Quality Assurance: Validate Command Interfaces]($heading.id('cli-quality-assurance'))
 
 **Why it matters**: CLI commands are the interface agents use. Broken help text or missing examples make CLIs unusable for agents.
 
-## cliqa: Automated CLI Validation
+## [cliqa: Automated CLI Validation]($heading.id('cliqa'))
 
 `cliqa` validates that your Typer CLI follows best practices:
 
@@ -701,7 +701,7 @@ def process(
 
 **Impact**: **100% of CLI commands** have examples and documentation. Agents can discover and use commands correctly without guessing.
 
-## CLIs as Agent Debugging Interface
+## [CLIs as Agent Debugging Interface]($heading.id('cli-agent-debugging-interface'))
 
 **Critical insight**: CLIs aren't just for users. They're how agents explore, test, and debug your codebase.
 
@@ -785,11 +785,11 @@ This granularity lets agents isolate issues to specific stages without diving in
 
 ---
 
-# 8. Modular Architecture: Enforced Separation
+# [8. Modular Architecture: Enforced Separation]($heading.id('modular-architecture'))
 
 **Why it matters**: Agents need clear boundaries. Without them, they create spaghetti code.
 
-## Layer Architecture with Enforcement
+## [Layer Architecture with Enforcement]($heading.id('layer-architecture'))
 
 ```
 myproject/
@@ -812,7 +812,7 @@ myproject/
 2. Engines are independent
 3. Architecture tests fail if rules violated
 
-## Dependency Injection for Testability
+## [Dependency Injection for Testability]($heading.id('dependency-injection'))
 
 Make code testable without mocks:
 
@@ -850,15 +850,15 @@ Agents understand interfaces. Tests use real fakes, not mocks.
 
 ---
 
-# 9. Documentation as Code: Contracts and Runbooks
+# [9. Documentation as Code: Contracts and Runbooks]($heading.id('documentation-as-code'))
 
 **Why it matters**: Agents need to understand system contracts. Comments go stale; executable contracts don't.
 
-## Contract Specifications
+## [Contract Specifications]($heading.id('contract-specifications'))
 
 Document input/output structures in versioned files:
 
-```markdown
+````markdown
 # Extraction Input Contract
 
 ## File Structure
@@ -918,8 +918,9 @@ extraction:
 ```
 
 Agents can read contracts and generate conforming code.
+````
 
-## Executable Runbooks
+## [Executable Runbooks]($heading.id('executable-runbooks'))
 
 Write runbooks as executable code:
 
@@ -952,30 +953,34 @@ Test the runbook with `pytest --examples-only docs/RUNBOOK.md`.
 
 ---
 
-# 10. Observability: Rich Logging and Progress
+# [10. Observability: Rich Logging and Progress]($heading.id('observability'))
 
 **Why it matters**: Agents need feedback. Good observability helps agents and humans debug.
 
-## Rich Console Logging
+## [Rich Console Logging]($heading.id('rich-console-logging'))
 
 ```python
 from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from rich.panel import Panel
+from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 
 console = Console()
+
 
 def log_extraction_start(domain: str, file_count: int) -> None:
     """Log extraction start with formatted output."""
     assert domain is not None, "domain must not be None"
     assert file_count > 0, "file_count must be positive"
 
-    console.print(Panel.fit(
-        f"[bold blue]Starting extraction[/bold blue]\n"
-        f"Domain: {domain}\n"
-        f"Files: {file_count}",
-        border_style="blue"
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold blue]Starting extraction[/bold blue]\n"
+            f"Domain: {domain}\n"
+            f"Files: {file_count}",
+            border_style="blue",
+        )
+    )
+
 
 async def process_with_progress(
     files: list[Path],
@@ -1003,7 +1008,7 @@ async def process_with_progress(
     return results
 ```
 
-## Structured Metrics
+## [Structured Metrics]($heading.id('structured-metrics'))
 
 Track metrics for debugging and optimization:
 
@@ -1059,7 +1064,7 @@ class ExtractionMetrics:
 
 ---
 
-# Putting It All Together
+# [Putting It All Together]($heading.id('putting-it-all-together'))
 
 Here's how these 10 techniques work together in a real extraction pipeline:
 
@@ -1134,7 +1139,7 @@ async def process_pipeline(data_path: Path) -> PipelineOutput:
 
 ---
 
-# Measuring Success: Before and After
+# [Measuring Success: Before and After]($heading.id('measuring-success'))
 
 Here's what changed in the Taxonomy-Ontology-Accelerator after implementing these techniques:
 
@@ -1152,31 +1157,31 @@ Here's what changed in the Taxonomy-Ontology-Accelerator after implementing thes
 
 ---
 
-# Getting Started: Your Action Plan
+# [Getting Started: Your Action Plan]($heading.id('getting-started'))
 
 You don't need to implement all 10 techniques at once. Start with the highest-impact changes:
 
-## Week 1: Quick Wins (Critical Foundation)
+## [Week 1: Quick Wins (Critical Foundation)]($heading.id('week-1'))
 
 1. Add **pre-commit hooks** (ruff + basedpyright)
 2. Add **NASA05 assertions** (2+ per function)
 3. Enable **pytest coverage** reporting
 4. Add **mockbuster** to prevent mock usage
 
-## Week 2: Type Safety & Testing
+## [Week 2: Type Safety & Testing]($heading.id('week-2'))
 
 5. Convert config to **Pydantic models**
 2. Add **type hints** to public APIs
 3. Create **Protocol classes** for interfaces
 4. Add **Hypothesis** property-based tests for critical functions
 
-## Week 3: Architecture & Quality Gates
+## [Week 3: Architecture & Quality Gates]($heading.id('week-3'))
 
 9. Add **architecture tests** for layer boundaries
 2. Implement **dependency injection** in main classes
 3. Add **cliqa** for CLI validation
 
-## Week 4: Documentation & Observability
+## [Week 4: Documentation & Observability]($heading.id('week-4'))
 
 12. Write **contract specifications** for inputs/outputs
 2. Add **executable runbook** examples
@@ -1185,7 +1190,7 @@ You don't need to implement all 10 techniques at once. Start with the highest-im
 
 ---
 
-# Conclusion
+# [Conclusion]($heading.id('conclusion'))
 
 Making codebases ready for agentic coding isn't about preventing AI from working with your code. It's about **enabling AI to work safely and effectively**.
 
