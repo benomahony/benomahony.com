@@ -1,0 +1,26 @@
+---
+.title = "Talks",
+.description = "Conference talks and podcast appearances on AI agents, platforms, and the engineering practices behind them.",
+.date = .date("2026-10-08T00:00:00"),
+.layout = "talks.shtml",
+.custom = .{
+    .talks = [
+        .{
+            .title = "Exploring AI agent platforms",
+            .event = "Thoughtworks Technology Podcast",
+            .date = "22 January 2026",
+            .description = "With Fabian Nonnenmacher and host Ken Mugrage: why agent platforms are central to any AI strategy, and the challenges of building and running them.",
+            .url = "https://www.thoughtworks.com/insights/podcasts/technology-podcasts/exploring-ai-agent-platforms",
+            .link_text = "Listen",
+        },
+        .{
+            .title = "From OTEL to SLMs: Distilling Frontier Model Behaviour from Production Telemetry",
+            .event = "QCon AI New York",
+            .date = "17 December 2025",
+            .description = "How production agents already generate training data in their OpenTelemetry traces, and how to distil it into datasets for fine-tuning small language models.",
+            .url = "https://www.infoq.com/presentations/otel-slm-ai/",
+            .link_text = "Watch on InfoQ",
+        },
+    ],
+},
+---

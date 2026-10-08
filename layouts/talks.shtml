@@ -1,0 +1,26 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta property="og:type" content="website">
+</head>
+
+<main id="main">
+	<header class="page-header">
+		<h1 :text="$page.title"></h1>
+		<p class="lede" :text="$page.description"></p>
+	</header>
+	<section class="post-list" aria-label="Talks">
+		<ctx :loop="$page.custom.get('talks')">
+			<article>
+				<div class="post-list-meta">
+					<time :text="$loop.it.get('date')"></time>
+					<span aria-hidden="true">·</span>
+					<span class="post-publication" :text="$loop.it.get('event')"></span>
+				</div>
+				<h2><a href="$loop.it.get('url')" :text="$loop.it.get('title')"></a></h2>
+				<p :text="$loop.it.get('description')"></p>
+				<a class="text-link" href="$loop.it.get('url')"><span :text="$loop.it.get('link_text')"></span> <span aria-hidden="true">↗</span></a>
+			</article>
+		</ctx>
+	</section>
+</main>
