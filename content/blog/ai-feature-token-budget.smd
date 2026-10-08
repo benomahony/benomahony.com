@@ -1,0 +1,13 @@
+---
+.title = "Does every feature we build with AI need a token budget?",
+.description = "Treat AI features as products with explicit build, run and maintenance budgets tied to a hypothesis about their value.",
+.date = .date("2026-06-05T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.layout = "external.shtml",
+.custom = .{
+    .external_url = "https://www.thoughtworks.com/insights/blog/generative-ai/does-every-feature-build-ai-token-budget",
+    .publication = "Thoughtworks",
+},
+---
+
+This article is published on Thoughtworks Insights.

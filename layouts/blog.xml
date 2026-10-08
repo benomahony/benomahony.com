@@ -10,9 +10,9 @@
 			<item>
 				<title :text="$loop.it.title"></title>
 				<description :text="$loop.it.content()"></description>
-				<link :text="$site.host_url.addPath($loop.it.link())"></link>
+				<link :text="$loop.it.custom.getOr('external_url', $site.host_url.addPath($loop.it.link()))"></link>
 				<pubDate :text="$loop.it.date.formatHTTP()"></pubDate>
-				<guid :text="$site.host_url.addPath($loop.it.link())"></guid>
+				<guid :text="$loop.it.custom.getOr('external_url', $site.host_url.addPath($loop.it.link()))"></guid>
 			</item>
 		</ctx>
 	</channel>

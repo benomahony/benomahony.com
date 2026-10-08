@@ -1,0 +1,13 @@
+---
+.title = "Building your own CLI Coding Agent with Pydantic-AI",
+.description = "Build a coding agent from open source tools and tailor it to your own engineering environment and development standards.",
+.date = .date("2025-08-27T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.layout = "external.shtml",
+.custom = .{
+    .external_url = "https://martinfowler.com/articles/build-own-coding-agent.html",
+    .publication = "MartinFowler.com",
+},
+---
+
+This article is published on MartinFowler.com.

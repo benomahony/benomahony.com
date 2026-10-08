@@ -14,7 +14,7 @@ The branch had existed for forty-five minutes.
 
 We started joking that forty-five minutes now counted as a long-lived feature branch.
 
-# The Workshop Structure
+# [The Workshop Structure]($heading.id('workshop-structure'))
 
 We do a lot of workshops with companies looking to build agents and adopt agentic coding. The format is simple but incredibly effective. Day one is about understanding the product and mapping customer value. That gives everyone a shared understanding of the domain, the problems we’re trying to solve and where the product creates value. Days two and three are four short build sprints. We spend ten or fifteen minutes deciding what we’re going to build, two or three hours mobbing with AI, regroup to demo what we had built, then repeat. I’m not certain I’d want to work like this every day, but the amount you can achieve in a few days is astronomical.
 
@@ -22,7 +22,7 @@ This was Sprint two. By this point we’d settled into a comfortable rhythm. We�
 
 The problem came when we decided to switch from the basic agent to the new AWS Strands [bidirectional conversation agent](https://strandsagents.com/docs/user-guide/concepts/bidirectional-streaming/agent/). None of us had used it before, and the change had knock-on effects across much of the codebase. The engineer working on it quite reasonably wanted to use a separate branch while he got it working and could test and deploy it independently.
 
-# The problem
+# [The problem]($heading.id('problem'))
 
 As we continued building, it became more and more obvious that the work we’d split out depended on this refactor landing. It stopped making sense to forge ahead. We were reading the Strands documentation, discussing different approaches, passing ideas to the AI, and the implementation took a couple more attempts than we’d hoped.
 
@@ -30,13 +30,13 @@ We all quickly mobbed on the problem, thrashed out the implementation we felt ha
 
 What surprised me most was that we all agreed that it wasn’t the way. In the past, when I’ve introduced trunk-based development, teams have usually worried about giving up long-lived branches and formal pull-request reviews. Here it was the opposite. Working outside trunk felt slow. The engineers not on the feature branch could feel the loss of productivity almost immediately.
 
-# There were two reasons we could move this quickly.
+# [There were two reasons we could move this quickly.]($heading.id('why-we-could-move-quickly'))
 
 The first is easy to admit: this was a throwaway proof of concept. That certainly helps.
 
 The second matters much more. We had tests running in CI to protect the functionality we’d already built, so we knew we weren’t going to regress the pieces we’d finished. More importantly, we had a shared architecture in our heads before we asked AI to write code. We’d spent time understanding the domain, agreeing the architecture and sketching it out together. One of the most validating moments came after one of the sprints when we pointed [LikeC4](https://likec4.dev/) at the repository. It reconstructed almost exactly the same architecture we’d drawn on the whiteboard before we’d written the implementation.
 
-# My takeaway
+# [My takeaway]($heading.id('takeaway'))
 
 For me, that’s the key point. The shared context in people’s heads did more work than any tooling. AI was filling in an implementation we’d already agreed on, not inventing one. When that shared understanding is missing, AI code generation tends to introduce duplication and unnecessary complexity because everyone is working from a slightly different mental model.
 

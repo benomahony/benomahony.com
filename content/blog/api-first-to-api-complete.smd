@@ -16,7 +16,7 @@ Now consider a different kind of organisational capability: getting a contract r
 
 Nobody ever thought to give this an API because it was not software. It was a human process, and human processes lived outside the API-first world. That was a reasonable boundary in 2015. It is not a reasonable boundary when the consumer of the interface is an AI agent acting on behalf of an employee.
 
-# The agent forces the question
+# [The agent forces the question]($heading.id('agent-forces-the-question'))
 
 When you build a customer-facing API, you can choose which capabilities to expose. You publish endpoints for the things you want external consumers to access and you leave everything else internal. The gaps in the API surface are deliberate. They are a feature.
 
@@ -24,7 +24,7 @@ When you build an AI agent that serves your own employees, the gaps are not a fe
 
 This is the forcing function. API-first was a design philosophy you could adopt incrementally, system by system, as it made sense. An employee-facing AI agent demands the complete surface. It needs to be able to route any employee request to the right place, or at the very least say with confidence that no handler exists yet. It cannot do either of those things if most of the organisation has no interface at all.
 
-# API-complete
+# [API-complete]($heading.id('api-complete'))
 
 I have started using the term API-complete to describe an organisation where every capability, whether it is fulfilled by software, by a human workflow, by an outsourced provider, or by an AI agent, is addressable through a typed interface with a stable contract.
 
@@ -32,7 +32,7 @@ This is not the same as saying everything must be automated. The handler behind 
 
 The analogy I find useful is Turing-completeness. A system is Turing-complete when it can express any computation. An organisation is API-complete when every capability an employee might need is expressible as a typed request with a known route. You can measure the distance between where you are and where that bar sits. That measurement turns out to be extraordinarily valuable.
 
-# What the gap report tells you
+# [What the gap report tells you]($heading.id('what-the-gap-report-tells-you'))
 
 When you define the full surface of what an employee might request, a category of work I think of as the employee intent taxonomy, you can hold the organisation against it and ask a simple question: what percentage of these intents have a registered handler?
 
@@ -40,7 +40,7 @@ An intent without a handler is not a failure of the system. It is the system tel
 
 This gap report is the single most useful artefact an enterprise can produce before spending a penny on AI agents. It tells you where automation is possible today, where process discovery is needed first, and where the organisation has been relying on institutional knowledge that is one resignation away from disappearing.
 
-# The taxonomy is the universal layer
+# [The taxonomy is the universal layer]($heading.id('taxonomy-is-the-universal-layer'))
 
 The interesting property of employee needs is that they are remarkably stable across organisations. Whether you are a bank, a hospital, or a retailer, your employees need to book leave, request equipment, raise grievances, submit expenses, get contracts reviewed, report safety concerns, declare conflicts of interest, and ask how things work. The specifics vary. The categories do not.
 
@@ -50,7 +50,7 @@ The second layer is domain-specific. Legal adopts the standard and extends it: `
 
 This is the same layering pattern we see in successful standards. HTTP defines the universal semantics. Application protocols build on top. Neither layer dictates the other.
 
-# The organisational implementation detail
+# [The organisational implementation detail]($heading.id('organisational-implementation-detail'))
 
 One consequence of this architecture is that the org chart becomes an implementation detail of the protocol rather than a prerequisite for understanding it. An employee does not need to know that contract review is handled by Legal in London and by an outsourced firm in Singapore. They express an intent. The protocol routes it. The routing is configuration, not architecture.
 
@@ -58,7 +58,7 @@ This decoupling is not just convenient. It is essential for organisations that r
 
 Be aware that changing technology is already often difficult. Changing ways of working and how things are done is harder. Evolving an entire organisation and decision making is an even bigger effort.
 
-# The evolution
+# [The evolution]($heading.id('evolution'))
 
 API-first said: define the interface before you write the code. This was good discipline and it improved how we build software systems.
 

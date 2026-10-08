@@ -1,0 +1,24 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta property="og:type" content="article">
+	<meta name="robots" content="noindex, follow">
+	<link rel="canonical" href="$page.custom.get('external_url')">
+</head>
+
+<main id="main">
+	<article>
+		<header class="article-header">
+			<p class="eyebrow"><a href="$site.page('blog').link()">Blog</a></p>
+			<h1 :text="$page.title"></h1>
+			<p class="article-meta">
+				<time :text="$page.date.format('2 January 2006')"></time>
+				<span aria-hidden="true"> · </span>
+				<span :text="$page.authors.join(', ')"></span>
+			</p>
+		</header>
+		<p class="lede" :text="$page.description"></p>
+		<p>Originally published on <strong :text="$page.custom.get('publication')"></strong>.</p>
+		<a class="button primary" href="$page.custom.get('external_url')">Read the article <span aria-hidden="true">↗</span></a>
+	</article>
+</main>
