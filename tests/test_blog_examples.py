@@ -13,7 +13,7 @@ ARTICLE = BLOG_DIR / "hardening-codebases-for-agentic-coding.smd"
 
 def find_supermd_examples(path: Path):
     """Extract examples from SuperMD, which pytest-examples does not recognise yet."""
-    return _extract_code_chunks(path, path.read_text("utf-8"), uuid4())
+    return list(_extract_code_chunks(path, path.read_text("utf-8"), uuid4()))
 
 
 @pytest.mark.examples
