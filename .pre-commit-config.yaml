@@ -15,7 +15,7 @@ repos:
 
       - id: test-blog-examples
         name: test blog examples
-        entry: uv run pytest docs/blog/ --examples-only
+        entry: uv run pytest tests/test_blog_examples.py --examples-only
         language: system
-        files: ^docs/blog/.*\.md$
+        files: ^content/blog/.*\.smd$
         pass_filenames: false

@@ -1,0 +1,6 @@
+---
+.title = "Building AI Agent Platforms",
+.description = "A practical guide to building, deploying, and operating reliable AI agent platforms at scale.",
+.date = .date("2026-10-08T00:00:00"),
+.layout = "book.shtml",
+---

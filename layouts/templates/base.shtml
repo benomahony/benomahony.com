@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en-GB">
+	<head id="head">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="$page.description">
+		<meta name="author" content="Ben O'Mahony">
+		<meta property="og:title" content="$page.title">
+		<meta property="og:description" content="$page.description">
+		<title :text="$page.title"></title>
+		<link rel="stylesheet" href="$site.asset('style.css').link()">
+		<link rel="stylesheet" href="$site.asset('highlight.css').link()">
+		<super>
+	</head>
+	<body id="body">
+		<header class="site-header">
+			<a class="site-name" href="$site.page('').link()">Ben O'Mahony</a>
+			<nav aria-label="Primary navigation">
+				<a href="$site.page('book').link()">Book</a>
+				<a href="$site.page('courses').link()">Courses</a>
+				<a href="$site.page('podcasts').link()">Podcasts</a>
+				<a href="$site.page('blog').link()">Blog</a>
+			</nav>
+		</header>
+		<main id="main">
+			<super>
+		</main>
+		<footer>
+			<p>Copyright © 2026 Ben O'Mahony</p>
+		</footer>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+.zine_version = "0.14.0",
+.supermd = .{
+    .headings_h2 = true,
+    .auto_target_blank = false,
+},
+.site = .simple(.{
+    .title = "Ben O'Mahony",
+    .host_url = "https://benomahony.com",
+    .content_dir_path = "content",
+    .layouts_dir_path = "layouts",
+    .assets_dir_path = "assets",
+    .static_assets = [
+        "CNAME",
+    ],
+}),

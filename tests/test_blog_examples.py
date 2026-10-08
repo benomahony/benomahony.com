@@ -1,16 +1,25 @@
 """Test that all code examples in blog posts are valid and well-formatted."""
 
-import pytest
 from pathlib import Path
-from pytest_examples import CodeExample, EvalExample, find_examples
+from uuid import uuid4
 
-BLOG_DIR = Path(__file__).parent.parent / "docs" / "blog"
+import pytest
+from pytest_examples import CodeExample, EvalExample
+from pytest_examples.find_examples import _extract_code_chunks
+
+BLOG_DIR = Path(__file__).parent.parent / "content" / "blog"
+ARTICLE = BLOG_DIR / "hardening-codebases-for-agentic-coding.smd"
+
+
+def find_supermd_examples(path: Path):
+    """Extract examples from SuperMD, which pytest-examples does not recognise yet."""
+    return _extract_code_chunks(path, path.read_text("utf-8"), uuid4())
 
 
 @pytest.mark.examples
 @pytest.mark.parametrize(
     "example",
-    find_examples(BLOG_DIR / "hardening-codebases-for-agentic-coding.md"),
+    find_supermd_examples(ARTICLE),
     ids=str,
 )
 def test_hardening_codebases_examples(example: CodeExample, eval_example: EvalExample):

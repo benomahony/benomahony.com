@@ -1,0 +1,76 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta property="og:type" content="website">
+</head>
+
+<main id="main" class="home">
+	<section class="hero">
+		<div class="hero-copy">
+			<p class="eyebrow">AI engineering · Writing · Teaching</p>
+			<h1>Building AI systems that work in the real world.</h1>
+			<p class="hero-lede">I’m Ben O’Mahony. I write, teach, and speak about reliable AI systems and the engineering practices that turn promising prototypes into useful, production-ready software.</p>
+			<div class="button-row">
+				<a class="button primary" href="$site.page('book').link()">Explore the book</a>
+				<a class="button secondary" href="$site.page('blog').link()">Read my writing</a>
+			</div>
+		</div>
+		<img class="headshot" src="$site.asset('headshot.jpg').link()" alt="Ben O'Mahony" width="800" height="800">
+	</section>
+
+	<section class="featured-book">
+		<a class="book-cover-link" href="$site.page('book').link()" aria-label="Learn about Building AI Agent Platforms">
+			<img class="book-cover" src="$site.asset('book-cover.png').link()" alt="Cover of Building AI Agent Platforms" width="2100" height="2756" loading="lazy">
+		</a>
+		<div class="featured-book-copy">
+			<img class="publisher-logo" src="$site.asset('oreilly-logo.svg').link()" alt="O'Reilly" loading="lazy">
+			<p class="eyebrow">Early release</p>
+			<h2>Building AI Agent Platforms</h2>
+			<p>A practical roadmap for designing the infrastructure, guardrails, and developer experience teams need to build dependable AI agents at scale.</p>
+			<p class="byline">With Fabian Nonnenmacher</p>
+			<a class="text-link" href="$site.page('book').link()">About the book <span aria-hidden="true">→</span></a>
+		</div>
+	</section>
+
+	<section class="home-offerings">
+		<div class="section-heading">
+			<p class="eyebrow">Learn and listen</p>
+			<h2>Practical ideas, in a few different forms.</h2>
+		</div>
+		<div class="offering-grid">
+			<a class="offering-card" href="$site.page('courses').link()">
+				<span class="card-number">01</span>
+				<h3>Courses</h3>
+				<p>Hands-on O’Reilly sessions on reliable agents and codebases built for agentic development.</p>
+				<span class="text-link">View courses →</span>
+			</a>
+			<a class="offering-card" href="$site.page('podcasts').link()">
+				<span class="card-number">02</span>
+				<h3>Podcasts</h3>
+				<p>Weekly AI news and focused explorations of the models changing how we build software.</p>
+				<span class="text-link">Start listening →</span>
+			</a>
+		</div>
+	</section>
+
+	<ctx blog="$site.page('blog')">
+		<section class="latest-writing">
+			<div class="section-heading section-heading-row">
+				<div>
+					<p class="eyebrow">Latest writing</p>
+					<h2>Notes from the work.</h2>
+				</div>
+				<a class="text-link" href="$ctx.blog.link()">All writing →</a>
+			</div>
+			<div class="home-post-grid">
+				<ctx :loop="$ctx.blog.subpages()">
+					<article>
+						<time :text="$loop.it.date.format('2 January 2006')"></time>
+						<h3><a href="$loop.it.link()" :text="$loop.it.title"></a></h3>
+						<p :text="$loop.it.description"></p>
+					</article>
+				</ctx>
+			</div>
+		</section>
+	</ctx>
+</main>

@@ -1,4 +1,10 @@
-# Hardening Codebases for Agentic Coding: 10 Essential Techniques
+---
+.title = "Hardening Codebases for Agentic Coding: 10 Essential Techniques",
+.description = "Ten practical techniques that make codebases safer and more effective for AI coding agents.",
+.date = .date("2026-02-11T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.layout = "post.shtml",
+---
 
 *How to make your codebase safe and effective for AI agents to work with*
 
@@ -6,13 +12,13 @@
 
 ---
 
-## Introduction
+# Introduction
 
 AI coding agents like Claude Code, GitHub Copilot, and Cursor are transforming how we write software. But there's a catch: **not all codebases are ready for agentic development**. Without proper guardrails, AI agents can introduce bugs, violate architecture boundaries, or create unsafe code.
 
 After building the [Taxonomy-Ontology-Accelerator](https://github.com/thoughtworks/Taxonomy-Ontology-Accelerator), a production system designed from the ground up for agentic coding, I've identified 10 essential techniques that make codebases safe and effective for AI agents to work with.
 
-This isn't theoretical—these are battle-tested patterns from a codebase with:
+This isn't theoretical. These are battle-tested patterns from a codebase with:
 
 - **1,927 defensive assertions** catching impossible conditions (NASA05 compliance)
 - **29,157 lines of test code** across 89 test files
@@ -26,11 +32,11 @@ Let's dive into what makes a codebase "agent-ready."
 
 ---
 
-## 1. Type Safety: Teaching Agents Your Data Contracts
+# 1. Type Safety: Teaching Agents Your Data Contracts
 
-**Why it matters**: AI agents need to understand what data looks like. Without type hints, agents guess—and guesses introduce bugs.
+**Why it matters**: AI agents need to understand what data looks like. Without type hints, agents guess, and guesses introduce bugs.
 
-### Pydantic Models as Single Source of Truth
+## Pydantic Models as Single Source of Truth
 
 Instead of loose dictionaries, use Pydantic models with validation:
 
@@ -61,7 +67,7 @@ class ExtractedConcept(BaseModel):
 - Validators document business rules
 - `Field` constraints prevent out-of-range values
 
-### TypedDict for Structured State
+## TypedDict for Structured State
 
 For data structures that don't need validation logic, use `TypedDict`:
 
@@ -79,7 +85,7 @@ class FileProcessingStatus(TypedDict):
 
 Agents understand the structure, type checkers validate usage, and you avoid the overhead of full models.
 
-### Protocol Classes for Dependency Injection
+## Protocol Classes for Dependency Injection
 
 Define interfaces with Protocol classes to enable testability without mocks:
 
@@ -101,11 +107,11 @@ Agents can implement new validators without touching existing code. Tests use fa
 
 ---
 
-## 2. Defensive Assertions: NASA-Grade Safety
+# 2. Defensive Assertions: NASA-Grade Safety
 
 **Why it matters**: AI agents make assumptions. Assertions catch wrong assumptions before they corrupt state.
 
-### NASA05: The Two-Assertion Rule
+## NASA05: The Two-Assertion Rule
 
 NASA's Power of 10 rules for safety-critical code require **minimum 2 assertions per function**. This catches:
 
@@ -144,7 +150,7 @@ def add_error(
     self._errors.append(error_dict)
 ```
 
-### What to Assert
+## What to Assert
 
 **Always assert**:
 
@@ -160,15 +166,15 @@ def add_error(
 - Expected runtime errors (use try/except)
 - Business logic conditions (use if/else)
 
-**Impact**: The TOA codebase has **1,927 assertions** that have caught hundreds of bugs during development—bugs that would have been silent data corruption without them.
+**Impact**: The TOA codebase has **1,927 assertions** that have caught hundreds of bugs during development. Without them, those bugs would have caused silent data corruption.
 
 ---
 
-## 3. Property-Based Fuzzing: NASA/TIGER Style Testing
+# 3. Property-Based Fuzzing: NASA/TIGER Style Testing
 
 **Why it matters**: Example-based tests only cover cases you think of. Property-based testing (fuzzing) generates thousands of random inputs to find edge cases agents might create.
 
-### Hypothesis: Generative Testing for Functions
+## Hypothesis: Generative Testing for Functions
 
 Instead of writing individual test cases, define properties that should always hold:
 
@@ -216,7 +222,7 @@ class TestSafeDivide:
 - Shrinks failing inputs to minimal examples
 - Pairs perfectly with assertions (NASA/TIGER style)
 
-### Multiple Testing Profiles
+## Multiple Testing Profiles
 
 Configure Hypothesis for different contexts:
 
@@ -244,7 +250,7 @@ settings.load_profile("dev")
 - **debug**: 10 examples with verbose output for investigating failures
 - **fast**: 50 examples, skip slow checks for quick iterations
 
-### Properties to Test
+## Properties to Test
 
 **Mathematical properties**:
 
@@ -288,11 +294,11 @@ def test_encode_decode_roundtrip(text):
 
 ---
 
-## 4. Comprehensive Testing: Documentation That Runs
+# 4. Comprehensive Testing: Documentation That Runs
 
 **Why it matters**: Agents need to understand what code does and be confident their changes don't break things.
 
-### Test Your Documentation Examples
+## Test Your Documentation Examples
 
 Use `pytest-examples` to test code examples in docstrings and markdown:
 
@@ -313,7 +319,7 @@ def test_readme_examples(file_path="README.md"):
 - Agents see working examples
 - Examples serve as integration tests
 
-### Architecture Tests: Enforce Boundaries with Code
+## Architecture Tests: Enforce Boundaries with Code
 
 Prevent agents from violating architecture rules using executable tests:
 
@@ -423,7 +429,7 @@ pytest -m "not architecture"
 
 **Impact**: Architecture tests caught **~15 boundary violations** during development. Agents can't accidentally create circular dependencies or violate layer rules.
 
-### Test Markers: Speed vs Thoroughness
+## Test Markers: Speed vs Thoroughness
 
 Organize tests by speed and scope:
 
@@ -451,11 +457,11 @@ Fast feedback for agents: run unit tests in <1 second, integration tests only in
 
 ---
 
-## 5. Pre-Commit Quality Gates: Fail Fast, Fail Local
+# 5. Pre-Commit Quality Gates: Fail Fast, Fail Local
 
 **Why it matters**: Agents generate code fast. Quality gates catch issues before they reach CI or production.
 
-### The Essential Pre-Commit Stack
+## The Essential Pre-Commit Stack
 
 ```yaml
 # .pre-commit-config.yaml
@@ -527,7 +533,7 @@ repos:
         files: ^docs/RUNBOOK\.md$
 ```
 
-### Why Each Hook Matters
+## Why Each Hook Matters
 
 1. **ruff**: Format and lint in one pass. Agents follow consistent style.
 2. **basedpyright**: Type checking catches type errors before runtime.
@@ -567,11 +573,11 @@ paths = ["myproject"]
 
 ---
 
-## 6. Mock Detection: Enforce Real Implementations
+# 6. Mock Detection: Enforce Real Implementations
 
 **Why it matters**: Mocks hide bugs. Tests with mocks pass even when real code is broken. Agents should use real implementations or test doubles.
 
-### mockbuster: Detect and Prevent Mock Usage
+## mockbuster: Detect and Prevent Mock Usage
 
 ```python
 # BAD: Using mocks (will be caught by mockbuster)
@@ -604,7 +610,7 @@ def test_with_real_implementation():
     assert "get_data" in fake_api.calls
 ```
 
-### Allowed Exceptions
+## Allowed Exceptions
 
 Sometimes mocks are necessary (CLI testing, system calls). Use inline comments:
 
@@ -626,11 +632,11 @@ def test_cli_with_system_interaction(monkeypatch):  # mockbuster: ignore - testi
 
 ---
 
-## 7. CLI Quality Assurance: Validate Command Interfaces
+# 7. CLI Quality Assurance: Validate Command Interfaces
 
 **Why it matters**: CLI commands are the interface agents use. Broken help text or missing examples make CLIs unusable for agents.
 
-### cliqa: Automated CLI Validation
+## cliqa: Automated CLI Validation
 
 `cliqa` validates that your Typer CLI follows best practices:
 
@@ -695,9 +701,9 @@ def process(
 
 **Impact**: **100% of CLI commands** have examples and documentation. Agents can discover and use commands correctly without guessing.
 
-### CLIs as Agent Debugging Interface
+## CLIs as Agent Debugging Interface
 
-**Critical insight**: CLIs aren't just for users—they're how agents explore, test, and debug your codebase.
+**Critical insight**: CLIs aren't just for users. They're how agents explore, test, and debug your codebase.
 
 When an agent encounters an error or needs to understand behavior, they can:
 
@@ -779,11 +785,11 @@ This granularity lets agents isolate issues to specific stages without diving in
 
 ---
 
-## 8. Modular Architecture: Enforced Separation
+# 8. Modular Architecture: Enforced Separation
 
 **Why it matters**: Agents need clear boundaries. Without them, they create spaghetti code.
 
-### Layer Architecture with Enforcement
+## Layer Architecture with Enforcement
 
 ```
 myproject/
@@ -806,7 +812,7 @@ myproject/
 2. Engines are independent
 3. Architecture tests fail if rules violated
 
-### Dependency Injection for Testability
+## Dependency Injection for Testability
 
 Make code testable without mocks:
 
@@ -844,11 +850,11 @@ Agents understand interfaces. Tests use real fakes, not mocks.
 
 ---
 
-## 9. Documentation as Code: Contracts and Runbooks
+# 9. Documentation as Code: Contracts and Runbooks
 
 **Why it matters**: Agents need to understand system contracts. Comments go stale; executable contracts don't.
 
-### Contract Specifications
+## Contract Specifications
 
 Document input/output structures in versioned files:
 
@@ -880,9 +886,9 @@ extraction:
   batch_size: 10                       # Range: 1-100
 ```
 
-## Output Contract
+# Output Contract
 
-### Graph Structure (JSON)
+## Graph Structure (JSON)
 
 ```json
 {
@@ -913,7 +919,7 @@ extraction:
 
 Agents can read contracts and generate conforming code.
 
-### Executable Runbooks
+## Executable Runbooks
 
 Write runbooks as executable code:
 
@@ -946,11 +952,11 @@ Test the runbook with `pytest --examples-only docs/RUNBOOK.md`.
 
 ---
 
-## 10. Observability: Rich Logging and Progress
+# 10. Observability: Rich Logging and Progress
 
 **Why it matters**: Agents need feedback. Good observability helps agents and humans debug.
 
-### Rich Console Logging
+## Rich Console Logging
 
 ```python
 from rich.console import Console
@@ -997,7 +1003,7 @@ async def process_with_progress(
     return results
 ```
 
-### Structured Metrics
+## Structured Metrics
 
 Track metrics for debugging and optimization:
 
@@ -1053,7 +1059,7 @@ class ExtractionMetrics:
 
 ---
 
-## Putting It All Together
+# Putting It All Together
 
 Here's how these 10 techniques work together in a real extraction pipeline:
 
@@ -1128,7 +1134,7 @@ async def process_pipeline(data_path: Path) -> PipelineOutput:
 
 ---
 
-## Measuring Success: Before and After
+# Measuring Success: Before and After
 
 Here's what changed in the Taxonomy-Ontology-Accelerator after implementing these techniques:
 
@@ -1146,31 +1152,31 @@ Here's what changed in the Taxonomy-Ontology-Accelerator after implementing thes
 
 ---
 
-## Getting Started: Your Action Plan
+# Getting Started: Your Action Plan
 
 You don't need to implement all 10 techniques at once. Start with the highest-impact changes:
 
-### Week 1: Quick Wins (Critical Foundation)
+## Week 1: Quick Wins (Critical Foundation)
 
 1. Add **pre-commit hooks** (ruff + basedpyright)
 2. Add **NASA05 assertions** (2+ per function)
 3. Enable **pytest coverage** reporting
 4. Add **mockbuster** to prevent mock usage
 
-### Week 2: Type Safety & Testing
+## Week 2: Type Safety & Testing
 
 5. Convert config to **Pydantic models**
 2. Add **type hints** to public APIs
 3. Create **Protocol classes** for interfaces
 4. Add **Hypothesis** property-based tests for critical functions
 
-### Week 3: Architecture & Quality Gates
+## Week 3: Architecture & Quality Gates
 
 9. Add **architecture tests** for layer boundaries
 2. Implement **dependency injection** in main classes
 3. Add **cliqa** for CLI validation
 
-### Week 4: Documentation & Observability
+## Week 4: Documentation & Observability
 
 12. Write **contract specifications** for inputs/outputs
 2. Add **executable runbook** examples
@@ -1179,9 +1185,9 @@ You don't need to implement all 10 techniques at once. Start with the highest-im
 
 ---
 
-## Conclusion
+# Conclusion
 
-Making codebases ready for agentic coding isn't about preventing AI from working with your code—it's about **enabling AI to work safely and effectively**.
+Making codebases ready for agentic coding isn't about preventing AI from working with your code. It's about **enabling AI to work safely and effectively**.
 
 The 10 techniques described here create a **multi-layered safety net** that catches mistakes before they reach production:
 
@@ -1196,7 +1202,7 @@ The 10 techniques described here create a **multi-layered safety net** that catc
 9. **Documentation as code** stays current
 10. **Observability** enables debugging
 
-These aren't theoretical ideas—they're battle-tested patterns from a production system that AI agents work with daily.
+These aren't theoretical ideas. They're battle-tested patterns from a production system that AI agents work with daily.
 
 **Start small**. Pick one technique, implement it, measure the impact. Then add the next one.
 

@@ -1,0 +1,43 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta property="og:type" content="website">
+</head>
+
+<main id="main" class="collection-page">
+	<header class="collection-hero">
+		<p class="eyebrow">Watch and listen</p>
+		<h1 :text="$page.title"></h1>
+		<p class="hero-lede">Two recurring formats: one keeps pace with the week in AI; the other slows down to understand one model at a time.</p>
+	</header>
+
+	<section class="podcast-grid" aria-label="Podcasts">
+		<article class="podcast-card podcast-card-image">
+			<a href="https://www.youtube.com/show/VLPLcaGw9uXUqE4?sbp=Kgs5dUdSMFA0OHdHY0AB" target="_blank" rel="noreferrer" aria-label="Watch This Week in AI on YouTube">
+				<img class="podcast-art" src="$site.asset('this-week-in-ai.jpg').link()" alt="This Week in AI" width="1200" height="1200">
+			</a>
+			<div class="podcast-copy">
+				<p class="card-kicker">Weekly show</p>
+				<h2>This Week in AI</h2>
+				<p>A weekly live rundown of the most important AI news, filtered through the lens of people who build with this technology every day.</p>
+				<a class="badge-link" href="https://www.youtube.com/show/VLPLcaGw9uXUqE4?sbp=Kgs5dUdSMFA0OHdHY0AB" target="_blank" rel="noreferrer">
+					<img class="youtube-badge youtube-badge-light" src="$site.asset('youtube-black.svg').link()" alt="Available on YouTube">
+					<img class="youtube-badge youtube-badge-dark" src="$site.asset('youtube-white.svg').link()" alt="Available on YouTube">
+				</a>
+			</div>
+		</article>
+
+		<article class="podcast-card podcast-card-oreilly">
+			<div class="podcast-brand-panel">
+				<img class="publisher-logo" src="$site.asset('oreilly-logo.svg').link()" alt="O'Reilly">
+				<span>Inside AI Models</span>
+			</div>
+			<div class="podcast-copy">
+				<p class="card-kicker">Live series</p>
+				<h2>Inside AI Models with Ben O’Mahony</h2>
+				<p>A fast, hands-on look at one model at a time, from SLMs and LLMs to vision, multimodal, speech, audio, embedding, reasoning, and coding models.</p>
+				<a class="button secondary external" href="https://learning.oreilly.com/live-events/inside-ai-models-with-ben-omahony/0642572464646/" target="_blank" rel="noreferrer">View on O’Reilly <span aria-hidden="true">↗</span></a>
+			</div>
+		</article>
+	</section>
+</main>
