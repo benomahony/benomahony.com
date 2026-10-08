@@ -3,7 +3,7 @@
 .description = "How AI-assisted delivery makes shared context and trunk-based development more important, not less.",
 .date = .date("2026-08-13T00:00:00"),
 .authors = ["Ben O'Mahony"],
-.tags = ["agentic-coding", "engineering-practices"],
+.tags = ["agentic-engineering", "engineering-practices"],
 .layout = "post.shtml",
 ---
 
