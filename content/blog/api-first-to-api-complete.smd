@@ -1,0 +1,67 @@
+---
+.title = "From API-First to API-Complete",
+.description = "AI agents need every organisational capability to be addressable through a typed interface with a stable contract.",
+.date = .date("2026-04-07T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.layout = "post.shtml",
+---
+
+API-first has been one of the most successful design philosophies in modern software. The idea is straightforward: define the interface before you build the implementation. Design the contract, agree on the shapes, then write the code behind it. It encourages loose coupling, parallel development, and clean boundaries between systems. Most mature engineering organisations have adopted it in some form, and it has worked well.
+
+But API-first has always had an implicit constraint that we rarely talk about. It only applies to things that are already software.
+
+The billing system got an API. The CRM got an API. The CI pipeline got an API. The authentication layer got an API. These were all systems with code behind them, and the discipline of API-first meant that code was accessed through a well-defined interface rather than through direct integration. Good practice, widely adopted.
+
+Now consider a different kind of organisational capability: getting a contract reviewed by the legal team. In most enterprises, this process exists as a combination of email threads, shared drives, and the institutional knowledge of whoever has been on the team longest. There is no API. There is no interface at all. There is just the knowledge of how things get done, passed from person to person, and varying by office, by region, and by how recently someone joined.
+
+Nobody ever thought to give this an API because it was not software. It was a human process, and human processes lived outside the API-first world. That was a reasonable boundary in 2015. It is not a reasonable boundary when the consumer of the interface is an AI agent acting on behalf of an employee.
+
+# The agent forces the question
+
+When you build a customer-facing API, you can choose which capabilities to expose. You publish endpoints for the things you want external consumers to access and you leave everything else internal. The gaps in the API surface are deliberate. They are a feature.
+
+When you build an AI agent that serves your own employees, the gaps are not a feature. They are the places where the agent says "I cannot help you with that" and the employee goes back to sending emails and hoping for the best. Every organisational capability that lacks a typed interface is invisible to the agent. And an agent that can only see half the organisation is an agent that employees will stop trusting very quickly.
+
+This is the forcing function. API-first was a design philosophy you could adopt incrementally, system by system, as it made sense. An employee-facing AI agent demands the complete surface. It needs to be able to route any employee request to the right place, or at the very least say with confidence that no handler exists yet. It cannot do either of those things if most of the organisation has no interface at all.
+
+# API-complete
+
+I have started using the term API-complete to describe an organisation where every capability, whether it is fulfilled by software, by a human workflow, by an outsourced provider, or by an AI agent, is addressable through a typed interface with a stable contract.
+
+This is not the same as saying everything must be automated. The handler behind the interface might be a Jira ticket that a person triages manually. It might be a SaaS integration. It might be an AI agent that the legal team deployed to handle contract risk classification. The protocol does not care. What matters is that the interface exists, that it has a known shape, and that its presence or absence is a matter of record rather than a matter of folklore.
+
+The analogy I find useful is Turing-completeness. A system is Turing-complete when it can express any computation. An organisation is API-complete when every capability an employee might need is expressible as a typed request with a known route. You can measure the distance between where you are and where that bar sits. That measurement turns out to be extraordinarily valuable.
+
+# What the gap report tells you
+
+When you define the full surface of what an employee might request, a category of work I think of as the employee intent taxonomy, you can hold the organisation against it and ask a simple question: what percentage of these intents have a registered handler?
+
+An intent without a handler is not a failure of the system. It is the system telling you something true about your organisation that was previously invisible. It means "this process exists, it matters to employees, and the organisation currently has no machine-addressable way of fulfilling it." Maybe the process lives in someone's head. Maybe it lives in a wiki page that was last updated in 2019. Maybe it was never documented at all.
+
+This gap report is the single most useful artefact an enterprise can produce before spending a penny on AI agents. It tells you where automation is possible today, where process discovery is needed first, and where the organisation has been relying on institutional knowledge that is one resignation away from disappearing.
+
+# The taxonomy is the universal layer
+
+The interesting property of employee needs is that they are remarkably stable across organisations. Whether you are a bank, a hospital, or a retailer, your employees need to book leave, request equipment, raise grievances, submit expenses, get contracts reviewed, report safety concerns, declare conflicts of interest, and ask how things work. The specifics vary. The categories do not.
+
+This suggests a two-layer architecture. The first layer is a universal taxonomy of employee intents, grouped by the nature of the request: time, money, growth, tools, space, safety, identity, resources, and knowledge. This layer is common across organisations and provides the base vocabulary.
+
+The second layer is domain-specific. Legal adopts the standard and extends it: `RequestContractReview` becomes an intake protocol with risk classification, clause analysis, and escalation paths. Engineering extends it: `RequestInfrastructure` carries provisioning workflows with approval chains and cost controls. Each domain publishes its own extension of the protocol, describing what it offers, what it requires, and what it does not yet handle. The universal layer is the index. The domain layers are the organisation's own.
+
+This is the same layering pattern we see in successful standards. HTTP defines the universal semantics. Application protocols build on top. Neither layer dictates the other.
+
+# The organisational implementation detail
+
+One consequence of this architecture is that the org chart becomes an implementation detail of the protocol rather than a prerequisite for understanding it. An employee does not need to know that contract review is handled by Legal in London and by an outsourced firm in Singapore. They express an intent. The protocol routes it. The routing is configuration, not architecture.
+
+This decoupling is not just convenient. It is essential for organisations that reorganise frequently, which is to say most of them. When the routing is configuration, a reorg means updating a routing table. When the routing is tribal knowledge, a reorg means six months of people not knowing who to ask.
+
+Be aware that changing technology is already often difficult. Changing ways of working and how things are done is harder. Evolving an entire organisation and decision making is an even bigger effort.
+
+# The evolution
+
+API-first said: define the interface before you write the code. This was good discipline and it improved how we build software systems.
+
+API-complete says: every organisational capability gets a typed interface, not just the ones that are already software. The interface exists before the implementation, even if the first implementation is a human being triaging a ticket.
+
+The shift is not merely philosophical. It is forced by a practical reality: AI agents need the full surface to be useful, and employees will not trust an agent that can only navigate half the organisation. The enterprise that reaches API-complete first will have an AI capability that its competitors cannot match, not because its models are better, but because its organisation is legible.
