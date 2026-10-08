@@ -3,4 +3,10 @@
 .description = "Ben O'Mahony writes, teaches, and speaks about building reliable AI systems and the engineering practices behind them.",
 .date = .date("2026-01-01T00:00:00"),
 .layout = "index.shtml",
+.alternatives = [.{
+    .name = "sitemap",
+    .layout = "sitemap.xml",
+    .output = "sitemap.xml",
+    .type = "application/xml",
+}],
 ---

@@ -3,6 +3,7 @@
 .description = "AI agents need every organisational capability to be addressable through a typed interface with a stable contract.",
 .date = .date("2026-04-07T00:00:00"),
 .authors = ["Ben O'Mahony"],
+.tags = ["ai-agents", "ai-platforms"],
 .layout = "post.shtml",
 ---
 

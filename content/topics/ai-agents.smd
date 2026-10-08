@@ -1,0 +1,7 @@
+---
+.title = "AI agents",
+.description = "Writing on designing and building AI agents that do useful work.",
+.date = .date("2026-10-08T00:00:00"),
+.layout = "topic.shtml",
+.custom = .{ .tag = "ai-agents" },
+---
