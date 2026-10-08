@@ -1,7 +1,7 @@
 ---
 .title = "Knowledge Products",
 .description = "If you want AI to do knowledge work, then you need to build knowledge products.",
-.date = .date("2026-10-08T00:00:00"),
+.date = .date("2026-06-22T00:00:00"),
 .authors = ["Ben O'Mahony"],
 .layout = "post.shtml",
 ---
