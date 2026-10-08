@@ -3,6 +3,7 @@
 .description = "Treat AI features as products with explicit build, run and maintenance budgets tied to a hypothesis about their value.",
 .date = .date("2026-06-05T00:00:00"),
 .authors = ["Ben O'Mahony"],
+.tags = ["ai-platforms"],
 .layout = "external.shtml",
 .custom = .{
     .external_url = "https://www.thoughtworks.com/insights/blog/generative-ai/does-every-feature-build-ai-token-budget",

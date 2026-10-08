@@ -7,6 +7,17 @@
 		<meta name="author" content="Ben O'Mahony">
 		<meta property="og:title" content="$page.title">
 		<meta property="og:description" content="$page.description">
+		<meta property="og:url" content="$site.host_url.addPath($page.link())">
+		<meta property="og:site_name" content="Ben O'Mahony">
+		<ctx :if="$page.custom.get?('og_image')">
+			<meta property="og:image" content="$site.host_url.addPath($page.asset($if).link())">
+			<meta name="twitter:card" content="summary_large_image">
+		</ctx>
+		<ctx :if="$page.custom.has('og_image').not()">
+			<meta property="og:image" content="$site.host_url.addPath($site.asset('headshot.jpg').link())">
+			<meta name="twitter:card" content="summary">
+		</ctx>
+		<link rel="icon" href="$site.asset('favicon.svg').link()" type="image/svg+xml">
 		<title :text="$page.title"></title>
 		<link rel="stylesheet" href="$site.asset('style.css').link()">
 		<link rel="stylesheet" href="$site.asset('highlight.css').link()">

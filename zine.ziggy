@@ -11,5 +11,6 @@
     .assets_dir_path = "assets",
     .static_assets = [
         "CNAME",
+        "robots.txt",
     ],
 }),

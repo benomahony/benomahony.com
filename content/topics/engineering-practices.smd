@@ -1,0 +1,7 @@
+---
+.title = "Engineering practices",
+.description = "Writing on delivery practices for teams building with AI.",
+.date = .date("2026-10-08T00:00:00"),
+.layout = "topic.shtml",
+.custom = .{ .tag = "engineering-practices" },
+---

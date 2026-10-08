@@ -3,6 +3,7 @@
 .description = "If you want AI to do knowledge work, then you need to build knowledge products.",
 .date = .date("2026-06-22T00:00:00"),
 .authors = ["Ben O'Mahony"],
+.tags = ["ai-agents", "ai-platforms"],
 .layout = "post.shtml",
 ---
 

@@ -1,0 +1,9 @@
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<ctx :loop="$site.pages()">
+		<ctx :if="$loop.it.custom.has('external_url').not()">
+			<url>
+				<loc :text="$site.host_url.addPath($loop.it.link())"></loc>
+			</url>
+		</ctx>
+	</ctx>
+</urlset>

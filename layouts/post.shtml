@@ -15,6 +15,11 @@
 					<span aria-hidden="true"> · </span>
 					<span :text="$page.authors.join(', ')"></span>
 				</p>
+				<ul class="tag-list" aria-label="Topics">
+					<ctx :loop="$page.tags">
+						<li><a href="$site.page('topics', $loop.it).link()" :text="$site.page('topics', $loop.it).title"></a></li>
+					</ctx>
+				</ul>
 			</header>
 			<div class="prose" :html="$page.content()"></div>
 		</article>

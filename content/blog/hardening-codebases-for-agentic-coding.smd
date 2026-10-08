@@ -3,6 +3,7 @@
 .description = "Ten practical techniques that make codebases safer and more effective for AI coding agents.",
 .date = .date("2026-02-11T00:00:00"),
 .authors = ["Ben O'Mahony"],
+.tags = ["agentic-coding", "engineering-practices"],
 .layout = "post.shtml",
 ---
 
