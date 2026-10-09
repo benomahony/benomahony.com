@@ -1,0 +1,9 @@
+# Link checking for the built site in public/. See .github/workflows/links.yml.
+
+# O'Reilly's library pages return 403 to automated clients but work in browsers.
+exclude = [
+    '^https://learning\.oreilly\.com/library/',
+]
+
+max_retries = 3
+timeout = 20
