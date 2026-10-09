@@ -1,0 +1,7 @@
+---
+.title = "Hardening Codebases for Agentic Coding",
+.description = "Redirecting to O'Reilly.",
+.date = .date("2026-10-09T00:00:00"),
+.layout = "redirect.shtml",
+.custom = .{ .external_url = "https://learning.oreilly.com/live-events/hardening-codebases-for-agentic-coding/0642572387204/" },
+---

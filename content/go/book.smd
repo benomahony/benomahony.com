@@ -1,0 +1,7 @@
+---
+.title = "Building AI Agent Platforms",
+.description = "Redirecting to O'Reilly.",
+.date = .date("2026-10-09T00:00:00"),
+.layout = "redirect.shtml",
+.custom = .{ .external_url = "https://learning.oreilly.com/library/view/building-ai-agent/0642572243906/" },
+---

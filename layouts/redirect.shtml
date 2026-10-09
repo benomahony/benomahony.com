@@ -1,0 +1,11 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta name="robots" content="noindex">
+	<meta http-equiv="refresh" content="$page.custom.get('external_url').prefix('1; url=')">
+	<link rel="canonical" href="$page.custom.get('external_url')">
+</head>
+
+<main id="main">
+	<p>Taking you to <a href="$page.custom.get('external_url')" :text="$page.title"></a> on O’Reilly…</p>
+</main>
