@@ -5,7 +5,7 @@
 .authors = ["Ben O'Mahony"],
 .tags = ["ai-agents", "ai-platforms"],
 .layout = "post.shtml",
-.custom = .{ .related = ["blog/api-first-to-api-complete", "blog/ai-feature-token-budget", "blog/sakana-ai-fugu-model-routing"] },
+.custom = .{ .og_image = "card.png", .related = ["blog/api-first-to-api-complete", "blog/ai-feature-token-budget", "blog/sakana-ai-fugu-model-routing"] },
 ---
 
 *If you want AI to do knowledge work, then you need to build knowledge products.*
