@@ -41,7 +41,7 @@ Spend is trivially instrumented, so it becomes the metric by default. Nobody opt
 
 # [8. Make the implicit explicit]($heading.id('make-the-implicit-explicit'))
 
-Conventions, workarounds and tribal knowledge live in people's heads. An agent can't infer any of it, so it guesses. Write it down (or idelly make it a deterministic check) and the repo becomes somewhere agents can work.
+Conventions, workarounds and tribal knowledge live in people's heads. An agent can't infer any of it, so it guesses. Write it down (or ideally make it a deterministic check) and the repo becomes somewhere agents can work.
 
 # [9. Every failure becomes a ratchet]($heading.id('every-failure-becomes-a-ratchet'))
 

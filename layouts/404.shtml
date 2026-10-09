@@ -1,0 +1,27 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta name="robots" content="noindex">
+</head>
+
+<main id="main" class="home">
+	<header class="page-header">
+		<p class="eyebrow">404</p>
+		<h1>This page doesn’t exist.</h1>
+		<p class="lede">It may have moved, or the link may be mistyped. Try the <a href="$site.page('blog').link()">blog</a>, or start with the book.</p>
+	</header>
+
+	<section class="featured-book">
+		<a class="book-cover-link" href="$site.page('book').link()" aria-label="Learn about Building AI Agent Platforms">
+			<img class="book-cover" src="$site.asset('book-cover.webp').link()" alt="Cover of Building AI Agent Platforms" width="800" height="1050">
+		</a>
+		<div class="featured-book-copy">
+			<img class="publisher-logo" src="$site.asset('oreilly-logo.svg').link()" alt="O'Reilly">
+			<p class="eyebrow">Early release</p>
+			<h2>Building AI Agent Platforms</h2>
+			<p>A practical roadmap for designing the infrastructure, guardrails, and developer experience teams need to build dependable AI agents at scale.</p>
+			<p class="byline">With Fabian Nonnenmacher</p>
+			<a class="button primary" href="$site.page('book').link()">About the book</a>
+		</div>
+	</section>
+</main>

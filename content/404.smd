@@ -1,0 +1,12 @@
+---
+.title = "Page not found",
+.description = "This page doesn't exist, but there's plenty here that does.",
+.date = .date("2026-10-09T00:00:00"),
+.layout = "404.shtml",
+.custom = .{ .noindex = true },
+.alternatives = [.{
+    .name = "github-pages",
+    .layout = "404.shtml",
+    .output = "/404.html",
+}],
+---
