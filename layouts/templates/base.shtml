@@ -41,7 +41,12 @@
 			<super>
 		</main>
 		<footer>
-			<p>Copyright © 2026 Ben O'Mahony</p>
+			<p>© <span :text="$build.generated.format('2006')"></span> Ben O'Mahony</p>
+			<nav class="footer-links" aria-label="Elsewhere">
+				<a href="https://github.com/benomahony">GitHub</a>
+				<a href="https://www.youtube.com/show/VLPLcaGw9uXUqE4?sbp=Kgs5dUdSMFA0OHdHY0AB">YouTube</a>
+				<a href="$site.page('blog').alternative('rss').link()">RSS</a>
+			</nav>
 		</footer>
 	</body>
 </html>
