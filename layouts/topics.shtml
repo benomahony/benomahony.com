@@ -1,0 +1,24 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta property="og:type" content="website">
+</head>
+
+<main id="main">
+	<header class="page-header">
+		<p class="eyebrow"><a href="$site.page('blog').link()">Blog</a></p>
+		<h1 :text="$page.title"></h1>
+		<p class="lede" :text="$page.description"></p>
+	</header>
+	<section class="post-list" aria-label="Topics">
+		<ctx :loop="$page.subpagesAlphabetic()">
+			<article>
+				<div class="post-list-meta">
+					<span :text="$site.page('blog').subpagesByTag($loop.it.custom.get('tag')).len.str().suffix(' articles')"></span>
+				</div>
+				<h2><a href="$loop.it.link()" :text="$loop.it.title"></a></h2>
+				<p :text="$loop.it.description"></p>
+			</article>
+		</ctx>
+	</section>
+</main>
