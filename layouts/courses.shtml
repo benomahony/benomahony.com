@@ -19,7 +19,7 @@
 				<h2>Hardening Codebases for Agentic Coding</h2>
 				<p>Learn how to create executable guardrails that make AI-generated changes easier to review, test, debug, and trust. Topics range from assertions and property-based testing to architecture checks and CI quality gates.</p>
 				<ul class="tag-list"><li>Agentic coding</li><li>Testing</li><li>Architecture</li></ul>
-				<a class="button secondary external" href="https://learning.oreilly.com/live-events/hardening-codebases-for-agentic-coding/0642572387204/" target="_blank" rel="noreferrer">View on O’Reilly <span aria-hidden="true">↗</span></a>
+				<a class="button secondary external" href="$site.page('go/hardening-codebases-course').link()" target="_blank" rel="noreferrer">View on O’Reilly <span aria-hidden="true">↗</span></a>
 			</div>
 		</article>
 
@@ -29,7 +29,7 @@
 				<h2>Eval-Driven Development for Reliable Agents</h2>
 				<p>Build, test, and refine type-safe agents with Pydantic AI. Define measurable success criteria, create evaluation datasets, and use results to systematically improve agent performance.</p>
 				<ul class="tag-list"><li>Pydantic AI</li><li>Evaluations</li><li>Reliability</li></ul>
-				<a class="button secondary external" href="https://learning.oreilly.com/live-events/eval-driven-development-for-reliable-agents/0642572272135/" target="_blank" rel="noreferrer">View on O’Reilly <span aria-hidden="true">↗</span></a>
+				<a class="button secondary external" href="$site.page('go/eval-driven-development-course').link()" target="_blank" rel="noreferrer">View on O’Reilly <span aria-hidden="true">↗</span></a>
 			</div>
 		</article>
 	</section>
