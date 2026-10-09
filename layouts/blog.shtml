@@ -9,6 +9,11 @@
 	<header class="page-header">
 		<h1 :text="$page.title"></h1>
 		<div class="lede" :html="$page.content()"></div>
+		<ul class="tag-list" aria-label="Topics">
+			<ctx :loop="$site.page('topics').subpagesAlphabetic()">
+				<li><a href="$loop.it.link()" :text="$loop.it.title"></a></li>
+			</ctx>
+		</ul>
 	</header>
 	<section class="post-list" aria-label="Posts">
 		<ctx :loop="$page.subpages()">
@@ -22,6 +27,11 @@
 				</div>
 				<h2><a href="$loop.it.custom.getOr('external_url', $loop.it.link())" :text="$loop.it.title"></a></h2>
 				<p :text="$loop.it.description"></p>
+				<ul class="tag-list" aria-label="Topics">
+					<ctx :loop="$loop.it.tags">
+						<li><a href="$site.page('topics', $loop.it).link()" :text="$site.page('topics', $loop.it).title"></a></li>
+					</ctx>
+				</ul>
 			</article>
 		</ctx>
 	</section>

@@ -633,6 +633,10 @@ footer p {
   padding: 0.3rem 0.7rem;
 }
 
+.post-list .tag-list {
+  margin: 0.75rem 0 0;
+}
+
 .tag-list a {
   color: inherit;
   text-decoration: none;
