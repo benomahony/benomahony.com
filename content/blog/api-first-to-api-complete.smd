@@ -5,6 +5,7 @@
 .authors = ["Ben O'Mahony"],
 .tags = ["ai-agents", "ai-platforms"],
 .layout = "post.shtml",
+.custom = .{ .related = ["blog/knowledge-products", "blog/build-your-own-coding-agent", "blog/ai-feature-token-budget"] },
 ---
 
 API-first has been one of the most successful design philosophies in modern software. The idea is straightforward: define the interface before you build the implementation. Design the contract, agree on the shapes, then write the code behind it. It encourages loose coupling, parallel development, and clean boundaries between systems. Most mature engineering organisations have adopted it in some form, and it has worked well.

@@ -5,6 +5,7 @@
 .authors = ["Ben O'Mahony"],
 .tags = ["agentic-engineering"],
 .layout = "post.shtml",
+.custom = .{ .related = ["blog/hardening-codebases-for-agentic-coding", "blog/the-45-min-long-lived-feature-branch", "blog/ai-feature-token-budget"] },
 ---
 
 # [1. Natural language isn't specific enough for specification]($heading.id('natural-language-isnt-specific-enough-for-specification'))
