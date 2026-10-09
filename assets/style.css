@@ -266,6 +266,23 @@ td {
   font-weight: 700;
 }
 
+.footnotes {
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 3rem;
+  max-width: 68ch;
+  padding-top: 1.5rem;
+}
+
+.footnotes li p {
+  display: inline;
+}
+
+.footnote-backref {
+  text-decoration: none;
+}
+
 .related-posts {
   border-top: 1px solid var(--border);
   margin-top: 4rem;

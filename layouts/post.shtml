@@ -22,6 +22,21 @@
 				</ul>
 			</header>
 			<div class="prose" :html="$page.content()"></div>
+			<ctx :if="$page.footnotes?()">
+				<section class="footnotes" aria-labelledby="notes-heading">
+					<h2 id="notes-heading" class="eyebrow">Notes</h2>
+					<ol>
+						<ctx :loop="$if">
+							<li id="$loop.it.def_id">
+								<ctx :html="$loop.it.html()"></ctx>
+								<ctx :loop="$loop.it.ref_ids">
+									<a class="footnote-backref" href="$loop.it.prefix('#')" aria-label="Back to text">↩</a>
+								</ctx>
+							</li>
+						</ctx>
+					</ol>
+				</section>
+			</ctx>
 		</article>
 		<aside class="article-toc">
 			<p class="article-toc-title">On this page</p>
