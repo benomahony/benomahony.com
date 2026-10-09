@@ -18,7 +18,7 @@
 
 AI coding agents like Claude Code, GitHub Copilot, and Cursor are transforming how we write software. But there's a catch: **not all codebases are ready for agentic development**. Without proper guardrails, AI agents can introduce bugs, violate architecture boundaries, or create unsafe code.
 
-After building the [Taxonomy-Ontology-Accelerator](https://github.com/thoughtworks/Taxonomy-Ontology-Accelerator), a production system designed from the ground up for agentic coding, I've identified 10 essential techniques that make codebases safe and effective for AI agents to work with.
+After building the Taxonomy-Ontology-Accelerator, a production system designed from the ground up for agentic coding, I've identified 10 essential techniques that make codebases safe and effective for AI agents to work with.
 
 This isn't theoretical. These are battle-tested patterns from a codebase with:
 

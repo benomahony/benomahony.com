@@ -8,7 +8,7 @@
 .custom = .{ .og_image = "card.png", .related = ["blog/hardening-codebases-for-agentic-coding", "blog/the-45-min-long-lived-feature-branch", "blog/ai-feature-token-budget"] },
 ---
 
-These are the rules I keep coming back to when building software with AI agents. Most of them aren't about the agent at all. They're about the system around it, and the judgement you still need to own.
+These are the rules I keep coming back to when building software with AI agents. Most of them aren't about the coding agent at all. They're about the system around it, and the judgement you still need to own.
 
 # [1. Natural language isn't specific enough for specification]($heading.id('natural-language-isnt-specific-enough-for-specification'))
 
