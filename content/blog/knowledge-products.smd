@@ -36,7 +36,7 @@ The concert could be modelled as data eventually, but in most organisations it f
 
 # [The missing twin of the data product]($heading.id('missing-twin-of-the-data-product'))
 
-Start from the structured side, because it is settled. A data product is what you get when a team treats a dataset the way a product team treats a product. Dehghani made this one of the founding principles of data mesh and called the data product the unit the whole architecture is built from. It has an owner, a published interface, documented quality, and consumers it is accountable to. DJ Patil framed the idea earlier still. The point has been understood for years. A dataset becomes useful at scale when somebody owns it and promises something about it.
+Start from the structured side, because it is settled. A data product is what you get when a team treats a dataset the way a product team treats a product. Dehghani made this one of the founding principles of data mesh and called the data product the unit the whole architecture is built from.[^dehghani] It has an owner, a published interface, documented quality, and consumers it is accountable to. DJ Patil framed the idea earlier still.[^patil] The point has been understood for years. A dataset becomes useful at scale when somebody owns it and promises something about it.
 
 A knowledge product is the same move applied to the messy half of the estate. Take a body of unstructured knowledge, give it an owner, wrap it in a contract, set a service level objective, and guarantee where every answer came from and how much we can trust that source. What was a folder of documents becomes something an agent can ground in and a person can trust.
 
@@ -125,3 +125,7 @@ For AI to do knowledge work, it needs knowledge products: document collections, 
 # [Acknowledgements]($heading.id('acknowledgements'))
 
 Big thanks to many of my Thoughtworks colleagues for their additions, questions and downright disagreement! Those who have made additions have been added as co-authors, but I would like to mention the following (in no particular order) for their discussions, comments and suggestions: Fabian Nonnenmacher, Moritz Wilke, Danilo Sato, Paola Attadio and Tim Harrison.
+
+[^dehghani]: Zhamak Dehghani, [How to Move Beyond a Monolithic Data Lake to a Distributed Data Mesh](https://martinfowler.com/articles/data-monolith-to-mesh.html) (2019) and [Data Mesh Principles and Logical Architecture](https://martinfowler.com/articles/data-mesh-principles.html) (2020), MartinFowler.com.
+
+[^patil]: DJ Patil, [Data Jujitsu: The Art of Turning Data into Product](https://www.oreilly.com/content/data-jujitsu-the-art-of-turning-data-into-product/), O’Reilly, 2012.
