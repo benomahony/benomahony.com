@@ -5,7 +5,7 @@
 .authors = ["Ben O'Mahony"],
 .tags = ["agentic-engineering", "engineering-practices"],
 .layout = "post.shtml",
-.custom = .{ .related = ["blog/my-10-rules-for-agentic-engineering", "blog/hardening-codebases-for-agentic-coding", "blog/build-your-own-coding-agent"] },
+.custom = .{ .og_image = "card.png", .related = ["blog/my-10-rules-for-agentic-engineering", "blog/hardening-codebases-for-agentic-coding", "blog/build-your-own-coding-agent"] },
 ---
 
 We were mobbing with AI in the middle of a workshop when we hit an unexpected problem. One of us had started work on a slightly larger refactor and had branched off from our normal trunk-based workflow. It was a perfectly reasonable decision, but suddenly the rest of the room slowed to a crawl. Half of us were orbiting that feature branch instead of shipping.
