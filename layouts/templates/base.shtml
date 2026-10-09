@@ -21,6 +21,9 @@
 		<title :text="$page.title"></title>
 		<link rel="stylesheet" href="$site.asset('style.css').link()">
 		<link rel="stylesheet" href="$site.asset('highlight.css').link()">
+		<ctx :if="$build.development.not()">
+			<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "988f677f6e2648de97706e912e4dc396"}'></script>
+		</ctx>
 		<super>
 	</head>
 	<body id="body">
