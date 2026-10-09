@@ -1,12 +1,14 @@
 ---
 .title = "My Ten Rules of Agentic Engineering",
-.description = "Ten rules for engineering with AI agents.",
+.description = "Ten rules for building software with AI agents. Most are about the system around the agent, not the agent itself.",
 .date = .date("2026-10-08T00:00:00"),
 .authors = ["Ben O'Mahony"],
 .tags = ["agentic-engineering"],
 .layout = "post.shtml",
 .custom = .{ .og_image = "card.png", .related = ["blog/hardening-codebases-for-agentic-coding", "blog/the-45-min-long-lived-feature-branch", "blog/ai-feature-token-budget"] },
 ---
+
+These are the rules I keep coming back to when building software with AI agents. Most of them aren't about the agent at all. They're about the system around it, and the judgement you still need to own.
 
 # [1. Natural language isn't specific enough for specification]($heading.id('natural-language-isnt-specific-enough-for-specification'))
 
