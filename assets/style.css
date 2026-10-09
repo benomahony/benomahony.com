@@ -266,16 +266,14 @@ td {
   font-weight: 700;
 }
 
-.post-navigation {
+.related-posts {
   border-top: 1px solid var(--border);
-  justify-content: space-between;
   margin-top: 4rem;
-  padding-top: 1.5rem;
+  padding-top: 2rem;
 }
 
-.post-navigation a:last-child {
-  margin-left: auto;
-  text-align: right;
+.related-posts .home-post-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 footer {
@@ -749,6 +747,10 @@ footer p {
 
   .post-layout {
     display: block;
+  }
+
+  .related-posts .home-post-grid {
+    grid-template-columns: 1fr;
   }
 
   .article-toc {

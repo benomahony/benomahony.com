@@ -5,6 +5,7 @@
 .authors = ["Ben O'Mahony"],
 .tags = ["agentic-engineering", "engineering-practices"],
 .layout = "post.shtml",
+.custom = .{ .related = ["blog/my-10-rules-for-agentic-engineering", "blog/the-45-min-long-lived-feature-branch", "blog/build-your-own-coding-agent"] },
 ---
 
 *How to make your codebase safe and effective for AI agents to work with*

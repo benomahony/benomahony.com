@@ -28,12 +28,26 @@
 			<nav aria-label="Table of contents" :html="$page.toc()"></nav>
 		</aside>
 	</div>
-	<nav class="post-navigation" aria-label="Post navigation">
-		<ctx :if="$page.prevPage?()">
-			<a href="$if.custom.getOr('external_url', $if.link())">← <span :text="$if.title"></span></a>
-		</ctx>
-		<ctx :if="$page.nextPage?()">
-			<a href="$if.custom.getOr('external_url', $if.link())"><span :text="$if.title"></span> →</a>
-		</ctx>
-	</nav>
+	<ctx :if="$page.custom.get?('related')">
+		<section class="related-posts" aria-labelledby="related-heading">
+			<h2 id="related-heading" class="eyebrow">Read next</h2>
+			<div class="home-post-grid">
+				<ctx :loop="$if">
+					<ctx post="$site.page($loop.it)">
+						<article>
+							<div class="post-list-meta">
+								<time :text="$ctx.post.date.format('2 January 2006')"></time>
+								<ctx :if="$ctx.post.custom.get?('publication')">
+									<span aria-hidden="true">·</span>
+									<span class="post-publication"><span :text="$if"></span> <span aria-hidden="true">↗</span></span>
+								</ctx>
+							</div>
+							<h3><a href="$ctx.post.custom.getOr('external_url', $ctx.post.link())" :text="$ctx.post.title"></a></h3>
+							<p :text="$ctx.post.description"></p>
+						</article>
+					</ctx>
+				</ctx>
+			</div>
+		</section>
+	</ctx>
 </main>
