@@ -14,7 +14,7 @@
 	<section class="podcast-grid" aria-label="Podcasts">
 		<article class="podcast-card podcast-card-image">
 			<a href="https://www.youtube.com/show/VLPLcaGw9uXUqE4?sbp=Kgs5dUdSMFA0OHdHY0AB" target="_blank" rel="noreferrer" aria-label="Watch This Week in AI on YouTube">
-				<img class="podcast-art" src="$site.asset('this-week-in-ai.jpg').link()" alt="This Week in AI" width="1200" height="1200">
+				<img class="podcast-art" src="$site.asset('this-week-in-ai.webp').link()" alt="This Week in AI" width="800" height="800">
 			</a>
 			<div class="podcast-copy">
 				<p class="card-kicker">Weekly show</p>

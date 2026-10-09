@@ -7,7 +7,7 @@
 <main id="main" class="book-page">
 	<section class="book-hero">
 		<div class="book-visual">
-			<img class="book-cover" src="$site.asset('book-cover.png').link()" alt="Cover of Building AI Agent Platforms" width="2100" height="2756">
+			<img class="book-cover" src="$site.asset('book-cover.webp').link()" alt="Cover of Building AI Agent Platforms" width="800" height="1050">
 		</div>
 		<div class="book-details">
 			<img class="publisher-logo" src="$site.asset('oreilly-logo.svg').link()" alt="O'Reilly">

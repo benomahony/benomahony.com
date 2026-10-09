@@ -20,7 +20,7 @@
 
 	<section class="featured-book">
 		<a class="book-cover-link" href="$site.page('book').link()" aria-label="Learn about Building AI Agent Platforms">
-			<img class="book-cover" src="$site.asset('book-cover.png').link()" alt="Cover of Building AI Agent Platforms" width="2100" height="2756" loading="lazy">
+			<img class="book-cover" src="$site.asset('book-cover.webp').link()" alt="Cover of Building AI Agent Platforms" width="800" height="1050" loading="lazy">
 		</a>
 		<div class="featured-book-copy">
 			<img class="publisher-logo" src="$site.asset('oreilly-logo.svg').link()" alt="O'Reilly" loading="lazy">
