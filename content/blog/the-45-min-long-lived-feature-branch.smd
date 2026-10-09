@@ -22,7 +22,7 @@ We do a lot of workshops with companies looking to build agents and adopt agenti
 
 This was Sprint two. By this point we’d settled into a comfortable rhythm. We’d whiteboard together, discuss the architecture, occasionally sketching ideas, then work with AI agents to build what we’d agreed. As soon as we were happy, everything went straight to main. We’d split a number of tools and features between us so we could move faster, and trunk-based development was simply working.
 
-The problem came when we decided to switch from the basic agent to the new AWS Strands [bidirectional conversation agent](https://strandsagents.com/docs/user-guide/concepts/bidirectional-streaming/agent/). None of us had used it before, and the change had knock-on effects across much of the codebase. The engineer working on it quite reasonably wanted to use a separate branch while he got it working and could test and deploy it independently.
+The problem came when we decided to switch from the basic agent to the new AWS Strands [bidirectional conversation agent](https://strandsagents.com/docs/user-guide/sdk/bidi/agent/). None of us had used it before, and the change had knock-on effects across much of the codebase. The engineer working on it quite reasonably wanted to use a separate branch while he got it working and could test and deploy it independently.
 
 # [The problem]($heading.id('problem'))
 
