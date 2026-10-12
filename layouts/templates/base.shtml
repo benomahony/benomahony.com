@@ -9,11 +9,11 @@
 		<meta property="og:description" content="$page.description">
 		<meta property="og:url" content="$site.host_url.addPath($page.link())">
 		<meta property="og:site_name" content="Ben O'Mahony">
-		<ctx :if="$page.custom.get?('og_image')">
-			<meta property="og:image" content="$site.host_url.addPath($page.asset($if).link())">
+		<ctx :if="$page.layout.eql('post.shtml')">
+			<meta property="og:image" content="$site.host_url.addPath($site.asset($page.link().basename().prefix('cards/').suffix('.png')).link())">
 			<meta name="twitter:card" content="summary_large_image">
 		</ctx>
-		<ctx :if="$page.custom.has('og_image').not()">
+		<ctx :if="$page.layout.eql('post.shtml').not()">
 			<meta property="og:image" content="$site.host_url.addPath($site.asset('headshot.jpg').link())">
 			<meta name="twitter:card" content="summary">
 		</ctx>

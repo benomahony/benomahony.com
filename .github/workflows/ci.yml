@@ -36,6 +36,8 @@ jobs:
         run: uv run pytest
       - name: Setup Zine
         uses: kristoff-it/setup-zine@v2
+      - name: Generate social cards
+        run: uv run scripts/cards.py
       - name: Build site
         run: zine release
       - uses: actions/configure-pages@v5
