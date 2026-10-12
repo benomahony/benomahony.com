@@ -1,6 +1,9 @@
 # Zine build output
 public/
 
+# Generated social cards (scripts/cards.py)
+assets/cards/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
