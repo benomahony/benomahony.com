@@ -1,16 +1,19 @@
-// Live, in-browser semantic search over posts and podcast audio (spike).
+// Live, in-browser semantic search over posts and video audio (spike).
 //
-// The model only downloads after the visitor opts in. From then on, focusing
-// the box starts it from the browser cache while they type.
+// Typing finds keyword (BM25) matches straight away. Once the visitor opts in,
+// EmbeddingGemma 2 runs on their device and matches by meaning, from typed
+// text or live from the microphone, falling back to keywords when nothing is
+// close. After opting in, focusing the box starts the model from the browser
+// cache.
 
 const root = document.querySelector(".site-search");
 const input = root.querySelector("input");
+const mic = root.querySelector(".site-search-mic");
 const panel = root.querySelector(".site-search-panel");
 const enable = root.querySelector(".site-search-enable");
 const enableButton = enable.querySelector("button");
 const status = root.querySelector(".site-search-status");
 const progress = root.querySelector(".site-search-progress");
-let downloaded = 0;
 const results = root.querySelector(".site-search-results");
 
 const LIMIT = 8;
@@ -21,6 +24,8 @@ const MIN_SCORE = 1.5;
 
 let worker;
 let index;
+let indexing;
+let keywords;
 let ready = false;
 let latest = 0;
 let timer;
@@ -39,9 +44,24 @@ function decodeIndex(raw) {
   return { ...raw, vectors: new Int8Array(bytes.buffer) };
 }
 
+// The index holds the text for keyword search as well as the vectors, so it
+// loads as soon as someone opens search, before they opt in to the model.
+function loadIndex() {
+  indexing ??= fetch(root.dataset.index)
+    .then((response) => response.json())
+    .then((raw) => {
+      index = decodeIndex(raw);
+      keywords = bm25(index.items);
+    });
+  return indexing;
+}
+
+// --- Download progress -----------------------------------------------------
+
 // The small config and tokenizer files finish first, so the combined total
 // only means something once the model weights (well over this size) start.
 const WEIGHTS_STARTED = 50e6;
+let downloaded = 0;
 let speed = 0;
 let lastSample;
 let lastText = 0;
@@ -77,18 +97,25 @@ function showProgress({ loaded, total }) {
   status.textContent = parts.join(" · ");
 }
 
-async function start() {
+function start() {
   if (worker) return;
   status.textContent = "Starting the model…";
   worker = new Worker(root.dataset.worker, { type: "module" });
-  worker.onmessage = ({ data }) => {
+  worker.onmessage = async ({ data }) => {
     if (data.type === "progress") {
       showProgress(data);
     } else if (data.type === "ready") {
+      await loadIndex();
       ready = true;
       progress.hidden = true;
       status.textContent = "";
-      search();
+      // Anything said while the model loaded is searched now.
+      if (voice) {
+        if (!voice.stopped) status.textContent = "Listening…";
+        hear(voice);
+      } else {
+        search();
+      }
     } else if (data.type === "embedding") {
       pending.get(data.id)?.(data.vector);
       pending.delete(data.id);
@@ -96,17 +123,18 @@ async function start() {
       status.textContent = `Search failed to start: ${data.message}`;
     }
   };
-  index = decodeIndex(await (await fetch(root.dataset.index)).json());
   worker.postMessage({ type: "load" });
 }
 
-function embed(query) {
+function embed(message, transfer = []) {
   const id = ++latest;
   return new Promise((resolve) => {
     pending.set(id, (vector) => resolve({ id, vector }));
-    worker.postMessage({ type: "query", id, query });
+    worker.postMessage({ type: "query", id, ...message }, transfer);
   });
 }
+
+// --- Ranking by meaning ----------------------------------------------------
 
 // Episode windows are one minute long and start every HOP seconds
 // (see scripts/search/build-index.js).
@@ -120,7 +148,14 @@ function clock(seconds) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
 }
 
-function rank(query) {
+function videoOf(item) {
+  const [, video, start] = item.url.match(/v=([\w-]+)&t=(\d+)/) ?? [];
+  return { video, start: Number(start) };
+}
+
+// Calibration was measured with typed queries and halves accuracy for spoken
+// ones, so spoken queries rank by plain cosine and skip the noise cut-off.
+function rank(query, { spoken = false } = {}) {
   const { dims, vectors, scales, items } = index;
   // Truncate the query to the index's Matryoshka size and renormalise.
   const head = query.slice(0, dims);
@@ -131,16 +166,16 @@ function rank(query) {
     let dot = 0;
     const offset = i * dims;
     for (let d = 0; d < dims; d++) dot += head[d] * vectors[offset + d];
-    const [, video, start] = item.url.match(/v=([\w-]+)&t=(\d+)/) ?? [];
+    const cosine = (dot * scales[i]) / norm;
     return {
       ...item,
-      video,
-      start: Number(start),
-      score: ((dot * scales[i]) / norm - item.mean) / item.std,
+      ...videoOf(item),
+      score: spoken ? cosine : (cosine - item.mean) / item.std,
     };
   });
 
-  const hits = scored.filter((item) => item.kind === "post" && item.score >= MIN_SCORE);
+  const floor = spoken ? -Infinity : MIN_SCORE;
+  const hits = scored.filter((item) => item.kind === "post" && item.score >= floor);
 
   // For each episode, grow its best window into the run of neighbouring
   // windows that also match, so a result covers the whole stretch of talk.
@@ -150,12 +185,14 @@ function rank(query) {
   );
   for (const windows of episodes.values()) {
     const best = windows.reduce((a, b) => (b.score > a.score ? b : a));
-    if (best.score < MIN_SCORE) continue;
+    if (best.score < floor) continue;
     const byStart = new Map(windows.map((w) => [w.start, w]));
     let from = best.start;
     let to = best.start;
-    while (byStart.get(from - HOP)?.score >= MIN_SCORE) from -= HOP;
-    while (byStart.get(to + HOP)?.score >= MIN_SCORE) to += HOP;
+    if (!spoken) {
+      while (byStart.get(from - HOP)?.score >= MIN_SCORE) from -= HOP;
+      while (byStart.get(to + HOP)?.score >= MIN_SCORE) to += HOP;
+    }
     hits.push({
       ...best,
       start: from,
@@ -167,6 +204,81 @@ function rank(query) {
   return hits.sort((a, b) => b.score - a.score).slice(0, LIMIT);
 }
 
+// --- Keyword ranking (BM25) ------------------------------------------------
+
+// Each post section is a document, as is each video by its title: there are
+// no transcripts, so keywords can't find moments inside a video.
+const STOP = new Set(
+  "a an and are as at be but by for from has have how i in is it its of on or that the this to was what when where which who why will with you your".split(
+    " ",
+  ),
+);
+const K1 = 1.2;
+const B = 0.75;
+
+function tokens(text) {
+  return (text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).filter(
+    (token) => token.length > 1 && !STOP.has(token),
+  );
+}
+
+function bm25(items) {
+  const videos = new Set();
+  const docs = [];
+  for (const item of items) {
+    if (item.kind === "post") {
+      docs.push({ item, terms: tokens(`${item.title} ${item.section ?? ""} ${item.text}`) });
+      continue;
+    }
+    const { video } = videoOf(item);
+    if (videos.has(video)) continue;
+    videos.add(video);
+    docs.push({ item: { ...item, video, start: 0, section: null }, terms: tokens(item.title) });
+  }
+  const df = new Map();
+  for (const doc of docs) {
+    doc.counts = new Map();
+    for (const term of doc.terms) doc.counts.set(term, (doc.counts.get(term) ?? 0) + 1);
+    for (const term of doc.counts.keys()) df.set(term, (df.get(term) ?? 0) + 1);
+  }
+  const avgLength = docs.reduce((sum, doc) => sum + doc.terms.length, 0) / docs.length;
+  return { docs, df, avgLength };
+}
+
+function keywordRank(query) {
+  const { docs, df, avgLength } = keywords;
+  const words = tokens(query);
+  if (!words.length) return [];
+  // While typing, the last word may be unfinished, so it also matches the
+  // longer words it starts.
+  const last = words.at(-1);
+  const terms = words.slice(0, -1).map((word) => [word]);
+  terms.push([...df.keys()].filter((term) => term.startsWith(last)).slice(0, 20));
+
+  const idf = (term) => Math.log(1 + (docs.length - df.get(term) + 0.5) / (df.get(term) + 0.5));
+  return docs
+    .map((doc) => {
+      let score = 0;
+      for (const options of terms) {
+        // Only the best-scoring expansion of each word counts.
+        let best = 0;
+        for (const term of options) {
+          const tf = doc.counts.get(term);
+          if (!tf) continue;
+          const norm = tf + K1 * (1 - B + (B * doc.terms.length) / avgLength);
+          best = Math.max(best, (idf(term) * tf * (K1 + 1)) / norm);
+        }
+        score += best;
+      }
+      return { ...doc.item, score };
+    })
+    .filter((hit) => hit.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, LIMIT);
+}
+
+// --- Results ---------------------------------------------------------------
+
 // Hovering an episode swaps its cover for a muted clip from the matched moment.
 let hoverTimer;
 
@@ -175,7 +287,8 @@ function preview(frame, hit) {
   hoverTimer = setTimeout(() => {
     if (frame.querySelector("iframe")) return;
     const player = document.createElement("iframe");
-    player.src = `https://www.youtube-nocookie.com/embed/${hit.video}?start=${hit.start}&end=${hit.end}&autoplay=1&mute=1&controls=0&playsinline=1&rel=0`;
+    const end = hit.end ? `&end=${hit.end}` : "";
+    player.src = `https://www.youtube-nocookie.com/embed/${hit.video}?start=${hit.start}${end}&autoplay=1&mute=1&controls=0&playsinline=1&rel=0`;
     player.allow = "autoplay; encrypted-media";
     player.title = `${hit.title}, from ${clock(hit.start)}`;
     frame.append(player);
@@ -238,37 +351,177 @@ function render(hits) {
 
 async function search() {
   const query = input.value.trim();
-  if (!ready) return;
+  if (voice && !voice.stopped) return;
   if (!query) {
     results.replaceChildren();
-    status.textContent = "";
+    if (ready) status.textContent = "";
+    return;
+  }
+  await loadIndex();
+  if (!ready) {
+    // Keywords until the model is ready; the status keeps showing its progress.
+    const hits = keywordRank(query);
+    render(hits);
+    if (!worker) status.textContent = hits.length ? "" : "No keyword matches.";
     return;
   }
   const started = performance.now();
-  const { id, vector } = await embed(query);
+  const { id, vector } = await embed({ query });
   if (id !== latest) return; // A newer keystroke has already been sent.
-  const hits = rank(vector);
+  let hits = rank(vector);
+  const fallback = !hits.length;
+  if (fallback) hits = keywordRank(query);
   render(hits);
   const took = Math.round(performance.now() - started);
-  status.textContent = hits.length
-    ? `${index.items.length} passages in ${took} ms`
-    : "Nothing matched strongly. Try different words.";
+  status.textContent = !hits.length
+    ? "Nothing matched. Try different words."
+    : fallback
+      ? "Nothing close in meaning, so these are keyword matches."
+      : `${index.items.length} passages in ${took} ms`;
 }
+
+// --- Live voice search -----------------------------------------------------
+
+// The microphone streams 16 kHz mono into a buffer. While someone talks, what
+// they've said so far is embedded again as soon as the previous embedding
+// returns, so results refine as they speak. A pause ends the search.
+const RATE = 16000;
+const MAX_SAMPLES = 30 * RATE;
+const PRE_ROLL = 0.3 * RATE;
+const MIN_SPEECH = 0.8 * RATE;
+const VOICE_RMS = 0.01;
+const PAUSE_MS = 1500;
+
+const CAPTURE = `registerProcessor("capture", class extends AudioWorkletProcessor {
+  process([input]) {
+    if (input[0]) this.port.postMessage(input[0].slice());
+    return true;
+  }
+});`;
+
+// The latest voice search, still listening until `stopped`.
+let voice;
+
+async function hear(session) {
+  if (!ready || session.busy || !session.speaking) return;
+  if (session.length < MIN_SPEECH || session.received === session.embedded) return;
+  session.busy = true;
+  session.embedded = session.received;
+  const audio = new Float32Array(session.length);
+  let offset = 0;
+  for (const chunk of session.chunks) {
+    audio.set(chunk, offset);
+    offset += chunk.length;
+  }
+  const { id, vector } = await embed({ audio }, [audio.buffer]);
+  session.busy = false;
+  if (id === latest) {
+    render(rank(vector, { spoken: true }));
+    const seconds = (offset / RATE).toFixed(1);
+    status.textContent = session.stopped
+      ? `Closest to what you said (${seconds} s).`
+      : `Listening… ${seconds} s`;
+  }
+  // Catch up on anything said while that ran, including after a pause.
+  if (session === voice) hear(session);
+}
+
+async function listen() {
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+    });
+  } catch {
+    open();
+    status.textContent = "Voice search needs microphone access.";
+    return;
+  }
+  const context = new AudioContext({ sampleRate: RATE });
+  await context.resume();
+  const url = URL.createObjectURL(new Blob([CAPTURE], { type: "text/javascript" }));
+  await context.audioWorklet.addModule(url);
+  URL.revokeObjectURL(url);
+  const node = new AudioWorkletNode(context, "capture");
+  context.createMediaStreamSource(stream).connect(node);
+
+  const session = { stream, context, chunks: [], length: 0, received: 0, embedded: 0 };
+  voice = session;
+  node.port.onmessage = ({ data }) => {
+    if (session.stopped) return;
+    let energy = 0;
+    for (const sample of data) energy += sample * sample;
+    const now = performance.now();
+    if (Math.sqrt(energy / data.length) > VOICE_RMS) {
+      session.speaking = true;
+      session.heardAt = now;
+    }
+    session.chunks.push(data);
+    session.length += data.length;
+    session.received += data.length;
+    // Keep a moment of lead-in before speech, and at most MAX_SAMPLES after.
+    const keep = session.speaking ? MAX_SAMPLES : PRE_ROLL;
+    while (session.length - session.chunks[0].length > keep) {
+      session.length -= session.chunks.shift().length;
+    }
+    if (session.speaking && now - session.heardAt > PAUSE_MS) stopListening();
+    else hear(session);
+  };
+
+  input.value = "";
+  results.replaceChildren();
+  open();
+  mic.setAttribute("aria-pressed", "true");
+  mic.setAttribute("aria-label", "Stop voice search");
+  if (ready) status.textContent = "Listening… ask about anything I've written or said.";
+}
+
+function stopListening() {
+  const session = voice;
+  if (!session || session.stopped) return;
+  session.stopped = true;
+  session.stream.getTracks().forEach((track) => track.stop());
+  session.context.close();
+  mic.setAttribute("aria-pressed", "false");
+  mic.setAttribute("aria-label", "Search by voice");
+  if (!session.speaking) {
+    voice = undefined;
+    status.textContent = "Didn't hear anything. Try again?";
+    return;
+  }
+  // One last pass over everything said. If an embedding is running, it
+  // catches up when it returns; if the model is loading, it runs when ready.
+  hear(session);
+}
+
+// --- Wiring ----------------------------------------------------------------
 
 function open() {
   panel.hidden = false;
   enable.hidden = enabled();
+  loadIndex();
   if (enabled()) start();
+}
+
+function optIn() {
+  try {
+    localStorage.setItem("search-enabled", "1");
+  } catch {}
+  enable.hidden = true;
+  start();
 }
 
 input.addEventListener("focus", open);
 input.addEventListener("input", () => {
+  stopListening();
+  voice = undefined;
   open();
   clearTimeout(timer);
   timer = setTimeout(search, DEBOUNCE_MS);
 });
 input.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    stopListening();
     panel.hidden = true;
     input.blur();
   }
@@ -277,11 +530,15 @@ document.addEventListener("pointerdown", (event) => {
   if (!root.contains(event.target)) panel.hidden = true;
 });
 
+// Voice is the main way in, so the microphone opts in to the model too.
+mic.addEventListener("click", () => {
+  if (voice && !voice.stopped) return stopListening();
+  if (!enabled()) optIn();
+  listen();
+});
+
 enableButton.addEventListener("click", () => {
-  try {
-    localStorage.setItem("search-enabled", "1");
-  } catch {}
-  enable.hidden = true;
-  start();
+  optIn();
   input.focus();
+  search();
 });
