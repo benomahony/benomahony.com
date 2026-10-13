@@ -38,6 +38,7 @@
 				<div class="site-search" role="search" data-index="$site.asset('search-index.json').link()" data-worker="$site.asset('search-worker.js').link()">
 					<div class="site-search-box">
 						<input type="search" placeholder="Search" aria-label="Search posts and videos" aria-controls="site-search-panel" aria-expanded="false" autocomplete="off">
+							<canvas class="site-search-wave" aria-hidden="true" hidden></canvas>
 						<button class="site-search-mic" type="button" aria-label="Search by voice" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
 					</div>
 					<label class="site-search-switch"><input type="checkbox" role="switch" aria-label="AI features" aria-haspopup="dialog" aria-controls="site-search-explain"><span aria-hidden="true">AI</span></label>
