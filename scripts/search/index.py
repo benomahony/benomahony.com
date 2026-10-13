@@ -245,6 +245,10 @@ def transcript(video: str) -> list[dict]:
             path_or_hf_repo=WHISPER,
             # Stops one misheard stretch from turning into a repeating loop.
             condition_on_previous_text=False,
+            # Everything on the channel is in English. Left to guess from the
+            # first 30 s, Whisper once heard an intro as Japanese and wrote
+            # the whole episode in it.
+            language="en",
         )
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(result, default=lambda _: None).replace("NaN", "null"))
@@ -254,6 +258,11 @@ def transcript(video: str) -> list[dict]:
         text = segment["text"].strip()
         if text and not (kept and kept[-1]["text"] == text):
             kept.append({"start": segment["start"], "text": text})
+    # A transcript in the wrong script would quietly end up in snippets and
+    # vectors, so stop instead. Delete the cached transcript to redo it.
+    foreign = sum(bool(re.search(r"[^\x00-ɏ -⁯]", s["text"])) for s in kept)
+    if foreign > len(kept) * 0.02:
+        raise SystemExit(f"{path} has {foreign}/{len(kept)} non-Latin segments; delete it to re-transcribe")
     return kept
 
 
