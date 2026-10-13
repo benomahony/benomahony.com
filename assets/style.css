@@ -1097,6 +1097,15 @@ footer p {
   overflow: hidden;
 }
 
+.site-search-group {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 0.5rem 0.25rem;
+  text-transform: uppercase;
+}
+
 .site-search-snippet mark {
   background: var(--accent-soft);
   border-radius: 0.2em;
