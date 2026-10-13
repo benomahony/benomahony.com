@@ -213,6 +213,20 @@ function clock(seconds) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
 }
 
+// Each episode window stores the transcript of its first HOP seconds (see
+// scripts/search/transcribe.py), so its full minute is its own text plus the
+// next window's.
+function transcriptOf(at) {
+  const { items } = index;
+  const item = items[at];
+  const next = items[at + 1];
+  const follows =
+    next?.kind === "episode" &&
+    videoOf(next).video === videoOf(item).video &&
+    videoOf(next).start === videoOf(item).start + HOP;
+  return follows ? `${item.text} ${next.text}` : item.text;
+}
+
 function videoOf(item) {
   const [, video, start] = item.url.match(/v=([\w-]+)&t=(\d+)/) ?? [];
   return { video, start: Number(start) };
@@ -243,6 +257,7 @@ function rank(query, { spoken = false, smoothed } = {}) {
     return {
       ...item,
       ...videoOf(item),
+      at: i,
       score: spoken ? cosine : (cosine - item.mean) / item.std,
     };
   });
@@ -279,8 +294,8 @@ function rank(query, { spoken = false, smoothed } = {}) {
 
 // --- Keyword ranking (BM25) ------------------------------------------------
 
-// Each post section is a document, as is each video by its title: there are
-// no transcripts, so keywords can't find moments inside a video.
+// Each post section is a document, as is each minute of each video, by its
+// title and transcript, so keywords find the moment something was said.
 const STOP = new Set(
   "a an and are as at be but by for from has have how i in is it its of on or that the this to was what when where which who why will with you your".split(
     " ",
@@ -296,24 +311,23 @@ function tokens(text) {
 }
 
 function bm25(items) {
-  const videos = new Set();
-  const docs = [];
-  for (const item of items) {
+  const docs = items.map((item, at) => {
     if (item.kind === "post") {
-      docs.push({
-        item,
-        terms: tokens(`${item.title} ${item.section ?? ""} ${item.text}`),
-      });
-      continue;
+      return { item, terms: tokens(`${item.title} ${item.section ?? ""} ${item.text}`) };
     }
-    const { video } = videoOf(item);
-    if (videos.has(video)) continue;
-    videos.add(video);
-    docs.push({
-      item: { ...item, video, start: 0, section: null },
-      terms: tokens(item.title),
-    });
-  }
+    const { video, start } = videoOf(item);
+    return {
+      item: {
+        ...item,
+        video,
+        start,
+        at,
+        end: start + WINDOW,
+        section: `${clock(start)} – ${clock(start + WINDOW)}`,
+      },
+      terms: tokens(`${item.title} ${transcriptOf(at)}`),
+    };
+  });
   const df = new Map();
   for (const doc of docs) {
     doc.counts = new Map();
@@ -335,25 +349,72 @@ function keywordRank(query) {
   terms.push([...df.keys()].filter((term) => term.startsWith(last)).slice(0, 20));
 
   const idf = (term) => Math.log(1 + (docs.length - df.get(term) + 0.5) / (df.get(term) + 0.5));
-  return docs
-    .map((doc) => {
-      let score = 0;
-      for (const options of terms) {
-        // Only the best-scoring expansion of each word counts.
-        let best = 0;
-        for (const term of options) {
-          const tf = doc.counts.get(term);
-          if (!tf) continue;
-          const norm = tf + K1 * (1 - B + (B * doc.terms.length) / avgLength);
-          best = Math.max(best, (idf(term) * tf * (K1 + 1)) / norm);
+  return (
+    docs
+      .map((doc) => {
+        let score = 0;
+        for (const options of terms) {
+          // Only the best-scoring expansion of each word counts.
+          let best = 0;
+          for (const term of options) {
+            const tf = doc.counts.get(term);
+            if (!tf) continue;
+            const norm = tf + K1 * (1 - B + (B * doc.terms.length) / avgLength);
+            best = Math.max(best, (idf(term) * tf * (K1 + 1)) / norm);
+          }
+          score += best;
         }
-        score += best;
-      }
-      return { ...doc.item, score };
-    })
-    .filter((hit) => hit.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, LIMIT);
+        return { ...doc.item, score };
+      })
+      .filter((hit) => hit.score > 0)
+      .sort((a, b) => b.score - a.score)
+      // One result per video: its best-matching minute.
+      .filter(
+        (hit, i, all) =>
+          hit.kind === "post" || all.findIndex((other) => other.video === hit.video) === i,
+      )
+      .slice(0, LIMIT)
+  );
+}
+
+// --- Snippets --------------------------------------------------------------
+
+// The words of a result to show: for typed searches, the stretch around the
+// first word that matches, so it's clear why it matched; otherwise the start.
+const SNIPPET = 220;
+
+function excerpt(text, terms) {
+  const words = [...text.matchAll(/\S+/g)];
+  const matches = (word) => {
+    const lower = word.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+    return terms.some((term) => lower.startsWith(term));
+  };
+  const first = terms.length ? words.findIndex(([word]) => matches(word)) : -1;
+  let from = 0;
+  if (first > 0) {
+    // Start a few words before the match, so it reads in context.
+    from = words[Math.max(0, first - 6)].index;
+  }
+  let to = from + SNIPPET;
+  if (to < text.length) to = text.lastIndexOf(" ", to);
+  const shown = text.slice(from, to > from ? to : from + SNIPPET);
+  const pieces = [];
+  if (from > 0) pieces.push("…");
+  for (const [i, part] of shown.split(/(\s+)/).entries()) {
+    if (i % 2 === 0 && part && matches(part)) {
+      const mark = document.createElement("mark");
+      mark.textContent = part;
+      pieces.push(mark);
+    } else {
+      pieces.push(part);
+    }
+  }
+  if (from + shown.length < text.length) pieces.push("…");
+  return pieces;
+}
+
+function passage(hit) {
+  return hit.kind === "episode" ? transcriptOf(hit.at) : hit.text;
 }
 
 // --- Results ---------------------------------------------------------------
@@ -384,12 +445,16 @@ function stopPreview(frame) {
 let shown = new Map();
 const calm = matchMedia("(prefers-reduced-motion: reduce)");
 
-function render(hits) {
+// `terms` are the typed words to highlight in snippets.
+function render(hits, terms = []) {
   const before = new Map([...shown].map(([key, li]) => [key, li.getBoundingClientRect().top]));
   const next = new Map();
+  const highlight = terms.join(" ");
   for (const hit of hits) {
-    const key = hit.kind === "post" ? hit.url : `${hit.video}@${hit.start}`;
-    next.set(key, shown.get(key) ?? result(hit));
+    const key = hit.kind === "post" ? hit.url : `${hit.video}@${hit.start}@${hit.at}`;
+    const kept = shown.get(key);
+    next.set(key, kept?.dataset.highlight === highlight ? kept : result(hit, terms));
+    next.get(key).dataset.highlight = highlight;
   }
   results.replaceChildren(...next.values());
   shown = next;
@@ -410,7 +475,7 @@ function render(hits) {
   }
 }
 
-function result(hit) {
+function result(hit, terms) {
   const li = document.createElement("li");
   const a = document.createElement("a");
   const text = document.createElement("span");
@@ -425,10 +490,11 @@ function result(hit) {
   title.textContent =
     hit.kind === "episode" ? hit.title.replace(/^This Week in AI \| /i, "") : hit.title;
   text.append(meta, title);
-  if (hit.snippet) {
+  const words = passage(hit);
+  if (words) {
     const snippet = document.createElement("span");
     snippet.className = "site-search-snippet";
-    snippet.textContent = hit.snippet;
+    snippet.append(...excerpt(words, terms));
     text.append(snippet);
   }
   if (hit.kind === "episode") {
@@ -467,7 +533,7 @@ async function search() {
   if (!ready) {
     // Keywords until the model is ready; the status keeps showing its progress.
     const hits = keywordRank(query);
-    render(hits);
+    render(hits, tokens(query));
     if (failed) {
       status.textContent =
         "Search by meaning isn't available on this device, so these are keyword matches.";
@@ -483,7 +549,7 @@ async function search() {
   let hits = rank(vector);
   const fallback = !hits.length;
   if (fallback) hits = keywordRank(query);
-  render(hits);
+  render(hits, tokens(query));
   const took = Math.round(performance.now() - started);
   status.textContent = !hits.length
     ? "Nothing matched. Try different words."
