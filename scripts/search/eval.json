@@ -1,0 +1,286 @@
+{
+ "about": "Retrieval test set for eval.py. Video queries were written from Whisper transcripts of randomly sampled minutes; a hit is a window of the right video starting within 30 s of the sampled moment.",
+ "videos": [
+  {
+   "query": "Stainless generating SDKs and MCP servers from OpenAPI specs",
+   "video": "SZeaVzmoRbU",
+   "start": 690
+  },
+  {
+   "query": "my mental model of the code goes stale when agents change it",
+   "video": "5kEn3_aji_I",
+   "start": 390
+  },
+  {
+   "query": "vendor lock-in with a single AI provider and enterprise contracts",
+   "video": "n48FeyLB-Yw",
+   "start": 480
+  },
+  {
+   "query": "letting Claude Code pick which model to use versus Sakana routing",
+   "video": "X2I_Pz_x3NQ",
+   "start": 4590
+  },
+  {
+   "query": "cognitive surrender doesn't mean AI is bad",
+   "video": "5kEn3_aji_I",
+   "start": 930
+  },
+  {
+   "query": "OpenAI's confusing model names",
+   "video": "4ltBGN3PDJU",
+   "start": 450
+  },
+  {
+   "query": "Birgitta on test theatre when you don't read the tests",
+   "video": "YvdsXmChup0",
+   "start": 1710
+  },
+  {
+   "query": "learning a new programming language by working with an agent",
+   "video": "5u3KD6s6NFk",
+   "start": 1950
+  },
+  {
+   "query": "loops are trivial, build sensors and linters instead",
+   "video": "6U7zPU5Ugrc",
+   "start": 2220
+  },
+  {
+   "query": "dark factories and whether humans add any value",
+   "video": "YvdsXmChup0",
+   "start": 330
+  },
+  {
+   "query": "cheap Chinese models and whether companies will switch to self-hosting them",
+   "video": "vlzJ6EE7Tsc",
+   "start": 570
+  },
+  {
+   "query": "Anthropic quadrupled business adoption while OpenAI stalled",
+   "video": "vzYmxI88uHw",
+   "start": 330
+  },
+  {
+   "query": "evals are just tests for non-deterministic systems",
+   "video": "vlzJ6EE7Tsc",
+   "start": 2340
+  },
+  {
+   "query": "IBM stock dropped after the COBOL mainframe announcement",
+   "video": "4ltBGN3PDJU",
+   "start": 2250
+  },
+  {
+   "query": "AI playing a shooter game deciding whether to aim or move",
+   "video": "8TJAYfrFNfc",
+   "start": 1230
+  },
+  {
+   "query": "coding model pricing and leaderboards",
+   "video": "Ys0B6gkV0CA",
+   "start": 660
+  },
+  {
+   "query": "specifying the interface up front makes generation cheaper and more flexible",
+   "video": "vlzJ6EE7Tsc",
+   "start": 1290
+  },
+  {
+   "query": "using voice mode while driving",
+   "video": "vb7E_ciB3bg",
+   "start": 3240
+  },
+  {
+   "query": "Gemini 3 Pro document understanding compared with Opus 4.5",
+   "video": "AG4Fd4ebuSQ",
+   "start": 510
+  },
+  {
+   "query": "AI power concentrated in a handful of people",
+   "video": "vzYmxI88uHw",
+   "start": 2310
+  },
+  {
+   "query": "35,000 lines and 5,500 tests in ten months, are commit counts meaningful",
+   "video": "BUFl0gMZQP8",
+   "start": 2970
+  },
+  {
+   "query": "platform engineering and developer portals give faster delivery with AI",
+   "video": "8MN-bjxVq6o",
+   "start": 1170
+  },
+  {
+   "query": "teaching systems what to forget and redacting data before storage",
+   "video": "5u3KD6s6NFk",
+   "start": 4440
+  },
+  {
+   "query": "asking Fable to critique a chapter of a novel",
+   "video": "e8tigaTJk1I",
+   "start": 2730
+  },
+  {
+   "query": "Opus and Haiku agents negotiating in Slack channels",
+   "video": "n48FeyLB-Yw",
+   "start": 1740
+  },
+  {
+   "query": "Rust has more production code examples for training",
+   "video": "SZeaVzmoRbU",
+   "start": 1890
+  },
+  {
+   "query": "is AI profitable, frontier lab spending versus revenue",
+   "video": "vzYmxI88uHw",
+   "start": 1860
+  },
+  {
+   "query": "an organisation-wide harness beyond the codebase that handles knowledge",
+   "video": "X2I_Pz_x3NQ",
+   "start": 2400
+  },
+  {
+   "query": "AI-generated SQLite clone that is twenty times slower",
+   "video": "J8GzckulSMM",
+   "start": 3150
+  },
+  {
+   "query": "OpenClaw is dangerous but useful, like sharp tools",
+   "video": "AG4Fd4ebuSQ",
+   "start": 2790
+  },
+  {
+   "query": "UI automation looks cool but the Gmail API is more reliable",
+   "video": "J8GzckulSMM",
+   "start": 420
+  },
+  {
+   "query": "Thoughtworks technologists meeting in India with Martin Fowler",
+   "video": "iyV6CtB5ZnQ",
+   "start": 2010
+  },
+  {
+   "query": "Hermes, an alternative to OpenClaw",
+   "video": "Slm-Rns1-RM",
+   "start": 2910
+  },
+  {
+   "query": "Google's co-mathematician runs as an asynchronous team of agents",
+   "video": "ZUNplk7tHKM",
+   "start": 1200
+  },
+  {
+   "query": "a structured output box as a building block for other things",
+   "video": "8Oi8WJ9pO4M",
+   "start": 2070
+  },
+  {
+   "query": "major providers making smaller, focused fine-tuned models",
+   "video": "Slm-Rns1-RM",
+   "start": 690
+  },
+  {
+   "query": "can Kimi catch up with Opus given the money and pressure",
+   "video": "e8tigaTJk1I",
+   "start": 1710
+  },
+  {
+   "query": "better tooling isn't enough without the foundation model",
+   "video": "4ltBGN3PDJU",
+   "start": 2670
+  },
+  {
+   "query": "hidden goals and checkers in agent safety benchmarks",
+   "video": "vlzJ6EE7Tsc",
+   "start": 3150
+  },
+  {
+   "query": "code is forged over time, resisting the urge to rewrite",
+   "video": "SZeaVzmoRbU",
+   "start": 1410
+  },
+  {
+   "query": "shift left just means early: continuous integration and health sensors",
+   "video": "Ti6yQC3sRJQ",
+   "start": 2400
+  },
+  {
+   "query": "enterprise architecture in a sprint, the outer loop becomes the inner loop",
+   "video": "e8tigaTJk1I",
+   "start": 2340
+  },
+  {
+   "query": "diffusion language models versus token-by-token transformers",
+   "video": "ZYkOk6IsIr0",
+   "start": 360
+  },
+  {
+   "query": "skills were what people asked for, open source teams with scars",
+   "video": "6U7zPU5Ugrc",
+   "start": 3720
+  },
+  {
+   "query": "an open model approaching Opus 4.6 when I mostly use Sonnet anyway",
+   "video": "NqMlThJ5pXc",
+   "start": 1920
+  }
+ ],
+ "posts": [
+  {
+   "query": "verify what the agent produced rather than trusting it",
+   "url": "/blog/my-10-rules-for-agentic-engineering/#trust-but-verify"
+  },
+  {
+   "query": "use data models as the single definition of your schema",
+   "url": "/blog/hardening-codebases-for-agentic-coding/#pydantic-models"
+  },
+  {
+   "query": "what a knowledge product promises to the agents that query it",
+   "url": "/blog/knowledge-products/#retrieval-contract"
+  },
+  {
+   "query": "don't just relay messages between the AI and stakeholders",
+   "url": "/blog/my-10-rules-for-agentic-engineering/#dont-be-a-meat-proxy"
+  },
+  {
+   "query": "prompts and instructions are not enforcement",
+   "url": "/blog/my-10-rules-for-agentic-engineering/#dont-confuse-guidance-for-guardrails"
+  },
+  {
+   "query": "turn every bug into a permanent check",
+   "url": "/blog/my-10-rules-for-agentic-engineering/#every-failure-becomes-a-ratchet"
+  },
+  {
+   "query": "tests that enforce module boundaries",
+   "url": "/blog/hardening-codebases-for-agentic-coding/#architecture-tests"
+  },
+  {
+   "query": "stop agents writing mocks instead of real code",
+   "url": "/blog/hardening-codebases-for-agentic-coding/#mock-detection"
+  },
+  {
+   "query": "NASA rule of two assertions per function",
+   "url": "/blog/hardening-codebases-for-agentic-coding/#nasa05-two-assertion-rule"
+  },
+  {
+   "query": "a report of what the API is missing for agents",
+   "url": "/blog/api-first-to-api-complete/#what-the-gap-report-tells-you"
+  },
+  {
+   "query": "who owns and governs a knowledge product",
+   "url": "/blog/knowledge-products/#ownership-and-governance"
+  },
+  {
+   "query": "workshop format with short build sprints and demos",
+   "url": "/blog/the-45-min-long-lived-feature-branch/#workshop-structure"
+  }
+ ],
+ "offtopic": [
+  "recipe for chocolate cake",
+  "football transfer news",
+  "how to grow tomatoes on a balcony",
+  "best hiking trails in Scotland"
+ ]
+}

@@ -205,7 +205,7 @@ function embed(message, transfer = []) {
 // --- Ranking by meaning ----------------------------------------------------
 
 // Episode windows are one minute long and start every HOP seconds
-// (see scripts/search/build-index.js).
+// (see scripts/search/index.py).
 const WINDOW = 60;
 const HOP = 30;
 
@@ -217,7 +217,7 @@ function clock(seconds) {
 }
 
 // Each episode window stores the transcript of its first HOP seconds (see
-// scripts/search/transcribe.py), so its full minute is its own text plus the
+// scripts/search/index.py), so its full minute is its own text plus the
 // next window's.
 function transcriptOf(at) {
   const { items } = index;
@@ -247,7 +247,7 @@ function rank(query, { spoken = false, smoothed } = {}) {
   const head = query.slice(0, dims);
   const norm = Math.hypot(...head);
   // Rank by how unusually well each passage matches (see calibrate() in
-  // scripts/search/build-index.js), so silence and audio-vs-text scale don't win.
+  // scripts/search/index.py), so silence and audio-vs-text scale don't win.
   const scored = items.map((item, i) => {
     let dot = 0;
     const offset = i * dims;
@@ -611,7 +611,9 @@ async function search() {
   const meaning = rank(vector);
   const words = keywordRank(query);
   const fallback = !meaning.length;
-  const hits = fallback ? arrange(words) : arrange(meaning, words);
+  const hits = fallback
+    ? arrange(words.filter((hit) => hit.matched >= 0.5))
+    : arrange(meaning, words);
   render(hits, tokens(query));
   const took = Math.round(performance.now() - started);
   status.textContent = !hits.length
