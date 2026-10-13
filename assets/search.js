@@ -6,6 +6,8 @@
 // microphone, falling back to keywords when nothing is close. From then on,
 // focusing the box starts the model from the browser cache.
 
+import { namer } from "./search-names.js";
+
 const root = document.querySelector(".site-search");
 const input = root.querySelector("input");
 const mic = root.querySelector(".site-search-mic");
@@ -149,6 +151,8 @@ function fail(message) {
   showSetting();
   for (const resolve of pending.values()) resolve(null);
   pending.clear();
+  for (const resolve of transcripts.values()) resolve("");
+  transcripts.clear();
   status.textContent =
     "EmbeddingGemma 2 couldn't start on this device, so search matches keywords.";
   if (input.value.trim()) search();
@@ -186,11 +190,26 @@ function start() {
     } else if (data.type === "embedding") {
       pending.get(data.id)?.(data.vector);
       pending.delete(data.id);
+    } else if (data.type === "transcript") {
+      transcripts.get(data.id)?.(data.text);
+      transcripts.delete(data.id);
     } else if (data.type === "failed") {
       fail(data.message);
     }
   };
   worker.postMessage({ type: "load" });
+}
+
+// What Whisper heard, or "" if it couldn't run.
+const transcripts = new Map();
+let transcribed = 0;
+
+function transcribe(audio) {
+  const id = ++transcribed;
+  return new Promise((resolve) => {
+    transcripts.set(id, resolve);
+    worker.postMessage({ type: "transcribe", id, audio }, [audio.buffer]);
+  });
 }
 
 // Resolves with a null vector if the model fails.
@@ -688,22 +707,31 @@ async function hear(session) {
   if (failed) return;
   session.busy = true;
   session.embedded = session.received;
+  // Once listening has stopped, this is the whole question.
+  const final = session.stopped;
   const audio = new Float32Array(session.length);
   let offset = 0;
   for (const chunk of session.chunks) {
     audio.set(chunk, offset);
     offset += chunk.length;
   }
+  const words = final ? audio.slice() : null;
+  if (final) session.transcribing = true;
   const { id, vector } = await embed({ audio }, [audio.buffer]);
   session.busy = false;
   if (!vector) return;
   if (id === latest) {
     session.smoothed ??= new Float32Array(index.items.length).fill(NaN);
-    render(arrange(rank(vector, { spoken: true, smoothed: session.smoothed })));
+    const hits = arrange(rank(vector, { spoken: true, smoothed: session.smoothed }));
+    render(hits);
     // The status is announced to screen readers, so it only changes once
     // listening ends, not on every update.
-    if (session.stopped) status.textContent = "Closest to what you said.";
+    if (final) {
+      status.textContent = "Closest to what you said.";
+      await nameFromVoice(session, words, hits);
+    }
   }
+  session.transcribing = false;
   // Catch up on anything said while that ran, including after a pause.
   if (session === voice) hear(session);
 }
@@ -795,6 +823,60 @@ async function listen() {
   if (ready) status.textContent = "Listening… ask about anything I've written or said.";
 }
 
+// --- Naming a video out loud --------------------------------------------------
+
+// Embeddings can't tell asking for a video by name from asking about its topic
+// (eval.py names), so Whisper transcribes the finished question and
+// search-names.js checks it against the video titles. A named video goes to
+// the top, playing from the start.
+let videos;
+
+function namedVideo(text) {
+  if (!videos) {
+    const first = new Map();
+    index.items.forEach((item, at) => {
+      if (item.kind === "episode" && !first.has(videoOf(item).video))
+        first.set(videoOf(item).video, at);
+    });
+    videos = [...first.values()];
+    videos.named = namer(videos.map((at) => index.items[at].title));
+  }
+  const which = videos.named(text);
+  return which === null ? null : videos[which];
+}
+
+async function nameFromVoice(session, audio, hits) {
+  const text = (await transcribe(audio)).trim();
+  if (session !== voice || !text) return;
+  // Show what was heard; typing from here searches as usual.
+  input.value = text;
+  const at = namedVideo(text);
+  if (at === null) {
+    status.textContent = `Closest to “${text}”.`;
+    return;
+  }
+  const item = index.items[at];
+  const whole = {
+    ...item,
+    video: videoOf(item).video,
+    start: 0,
+    at,
+    section: "Full video",
+    score: Infinity,
+  };
+  const others = hits.filter(
+    (hit) => !(hit.kind === "episode" && hit.start === 0 && hit.video === whole.video),
+  );
+  render(
+    [
+      whole,
+      ...others.filter((hit) => hit.kind === "episode"),
+      ...others.filter((hit) => hit.kind === "post"),
+    ].slice(0, LIMIT),
+  );
+  status.textContent = `Heard “${text}”, so the top result plays from the start.`;
+}
+
 // --- Listening animation ----------------------------------------------------
 
 // A row of rounded bars in the search box, driven by the microphone level:
@@ -844,7 +926,7 @@ function showWave(session) {
       session === voice &&
       session.stopped &&
       session.speaking &&
-      (session.busy || session.received !== session.embedded || !ready);
+      (session.busy || session.transcribing || session.received !== session.embedded || !ready);
     const level = session.stopped ? 0 : loudness(session.level);
     const step = width / BARS;
     const bar = Math.min(3, step * 0.55);
@@ -940,6 +1022,8 @@ async function turnOff() {
   showSetting();
   for (const resolve of pending.values()) resolve(null);
   pending.clear();
+  for (const resolve of transcripts.values()) resolve("");
+  transcripts.clear();
   progress.hidden = true;
   resetProgress();
   open();
@@ -1035,7 +1119,7 @@ mic.addEventListener("click", () => {
   listen();
 });
 
-// Turning on downloads 330 MB, so the switch first explains what it does.
+// Turning on downloads about 370 MB, so the switch first explains what it does.
 function showExplainer() {
   close();
   explain.hidden = false;

@@ -46,9 +46,9 @@
 						<p class="site-search-explain-title" id="site-search-explain-title">Turn on AI features?</p>
 						<ul>
 							<li><strong>Search by meaning.</strong> Find things by what they're about, not just matching words, across my writing and every video on my YouTube channel, including This Week in AI. Video results open at the moment it's discussed.</li>
-							<li><strong>Search by voice.</strong> Ask out loud with the microphone button, and results update as you talk.</li>
-							<li><strong>Runs on your device.</strong> It uses <a href="https://huggingface.co/onnx-community/embeddinggemma-2-ONNX">EmbeddingGemma 2</a>, Google's open embedding model, in your browser. What you type or say never leaves it. It matches your voice against the videos' audio directly, with no transcription.</li>
-							<li><strong>A one-off 330 MB download</strong> of EmbeddingGemma 2's text and audio encoders from Hugging Face, kept in your browser's cache. Best on Wi-Fi and a laptop or desktop.</li>
+							<li><strong>Search by voice.</strong> Ask out loud with the microphone button, and results update as you talk. Say a video's name to play it from the start.</li>
+							<li><strong>Runs on your device.</strong> It uses <a href="https://huggingface.co/onnx-community/embeddinggemma-2-ONNX">EmbeddingGemma 2</a>, Google's open embedding model, in your browser. What you type or say never leaves it. Your voice is matched against the videos' audio directly, and <a href="https://huggingface.co/onnx-community/whisper-tiny">Whisper</a>, also on your device, listens for a video's name.</li>
+							<li><strong>A one-off 370 MB download</strong> of EmbeddingGemma 2's text and audio encoders and Whisper tiny from Hugging Face, kept in your browser's cache. Best on Wi-Fi and a laptop or desktop.</li>
 							<li><strong>Undo any time.</strong> Turn the switch off to stop using it, and choose whether to delete it from this device.</li>
 						</ul>
 						<p class="site-search-explain-note">Video covers and previews load from YouTube.</p>
@@ -60,7 +60,7 @@
 					<div class="site-search-panel" id="site-search-panel" hidden>
 						<p class="site-search-status" role="status"></p>
 						<div class="site-search-remove" hidden>
-							<button class="button" type="button">Delete it (330 MB)</button>
+							<button class="button" type="button">Delete them (370 MB)</button>
 							<button class="button" type="button">Keep it for later</button>
 						</div>
 						<div class="site-search-progress" hidden><span></span></div>
@@ -70,7 +70,8 @@
 						</div>
 					</div>
 				</div>
-				<script type="module" src="$site.asset('search.js').link()"></script>
+				<link rel="modulepreload" href="$site.asset('search-names.js').link()">
+					<script type="module" src="$site.asset('search.js').link()"></script>
 			</nav>
 		</header>
 		<main id="main">
