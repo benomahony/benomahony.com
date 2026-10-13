@@ -39,7 +39,11 @@ The index (`assets/search-index.json`) is committed, because building it downloa
 cd scripts/search
 npm install
 npm run index
+cd ../..
+uv run scripts/search/transcribe.py
 ```
+
+`transcribe.py` adds what's said in each video minute to the index, transcribed with Whisper (`mlx-whisper`, so Apple silicon only). Results show it as a snippet, and keyword search uses it to find moments inside videos.
 
 Downloads and embeddings are cached in `scripts/search/.cache/`, so reruns only process what's new.
 

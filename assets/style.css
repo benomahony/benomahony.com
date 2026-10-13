@@ -1091,10 +1091,17 @@ footer p {
 
 .site-search-snippet {
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   color: var(--muted);
   display: -webkit-box;
   overflow: hidden;
+}
+
+.site-search-snippet mark {
+  background: var(--accent-soft);
+  border-radius: 0.2em;
+  color: var(--text);
+  padding: 0 0.1em;
 }
 
 .site-search-text {
