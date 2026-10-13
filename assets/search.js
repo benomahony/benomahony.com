@@ -155,7 +155,11 @@ function videoOf(item) {
 
 // Calibration was measured with typed queries and halves accuracy for spoken
 // ones, so spoken queries rank by plain cosine and skip the noise cut-off.
-function rank(query, { spoken = false } = {}) {
+// Live voice passes `smoothed`, a running average of each passage's cosine
+// across updates, so results only move when they're consistently better.
+const SMOOTHING = 0.4; // Weight of the newest update.
+
+function rank(query, { spoken = false, smoothed } = {}) {
   const { dims, vectors, scales, items } = index;
   // Truncate the query to the index's Matryoshka size and renormalise.
   const head = query.slice(0, dims);
@@ -166,7 +170,11 @@ function rank(query, { spoken = false } = {}) {
     let dot = 0;
     const offset = i * dims;
     for (let d = 0; d < dims; d++) dot += head[d] * vectors[offset + d];
-    const cosine = (dot * scales[i]) / norm;
+    let cosine = (dot * scales[i]) / norm;
+    if (smoothed) {
+      if (!Number.isNaN(smoothed[i])) cosine = smoothed[i] + SMOOTHING * (cosine - smoothed[i]);
+      smoothed[i] = cosine;
+    }
     return {
       ...item,
       ...videoOf(item),
@@ -227,13 +235,19 @@ function bm25(items) {
   const docs = [];
   for (const item of items) {
     if (item.kind === "post") {
-      docs.push({ item, terms: tokens(`${item.title} ${item.section ?? ""} ${item.text}`) });
+      docs.push({
+        item,
+        terms: tokens(`${item.title} ${item.section ?? ""} ${item.text}`),
+      });
       continue;
     }
     const { video } = videoOf(item);
     if (videos.has(video)) continue;
     videos.add(video);
-    docs.push({ item: { ...item, video, start: 0, section: null }, terms: tokens(item.title) });
+    docs.push({
+      item: { ...item, video, start: 0, section: null },
+      terms: tokens(item.title),
+    });
   }
   const df = new Map();
   for (const doc of docs) {
@@ -300,53 +314,80 @@ function stopPreview(frame) {
   frame.querySelector("iframe")?.remove();
 }
 
+// Results that stay in the list keep their element and glide to their new
+// place, so live updates read as movement rather than a redraw.
+let shown = new Map();
+const calm = matchMedia("(prefers-reduced-motion: reduce)");
+
 function render(hits) {
-  results.replaceChildren(
-    ...hits.map((hit) => {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      const text = document.createElement("span");
-      text.className = "site-search-text";
-      const meta = document.createElement("span");
-      meta.className = "site-search-meta";
-      const show = /^This Week in AI/i.test(hit.title) ? "This Week in AI" : "YouTube";
-      meta.textContent = [hit.kind === "post" ? "Article" : show, hit.section]
-        .filter(Boolean)
-        .join(" · ");
-      const title = document.createElement("strong");
-      title.textContent =
-        hit.kind === "episode" ? hit.title.replace(/^This Week in AI \| /i, "") : hit.title;
-      text.append(meta, title);
-      if (hit.snippet) {
-        const snippet = document.createElement("span");
-        snippet.className = "site-search-snippet";
-        snippet.textContent = hit.snippet;
-        text.append(snippet);
-      }
-      if (hit.kind === "episode") {
-        a.href = `https://www.youtube.com/watch?v=${hit.video}&t=${hit.start}s`;
-        a.target = "_blank";
-        a.className = "site-search-episode";
-        const frame = document.createElement("span");
-        frame.className = "site-search-frame";
-        const cover = document.createElement("img");
-        cover.src = `https://i.ytimg.com/vi/${hit.video}/mqdefault.jpg`;
-        cover.alt = "";
-        cover.loading = "lazy";
-        frame.append(cover);
-        a.append(frame);
-        a.addEventListener("pointerenter", () => preview(frame, hit));
-        a.addEventListener("pointerleave", () => stopPreview(frame));
-        a.addEventListener("focus", () => preview(frame, hit));
-        a.addEventListener("blur", () => stopPreview(frame));
-      } else {
-        a.href = hit.url;
-      }
-      a.append(text);
-      li.append(a);
-      return li;
-    }),
-  );
+  const before = new Map([...shown].map(([key, li]) => [key, li.getBoundingClientRect().top]));
+  const next = new Map();
+  for (const hit of hits) {
+    const key = hit.kind === "post" ? hit.url : `${hit.video}@${hit.start}`;
+    next.set(key, shown.get(key) ?? result(hit));
+  }
+  results.replaceChildren(...next.values());
+  shown = next;
+  if (calm.matches) return;
+  for (const [key, li] of next) {
+    const top = before.get(key);
+    if (top === undefined) {
+      li.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
+      continue;
+    }
+    const moved = top - li.getBoundingClientRect().top;
+    if (moved) {
+      li.animate([{ transform: `translateY(${moved}px)` }, { transform: "none" }], {
+        duration: 250,
+        easing: "ease-out",
+      });
+    }
+  }
+}
+
+function result(hit) {
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+  const text = document.createElement("span");
+  text.className = "site-search-text";
+  const meta = document.createElement("span");
+  meta.className = "site-search-meta";
+  const show = /^This Week in AI/i.test(hit.title) ? "This Week in AI" : "YouTube";
+  meta.textContent = [hit.kind === "post" ? "Article" : show, hit.section]
+    .filter(Boolean)
+    .join(" · ");
+  const title = document.createElement("strong");
+  title.textContent =
+    hit.kind === "episode" ? hit.title.replace(/^This Week in AI \| /i, "") : hit.title;
+  text.append(meta, title);
+  if (hit.snippet) {
+    const snippet = document.createElement("span");
+    snippet.className = "site-search-snippet";
+    snippet.textContent = hit.snippet;
+    text.append(snippet);
+  }
+  if (hit.kind === "episode") {
+    a.href = `https://www.youtube.com/watch?v=${hit.video}&t=${hit.start}s`;
+    a.target = "_blank";
+    a.className = "site-search-episode";
+    const frame = document.createElement("span");
+    frame.className = "site-search-frame";
+    const cover = document.createElement("img");
+    cover.src = `https://i.ytimg.com/vi/${hit.video}/mqdefault.jpg`;
+    cover.alt = "";
+    cover.loading = "lazy";
+    frame.append(cover);
+    a.append(frame);
+    a.addEventListener("pointerenter", () => preview(frame, hit));
+    a.addEventListener("pointerleave", () => stopPreview(frame));
+    a.addEventListener("focus", () => preview(frame, hit));
+    a.addEventListener("blur", () => stopPreview(frame));
+  } else {
+    a.href = hit.url;
+  }
+  a.append(text);
+  li.append(a);
+  return li;
 }
 
 async function search() {
@@ -388,7 +429,10 @@ async function search() {
 const RATE = 16000;
 const MAX_SAMPLES = 30 * RATE;
 const PRE_ROLL = 0.3 * RATE;
-const MIN_SPEECH = 0.8 * RATE;
+// Wait for enough speech to mean something, then update after each further
+// stretch rather than every chunk, so results don't churn.
+const MIN_SPEECH = 1.5 * RATE;
+const UPDATE_EVERY = 0.75 * RATE;
 const VOICE_RMS = 0.01;
 const PAUSE_MS = 1500;
 
@@ -405,6 +449,7 @@ let voice;
 async function hear(session) {
   if (!ready || session.busy || !session.speaking) return;
   if (session.length < MIN_SPEECH || session.received === session.embedded) return;
+  if (!session.stopped && session.received - session.embedded < UPDATE_EVERY) return;
   session.busy = true;
   session.embedded = session.received;
   const audio = new Float32Array(session.length);
@@ -416,7 +461,8 @@ async function hear(session) {
   const { id, vector } = await embed({ audio }, [audio.buffer]);
   session.busy = false;
   if (id === latest) {
-    render(rank(vector, { spoken: true }));
+    session.smoothed ??= new Float32Array(index.items.length).fill(NaN);
+    render(rank(vector, { spoken: true, smoothed: session.smoothed }));
     const seconds = (offset / RATE).toFixed(1);
     status.textContent = session.stopped
       ? `Closest to what you said (${seconds} s).`
@@ -430,7 +476,11 @@ async function listen() {
   let stream;
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+      audio: {
+        channelCount: 1,
+        echoCancellation: true,
+        noiseSuppression: true,
+      },
     });
   } catch {
     open();
@@ -445,7 +495,14 @@ async function listen() {
   const node = new AudioWorkletNode(context, "capture");
   context.createMediaStreamSource(stream).connect(node);
 
-  const session = { stream, context, chunks: [], length: 0, received: 0, embedded: 0 };
+  const session = {
+    stream,
+    context,
+    chunks: [],
+    length: 0,
+    received: 0,
+    embedded: 0,
+  };
   voice = session;
   node.port.onmessage = ({ data }) => {
     if (session.stopped) return;
