@@ -752,6 +752,7 @@ async function listen() {
     embedded: 0,
   };
   voice = session;
+  showWave(session);
   node.port.onmessage = (message) => {
     if (session.stopped) return;
     const data = resample(message.data);
@@ -792,6 +793,94 @@ async function listen() {
   mic.setAttribute("aria-pressed", "true");
   mic.setAttribute("aria-label", "Stop voice search");
   if (ready) status.textContent = "Listening… ask about anything I've written or said.";
+}
+
+// --- Listening animation ----------------------------------------------------
+
+// A row of rounded bars in the search box, driven by the microphone level:
+// tallest in the middle, each wobbling at its own pace so it reads as a
+// voice. When listening stops, the bars settle into dots that ripple until
+// the last results arrive, then fade away.
+const wave = root.querySelector(".site-search-wave");
+const BARS = 28;
+let waveFrame;
+
+// Microphone level (RMS) to 0–1 on a decibel scale: quiet rooms sit near 0,
+// ordinary speech around 0.6–0.9.
+function loudness(level = 0) {
+  const db = 20 * Math.log10(level + 1e-6);
+  return Math.min(1, Math.max(0, (db + 55) / 40));
+}
+
+function showWave(session) {
+  const box = input.parentElement;
+  const context = wave.getContext("2d");
+  const heights = new Float32Array(BARS);
+  const phases = Array.from({ length: BARS }, (_, i) => i * 2.399);
+  const speeds = Array.from({ length: BARS }, (_, i) => 5 + ((i * 7) % 5));
+  const envelope = Array.from({ length: BARS }, (_, i) => {
+    const x = (i - (BARS - 1) / 2) / (BARS * 0.3);
+    return 0.18 + 0.82 * Math.exp(-x * x);
+  });
+  const color = getComputedStyle(wave).getPropertyValue("--accent").trim() || "#4f46e5";
+  let fading = false;
+
+  cancelAnimationFrame(waveFrame);
+  wave.hidden = false;
+  requestAnimationFrame(() => box.classList.add("is-listening"));
+
+  const draw = (now) => {
+    const t = now / 1000;
+    const { width, height } = wave.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    if (wave.width !== Math.round(width * ratio)) {
+      wave.width = Math.round(width * ratio);
+      wave.height = Math.round(height * ratio);
+    }
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    context.clearRect(0, 0, width, height);
+
+    const finishing =
+      session === voice &&
+      session.stopped &&
+      session.speaking &&
+      (session.busy || session.received !== session.embedded || !ready);
+    const level = session.stopped ? 0 : loudness(session.level);
+    const step = width / BARS;
+    const bar = Math.min(3, step * 0.55);
+    context.fillStyle = color;
+    for (let i = 0; i < BARS; i++) {
+      let target;
+      if (finishing && !calm.matches) {
+        // A soft ripple runs along the dots while the final results come in.
+        target = 0.12 + 0.12 * Math.max(0, Math.sin(t * 7 - i * 0.45));
+      } else {
+        const wobble = calm.matches ? 1 : 0.55 + 0.45 * Math.sin(t * speeds[i] + phases[i]);
+        target = level * envelope[i] * wobble;
+      }
+      // Rise quickly, fall back gently.
+      heights[i] += (target - heights[i]) * (target > heights[i] ? 0.45 : 0.12);
+      const h = Math.max(bar, heights[i] * (height - 6));
+      context.globalAlpha = 0.45 + 0.55 * envelope[i];
+      context.beginPath();
+      context.roundRect(i * step + (step - bar) / 2, (height - h) / 2, bar, h, bar / 2);
+      context.fill();
+    }
+
+    if (session.stopped && !finishing && !fading) {
+      fading = true;
+      box.classList.remove("is-listening");
+      setTimeout(() => {
+        // Unless a new voice search has started and taken over the canvas.
+        if (!voice || voice === session || voice.stopped) {
+          cancelAnimationFrame(waveFrame);
+          wave.hidden = true;
+        }
+      }, 300);
+    }
+    if (!wave.hidden) waveFrame = requestAnimationFrame(draw);
+  };
+  waveFrame = requestAnimationFrame(draw);
 }
 
 function stopListening() {

@@ -1043,20 +1043,46 @@ footer p {
 }
 
 .site-search-mic[aria-pressed="true"] {
-  animation: site-search-listening 1.2s ease-in-out infinite;
   background: var(--accent);
-  color: #fff;
+  color: var(--surface);
 }
 
-@keyframes site-search-listening {
-  50% {
-    box-shadow: 0 0 0 0.3rem var(--accent-soft);
-  }
+/* While listening, the box becomes a live waveform of the visitor's voice. */
+.site-search-wave {
+  height: 100%;
+  left: 0.7rem;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.25s ease;
+  width: calc(100% - 2.9rem);
+}
+
+.site-search-box.is-listening .site-search-wave {
+  opacity: 1;
+}
+
+.site-search-box input {
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.site-search-box.is-listening input {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  color: transparent;
+}
+
+.site-search-box.is-listening input::placeholder {
+  color: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .site-search-mic[aria-pressed="true"] {
-    animation: none;
+  .site-search-wave,
+  .site-search-box input {
+    transition: none;
   }
 }
 
