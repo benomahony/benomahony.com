@@ -225,6 +225,16 @@
    "query": "an open model approaching Opus 4.6 when I mostly use Sonnet anyway",
    "video": "NqMlThJ5pXc",
    "start": 1920
+  },
+  {
+   "query": "letting users control how much test-time inference an agent platform spends",
+   "video": "YfMAi8drFU8",
+   "start": 300
+  },
+  {
+   "query": "Anthropic confidentially filing for an IPO",
+   "video": "YfMAi8drFU8",
+   "start": 810
   }
  ],
  "posts": [
