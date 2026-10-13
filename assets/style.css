@@ -877,6 +877,10 @@ footer p {
   cursor: pointer;
 }
 
+.site-search-status {
+  font-variant-numeric: tabular-nums;
+}
+
 .site-search-status:empty {
   display: none;
 }

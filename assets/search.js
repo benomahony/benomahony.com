@@ -39,19 +39,51 @@ function decodeIndex(raw) {
   return { ...raw, vectors: new Int8Array(bytes.buffer) };
 }
 
+// The small config and tokenizer files finish first, so the combined total
+// only means something once the model weights (well over this size) start.
+const WEIGHTS_STARTED = 50e6;
+let speed = 0;
+let lastSample;
+let lastText = 0;
+
+function showProgress({ loaded, total }) {
+  const now = performance.now();
+  if (lastSample && now > lastSample.at) {
+    const instant = ((loaded - lastSample.loaded) * 1000) / (now - lastSample.at);
+    speed = speed ? speed * 0.8 + instant * 0.2 : instant;
+  }
+  lastSample = { loaded, at: now };
+
+  progress.hidden = false;
+  if (total >= WEIGHTS_STARTED) downloaded = Math.max(downloaded, loaded / total);
+  progress.firstElementChild.style.transform = `scaleX(${downloaded})`;
+
+  if (loaded >= total && total >= WEIGHTS_STARTED) {
+    status.textContent = "Starting the model…";
+    return;
+  }
+  // Text changes twice a second at most, so the numbers are readable.
+  if (now - lastText < 500) return;
+  lastText = now;
+  const mb = (bytes) => (bytes / 1e6).toFixed(0);
+  const parts = [
+    `Downloading the model: ${mb(loaded)}${total >= WEIGHTS_STARTED ? ` of ${mb(total)}` : ""} MB`,
+  ];
+  if (speed > 0) parts.push(`${(speed / 1e6).toFixed(1)} MB/s`);
+  if (speed > 0 && total >= WEIGHTS_STARTED) {
+    const seconds = Math.ceil((total - loaded) / speed);
+    parts.push(seconds < 60 ? `${seconds} s left` : `${Math.ceil(seconds / 60)} min left`);
+  }
+  status.textContent = parts.join(" · ");
+}
+
 async function start() {
   if (worker) return;
   status.textContent = "Starting the model…";
   worker = new Worker(root.dataset.worker, { type: "module" });
   worker.onmessage = ({ data }) => {
     if (data.type === "progress") {
-      // The total grows as each model file starts downloading, so never let
-      // the bar move backwards; only touch the text when the phase changes.
-      progress.hidden = false;
-      downloaded = Math.max(downloaded, data.total ? data.loaded / data.total : 0);
-      progress.firstElementChild.style.transform = `scaleX(${downloaded})`;
-      const text = downloaded < 1 ? "Downloading the model…" : "Starting the model…";
-      if (status.textContent !== text) status.textContent = text;
+      showProgress(data);
     } else if (data.type === "ready") {
       ready = true;
       progress.hidden = true;
