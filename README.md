@@ -34,9 +34,9 @@ The production site is written to `public/`.
 The header search box searches the blog and every video and livestream on the YouTube channel (including This Week in AI) with [EmbeddingGemma 2](https://huggingface.co/onnx-community/embeddinggemma-2-ONNX), running in the visitor's browser, with results updating as they type or speak.
 
 - **Index.** Posts are embedded per section, and posts published elsewhere by title and description. Videos are transcribed with Whisper and embedded in one-minute windows every 30 s, each from its transcript and audio interleaved into a single input.
-- **Opt-in.** Visitors turn on the AI switch beside the search box, which explains the 330 MB download first; turning it off asks whether to delete the model from the browser cache. With it on, the model starts from the cache on each page load, falls back from WebGPU to the CPU if it has to, and to keywords if it can't run at all.
+- **Opt-in.** Visitors turn on the AI switch beside the search box, which explains the 370 MB download (EmbeddingGemma 2 and Whisper tiny) first; turning it off asks whether to delete them from the browser cache. With it on, the model starts from the cache on each page load, falls back from WebGPU to the CPU if it has to, and to keywords if it can't run at all.
 - **Ranking.** Typed searches fuse meaning and keyword (BM25) rankings, separately for articles and videos. Video results show what's said in the matched minute.
-- **Voice.** The microphone embeds the visitor's voice with the model's audio encoder, re-ranking live while they talk and stopping after a pause.
+- **Voice.** The microphone embeds the visitor's voice with the model's audio encoder, re-ranking live while they talk and stopping after a pause. Whisper tiny then transcribes the question, and if it names a video, that video goes to the top, playing from the start.
 
 The index (`assets/search-index.json`) is committed, because building it downloads and transcribes every video. Rebuild it after publishing a post or video, which needs uv, ffmpeg and Apple silicon (for Whisper):
 
@@ -44,7 +44,7 @@ The index (`assets/search-index.json`) is committed, because building it downloa
 uv run scripts/search/index.py
 ```
 
-Downloads, transcripts and embeddings are cached in `scripts/search/.cache/`, so reruns only process what's new (`--offline` skips checking YouTube). `uv run scripts/search/eval.py` scores ways of embedding the videos against the test queries in `scripts/search/eval.json`.
+Downloads, transcripts and embeddings are cached in `scripts/search/.cache/`, so reruns only process what's new (`--offline` skips checking YouTube). `uv run scripts/search/eval.py` scores ways of embedding the videos against the test queries in `scripts/search/eval.json`, and `uv run scripts/search/eval.py names` scores how well spoken requests for a whole video are recognised (macOS `say` voices them, Whisper transcribes them, and `scripts/search/names.mjs` applies the site's rule from `assets/search-names.js`, so it needs Node).
 
 ## Test article examples
 

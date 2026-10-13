@@ -1,5 +1,5 @@
 {
- "about": "Retrieval test set for eval.py. Video queries were written from Whisper transcripts of randomly sampled minutes; a hit is a window of the right video starting within 30 s of the sampled moment.",
+ "about": "Retrieval test set for eval.py. Video queries were written from Whisper transcripts of randomly sampled minutes; a hit is a window of the right video starting within 30 s of the sampled moment. Named cases are spoken requests for a whole video by (part of) its title; every video title is also tried in full.",
  "videos": [
   {
    "query": "Stainless generating SDKs and MCP servers from OpenAPI specs",
@@ -282,5 +282,47 @@
   "football transfer news",
   "how to grow tomatoes on a balcony",
   "best hiking trails in Scotland"
+ ],
+ "named": [
+  {
+   "query": "the cognitive surrender video",
+   "video": "5kEn3_aji_I"
+  },
+  {
+   "query": "your reaction to the DX report",
+   "video": "8MN-bjxVq6o"
+  },
+  {
+   "query": "the uv neovim plugin demo",
+   "video": "I1iE-henU_o"
+  },
+  {
+   "query": "the open data contract agent with Pydantic AI",
+   "video": "FOa0QkrfB2Q"
+  },
+  {
+   "query": "the DeepMind co-mathematician video",
+   "video": "ZUNplk7tHKM"
+  },
+  {
+   "query": "this week in AI from the 21st of May",
+   "video": "SZeaVzmoRbU"
+  },
+  {
+   "query": "the episode on the 13th of August",
+   "video": "bXySSez7clg"
+  },
+  {
+   "query": "behind building AI agent platforms",
+   "video": "egT_eEApcc4"
+  },
+  {
+   "query": "this week in AI first of October",
+   "video": "Ys0B6gkV0CA"
+  },
+  {
+   "query": "the 30th of July episode",
+   "video": "vlzJ6EE7Tsc"
+  }
  ]
 }

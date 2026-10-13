@@ -1,4 +1,5 @@
-// Embeds typed and spoken search queries with EmbeddingGemma 2, off the main
+// Embeds typed and spoken search queries with EmbeddingGemma 2, and
+// transcribes spoken ones with Whisper so they can name a video, off the main
 // thread.
 
 import {
@@ -6,14 +7,19 @@ import {
   AutoModel,
   AutoProcessor,
   env,
+  pipeline,
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1/dist/transformers.min.js";
 
 const MODEL = "onnx-community/embeddinggemma-2-ONNX";
+// Tiny is as good as base at spotting spoken video names (eval.py names), and
+// runs on the CPU so EmbeddingGemma keeps the GPU.
+const WHISPER = "onnx-community/whisper-tiny";
 env.allowLocalModels = false;
 
 let device;
 let processor;
 let model;
+let transcriber;
 let lastProgress = 0;
 
 // Progress summed across the model files, at most ten updates a second.
@@ -68,14 +74,40 @@ async function onCpu(error) {
   await loadOn("wasm");
 }
 
+// Without Whisper, voice search still works; it just can't hear names.
+async function loadWhisper() {
+  try {
+    transcriber = await pipeline("automatic-speech-recognition", WHISPER, {
+      device: "wasm",
+      dtype: { encoder_model: "q8", decoder_model_merged: "q8" },
+      progress_callback,
+    });
+    await transcriber(new Float32Array(16000), { language: "english" });
+  } catch (error) {
+    console.warn("Whisper unavailable, so spoken video names won't be recognised:", error);
+  }
+}
+
 async function load() {
   const gpu = await navigator.gpu?.requestAdapter().catch(() => null);
+  const whisper = loadWhisper();
   try {
     await loadOn(gpu ? "webgpu" : "wasm");
   } catch (error) {
     await onCpu(error);
   }
+  await whisper;
   self.postMessage({ type: "ready", device });
+}
+
+async function transcribe(audio) {
+  if (!transcriber) return "";
+  try {
+    return (await transcriber(audio, { language: "english" })).text;
+  } catch (error) {
+    console.warn("Whisper failed:", error);
+    return "";
+  }
 }
 
 async function query(data) {
@@ -98,6 +130,10 @@ self.onmessage = async ({ data }) => {
     } catch (error) {
       self.postMessage({ type: "failed", message: String(error?.message ?? error) });
     }
+    return;
+  }
+  if (data.type === "transcribe") {
+    self.postMessage({ type: "transcript", id: data.id, text: await transcribe(data.audio) });
     return;
   }
   try {
