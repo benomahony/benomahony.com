@@ -38,17 +38,36 @@
 				<ctx :if="$build.development">
 					<div class="site-search" role="search" data-index="$site.asset('search-index.json').link()" data-worker="$site.asset('search-worker.js').link()">
 						<div class="site-search-box">
-							<input type="search" placeholder="Search" aria-label="Search posts and videos" aria-controls="site-search-panel" autocomplete="off">
+							<input type="search" placeholder="Search" aria-label="Search posts and videos" aria-controls="site-search-panel" aria-expanded="false" autocomplete="off">
 							<button class="site-search-mic" type="button" aria-label="Search by voice" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
 						</div>
-						<div class="site-search-panel" id="site-search-panel" hidden>
-							<div class="site-search-enable">
-								<p>Ask out loud or type to search my writing and every video on my YouTube channel, including This Week in AI. It runs <a href="https://huggingface.co/onnx-community/embeddinggemma-2-ONNX">EmbeddingGemma 2</a> on your device, matching what you say against what's said in the videos, so nothing leaves your browser. Until then, typing finds keyword matches.</p>
-								<button class="button primary" type="button">Enable search (about 330 MB, once)</button>
+						<label class="site-search-switch"><input type="checkbox" role="switch" aria-label="AI features" aria-haspopup="dialog" aria-controls="site-search-explain"><span aria-hidden="true">AI</span></label>
+						<div class="site-search-explain" id="site-search-explain" role="dialog" aria-labelledby="site-search-explain-title" hidden>
+							<p class="site-search-explain-title" id="site-search-explain-title">Turn on AI features?</p>
+							<ul>
+								<li><strong>Search by meaning.</strong> Find things by what they're about, not just matching words, across my writing and every video on my YouTube channel, including This Week in AI. Video results open at the moment it's discussed.</li>
+								<li><strong>Search by voice.</strong> Ask out loud with the microphone button, and results update as you talk.</li>
+								<li><strong>Runs on your device.</strong> It uses <a href="https://huggingface.co/onnx-community/embeddinggemma-2-ONNX">EmbeddingGemma 2</a>, Google's open embedding model, in your browser. What you type or say never leaves it. It matches your voice against the videos' audio directly, with no transcription.</li>
+								<li><strong>A one-off 330 MB download</strong> of EmbeddingGemma 2's text and audio encoders from Hugging Face, kept in your browser's cache. Best on Wi-Fi and a laptop or desktop.</li>
+								<li><strong>Undo any time.</strong> Turn the switch off to stop using it, and choose whether to delete it from this device.</li>
+							</ul>
+							<p class="site-search-explain-note">Video covers and previews load from YouTube.</p>
+							<div class="site-search-explain-actions">
+								<button class="button primary" type="button">Turn on and download</button>
+								<button class="button" type="button">Not now</button>
 							</div>
+						</div>
+						<div class="site-search-panel" id="site-search-panel" hidden>
 							<p class="site-search-status" role="status"></p>
+							<div class="site-search-remove" hidden>
+								<button class="button" type="button">Delete it (330 MB)</button>
+								<button class="button" type="button">Keep it for later</button>
+							</div>
 							<div class="site-search-progress" hidden><span></span></div>
 							<ol class="site-search-results"></ol>
+							<div class="site-search-ai">
+								<p class="site-search-about">Typing finds keyword matches. Turn on AI features with the AI switch to search by meaning or by voice.</p>
+							</div>
 						</div>
 					</div>
 					<script type="module" src="$site.asset('search.js').link()"></script>

@@ -836,6 +836,9 @@ footer p {
 /* Search spike */
 
 .site-search {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
   position: relative;
 }
 
@@ -867,14 +870,137 @@ footer p {
   z-index: 10;
 }
 
-.site-search-enable p,
+.site-search-about,
 .site-search-status {
   color: var(--muted);
   margin: 0 0 0.75rem;
 }
 
-.site-search-enable .button {
+.site-search-ai {
+  border-top: 1px solid var(--border);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.site-search-results:empty + .site-search-ai {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.site-search-explain {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 18%);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  padding: 1rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: min(28rem, calc(100vw - 2rem));
+  z-index: 11;
+}
+
+.site-search-explain-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.site-search-explain ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  padding-left: 1.1rem;
+}
+
+.site-search-explain-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0 0 0.75rem;
+}
+
+.site-search-remove {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.site-search-remove[hidden] {
+  display: none;
+}
+
+.site-search-remove .button {
   cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.site-search-explain-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.site-search-explain-actions .button {
+  cursor: pointer;
+}
+
+.site-search-switch {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 0.8rem;
+  font-weight: 600;
+  gap: 0.35rem;
+}
+
+.site-search-switch input {
+  appearance: none;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  flex: none;
+  height: 1.25rem;
+  margin: 0;
+  position: relative;
+  transition: background 0.15s;
+  width: 2.25rem;
+}
+
+.site-search-switch input::after {
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 30%);
+  content: "";
+  height: 1rem;
+  left: 0.125rem;
+  position: absolute;
+  top: 0.125rem;
+  transition: transform 0.15s;
+  width: 1rem;
+}
+
+.site-search-switch input:checked {
+  background: var(--accent);
+}
+
+.site-search-switch input:checked::after {
+  transform: translateX(1rem);
+}
+
+.site-search-switch input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-search-switch input,
+  .site-search-switch input::after {
+    transition: none;
+  }
 }
 
 .site-search-status {
@@ -905,6 +1031,10 @@ footer p {
   position: absolute;
   right: 0.15rem;
   width: 1.6rem;
+}
+
+.site-search-mic[hidden] {
+  display: none;
 }
 
 .site-search-mic:hover,
@@ -1018,5 +1148,25 @@ footer p {
 @media (prefers-reduced-motion: reduce) {
   .site-search-progress span {
     transition: none;
+  }
+}
+
+/* On narrow screens the search sits on its own row, so its dropdowns span
+   the header instead of hanging off the box. */
+@media (max-width: 800px) {
+  .site-header:has(.site-search) {
+    position: relative;
+  }
+
+  .site-search {
+    position: static;
+  }
+
+  .site-search-panel,
+  .site-search-explain {
+    left: 0;
+    right: 0;
+    top: calc(100% + 0.25rem);
+    width: auto;
   }
 }

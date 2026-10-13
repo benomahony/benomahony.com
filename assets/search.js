@@ -1,17 +1,21 @@
 // Live, in-browser semantic search over posts and video audio (spike).
 //
-// Typing finds keyword (BM25) matches straight away. Once the visitor opts in,
-// EmbeddingGemma 2 runs on their device and matches by meaning, from typed
-// text or live from the microphone, falling back to keywords when nothing is
-// close. After opting in, focusing the box starts the model from the browser
-// cache.
+// Typing finds keyword (BM25) matches straight away. Once the visitor turns
+// on AI features with the switch beside the box, EmbeddingGemma 2 runs on
+// their device and matches by meaning, from typed text or live from the
+// microphone, falling back to keywords when nothing is close. From then on,
+// focusing the box starts the model from the browser cache.
 
 const root = document.querySelector(".site-search");
 const input = root.querySelector("input");
 const mic = root.querySelector(".site-search-mic");
 const panel = root.querySelector(".site-search-panel");
-const enable = root.querySelector(".site-search-enable");
-const enableButton = enable.querySelector("button");
+const about = root.querySelector(".site-search-about");
+const toggle = root.querySelector(".site-search-switch input");
+const explain = root.querySelector(".site-search-explain");
+const [confirmOn, notNow] = explain.querySelectorAll(".site-search-explain-actions button");
+const remove = root.querySelector(".site-search-remove");
+const [deleteModel, keepModel] = remove.querySelectorAll("button");
 const status = root.querySelector(".site-search-status");
 const progress = root.querySelector(".site-search-progress");
 const results = root.querySelector(".site-search-results");
@@ -27,16 +31,37 @@ let index;
 let indexing;
 let keywords;
 let ready = false;
+// Set when the model can't run here at all; search stays on keywords.
+let failed = false;
 let latest = 0;
 let timer;
 const pending = new Map();
 
+// "AI features" is the visitor's switch for downloading and running the
+// model. It's remembered per browser.
+const SETTING = "ai-features";
+
 function enabled() {
   try {
-    return localStorage.getItem("search-enabled") === "1";
+    return localStorage.getItem(SETTING) === "on";
   } catch {
     return false;
   }
+}
+
+function remember(on) {
+  try {
+    if (on) localStorage.setItem(SETTING, "on");
+    else localStorage.removeItem(SETTING);
+  } catch {}
+}
+
+// Voice search only appears once AI features are on.
+function showSetting() {
+  const on = enabled();
+  toggle.checked = on;
+  about.hidden = on;
+  mic.hidden = !on || failed || !canListen;
 }
 
 function decodeIndex(raw) {
@@ -65,6 +90,8 @@ let downloaded = 0;
 let speed = 0;
 let lastSample;
 let lastText = 0;
+// Already downloaded, so progress is just reading the browser cache.
+let fromCache = false;
 
 function showProgress({ loaded, total }) {
   const now = performance.now();
@@ -79,7 +106,11 @@ function showProgress({ loaded, total }) {
   progress.firstElementChild.style.transform = `scaleX(${downloaded})`;
 
   if (loaded >= total && total >= WEIGHTS_STARTED) {
-    status.textContent = "Starting the model…";
+    status.textContent = "Starting EmbeddingGemma 2…";
+    return;
+  }
+  if (fromCache) {
+    status.textContent = "Loading EmbeddingGemma 2 from this device…";
     return;
   }
   // Text changes twice a second at most, so the numbers are readable.
@@ -87,7 +118,7 @@ function showProgress({ loaded, total }) {
   lastText = now;
   const mb = (bytes) => (bytes / 1e6).toFixed(0);
   const parts = [
-    `Downloading the model: ${mb(loaded)}${total >= WEIGHTS_STARTED ? ` of ${mb(total)}` : ""} MB`,
+    `Downloading EmbeddingGemma 2: ${mb(loaded)}${total >= WEIGHTS_STARTED ? ` of ${mb(total)}` : ""} MB`,
   ];
   if (speed > 0) parts.push(`${(speed / 1e6).toFixed(1)} MB/s`);
   if (speed > 0 && total >= WEIGHTS_STARTED) {
@@ -97,13 +128,46 @@ function showProgress({ loaded, total }) {
   status.textContent = parts.join(" · ");
 }
 
+function resetProgress() {
+  downloaded = 0;
+  speed = 0;
+  lastSample = undefined;
+  lastText = 0;
+}
+
+// Without the model, typing still finds keyword matches; voice needs it.
+function fail(message) {
+  console.warn("Search model unavailable:", message);
+  failed = true;
+  ready = false;
+  progress.hidden = true;
+  stopListening();
+  voice = undefined;
+  showSetting();
+  for (const resolve of pending.values()) resolve(null);
+  pending.clear();
+  status.textContent =
+    "EmbeddingGemma 2 couldn't start on this device, so search matches keywords.";
+  if (input.value.trim()) search();
+}
+
 function start() {
-  if (worker) return;
-  status.textContent = "Starting the model…";
+  if (worker || failed) return;
+  status.textContent = "Starting EmbeddingGemma 2…";
+  downloaded_().then((cached) => (fromCache = cached));
   worker = new Worker(root.dataset.worker, { type: "module" });
+  // The worker script or the library it imports couldn't load.
+  worker.onerror = (event) => {
+    event.preventDefault();
+    fail(event.message);
+  };
   worker.onmessage = async ({ data }) => {
     if (data.type === "progress") {
       showProgress(data);
+    } else if (data.type === "fallback") {
+      resetProgress();
+      status.textContent =
+        "Your GPU couldn't run EmbeddingGemma 2, so switching to its slower CPU version…";
     } else if (data.type === "ready") {
       await loadIndex();
       ready = true;
@@ -119,13 +183,14 @@ function start() {
     } else if (data.type === "embedding") {
       pending.get(data.id)?.(data.vector);
       pending.delete(data.id);
-    } else if (data.type === "error") {
-      status.textContent = `Search failed to start: ${data.message}`;
+    } else if (data.type === "failed") {
+      fail(data.message);
     }
   };
   worker.postMessage({ type: "load" });
 }
 
+// Resolves with a null vector if the model fails.
 function embed(message, transfer = []) {
   const id = ++latest;
   return new Promise((resolve) => {
@@ -403,12 +468,18 @@ async function search() {
     // Keywords until the model is ready; the status keeps showing its progress.
     const hits = keywordRank(query);
     render(hits);
-    if (!worker) status.textContent = hits.length ? "" : "No keyword matches.";
+    if (failed) {
+      status.textContent =
+        "Search by meaning isn't available on this device, so these are keyword matches.";
+    } else if (!worker) {
+      status.textContent = hits.length ? "" : "No keyword matches.";
+    }
     return;
   }
   const started = performance.now();
   const { id, vector } = await embed({ query });
   if (id !== latest) return; // A newer keystroke has already been sent.
+  if (!vector) return search(); // The model failed; fail() switched to keywords.
   let hits = rank(vector);
   const fallback = !hits.length;
   if (fallback) hits = keywordRank(query);
@@ -418,7 +489,7 @@ async function search() {
     ? "Nothing matched. Try different words."
     : fallback
       ? "Nothing close in meaning, so these are keyword matches."
-      : `${index.items.length} passages in ${took} ms`;
+      : `${hits.length} results from ${index.items.length.toLocaleString()} passages in ${took} ms`;
 }
 
 // --- Live voice search -----------------------------------------------------
@@ -443,13 +514,42 @@ const CAPTURE = `registerProcessor("capture", class extends AudioWorkletProcesso
   }
 });`;
 
+// Voice needs a secure page, a microphone API and audio worklets.
+const canListen = Boolean(navigator.mediaDevices?.getUserMedia && window.AudioWorkletNode);
+
 // The latest voice search, still listening until `stopped`.
 let voice;
+
+// Some browsers only record at the device's rate (Firefox won't connect a
+// microphone to a 16 kHz context), so average each stretch of input samples
+// down to one 16 kHz sample.
+function downsampler(from) {
+  const step = from / RATE;
+  let sum = 0;
+  let count = 0;
+  let due = step;
+  return (chunk) => {
+    const out = new Float32Array(Math.ceil(chunk.length / step) + 1);
+    let n = 0;
+    for (const sample of chunk) {
+      sum += sample;
+      count++;
+      if (count >= due) {
+        out[n++] = sum / count;
+        due += step - count;
+        sum = 0;
+        count = 0;
+      }
+    }
+    return out.subarray(0, n);
+  };
+}
 
 async function hear(session) {
   if (!ready || session.busy || !session.speaking) return;
   if (session.length < MIN_SPEECH || session.received === session.embedded) return;
   if (!session.stopped && session.received - session.embedded < UPDATE_EVERY) return;
+  if (failed) return;
   session.busy = true;
   session.embedded = session.received;
   const audio = new Float32Array(session.length);
@@ -460,13 +560,13 @@ async function hear(session) {
   }
   const { id, vector } = await embed({ audio }, [audio.buffer]);
   session.busy = false;
+  if (!vector) return;
   if (id === latest) {
     session.smoothed ??= new Float32Array(index.items.length).fill(NaN);
     render(rank(vector, { spoken: true, smoothed: session.smoothed }));
-    const seconds = (offset / RATE).toFixed(1);
-    status.textContent = session.stopped
-      ? `Closest to what you said (${seconds} s).`
-      : `Listening… ${seconds} s`;
+    // The status is announced to screen readers, so it only changes once
+    // listening ends, not on every update.
+    if (session.stopped) status.textContent = "Closest to what you said.";
   }
   // Catch up on anything said while that ran, including after a pause.
   if (session === voice) hear(session);
@@ -487,13 +587,25 @@ async function listen() {
     status.textContent = "Voice search needs microphone access.";
     return;
   }
-  const context = new AudioContext({ sampleRate: RATE });
-  await context.resume();
-  const url = URL.createObjectURL(new Blob([CAPTURE], { type: "text/javascript" }));
-  await context.audioWorklet.addModule(url);
-  URL.revokeObjectURL(url);
-  const node = new AudioWorkletNode(context, "capture");
-  context.createMediaStreamSource(stream).connect(node);
+  let context;
+  let node;
+  try {
+    context = new AudioContext();
+    await context.resume();
+    const url = URL.createObjectURL(new Blob([CAPTURE], { type: "text/javascript" }));
+    await context.audioWorklet.addModule(url);
+    URL.revokeObjectURL(url);
+    node = new AudioWorkletNode(context, "capture");
+    context.createMediaStreamSource(stream).connect(node);
+  } catch (error) {
+    console.warn("Voice search couldn't record:", error);
+    stream.getTracks().forEach((track) => track.stop());
+    context?.close();
+    open();
+    status.textContent = "Voice search doesn't work in this browser, but typing does.";
+    return;
+  }
+  const resample = downsampler(context.sampleRate);
 
   const session = {
     stream,
@@ -504,8 +616,10 @@ async function listen() {
     embedded: 0,
   };
   voice = session;
-  node.port.onmessage = ({ data }) => {
+  node.port.onmessage = (message) => {
     if (session.stopped) return;
+    const data = resample(message.data);
+    if (!data.length) return;
     let energy = 0;
     for (const sample of data) energy += sample * sample;
     const now = performance.now();
@@ -555,18 +669,77 @@ function stopListening() {
 
 function open() {
   panel.hidden = false;
-  enable.hidden = enabled();
+  input.setAttribute("aria-expanded", "true");
+  showSetting();
   loadIndex();
   if (enabled()) start();
 }
 
-function optIn() {
-  try {
-    localStorage.setItem("search-enabled", "1");
-  } catch {}
-  enable.hidden = true;
-  start();
+function close() {
+  stopListening();
+  panel.hidden = true;
+  input.setAttribute("aria-expanded", "false");
 }
+
+// Turning AI features on opens search, so the download progress shows.
+function turnOn() {
+  remove.hidden = true;
+  remember(true);
+  open();
+  input.focus();
+  search();
+}
+
+// Stop using EmbeddingGemma 2, back to keywords only. Its files stay in the
+// browser cache unless the visitor chooses to delete them.
+async function turnOff() {
+  remember(false);
+  showSetting();
+  stopListening();
+  voice = undefined;
+  worker?.terminate();
+  worker = undefined;
+  ready = false;
+  failed = false;
+  showSetting();
+  for (const resolve of pending.values()) resolve(null);
+  pending.clear();
+  progress.hidden = true;
+  resetProgress();
+  open();
+  search();
+  if (await downloaded_()) {
+    status.textContent = "AI features are off. Delete EmbeddingGemma 2 from this device too?";
+    remove.hidden = false;
+  } else {
+    status.textContent = "AI features are off.";
+  }
+}
+
+const CACHES = ["transformers-cache", "experimental_transformers-hash-cache"];
+
+async function downloaded_() {
+  try {
+    return await caches.has(CACHES[0]);
+  } catch {
+    return false;
+  }
+}
+
+deleteModel.addEventListener("click", async () => {
+  remove.hidden = true;
+  try {
+    for (const name of CACHES) await caches.delete(name);
+    status.textContent = "EmbeddingGemma 2 is deleted from this device.";
+  } catch {
+    status.textContent =
+      "Couldn't delete EmbeddingGemma 2. Clearing this site's data in your browser will.";
+  }
+});
+keepModel.addEventListener("click", () => {
+  remove.hidden = true;
+  status.textContent = "Kept. Turning AI features back on won't download it again.";
+});
 
 input.addEventListener("focus", open);
 input.addEventListener("input", () => {
@@ -576,26 +749,90 @@ input.addEventListener("input", () => {
   clearTimeout(timer);
   timer = setTimeout(search, DEBOUNCE_MS);
 });
+// Down arrow moves from the box into the results, arrows move between them,
+// Enter opens the top result, and Escape closes.
+const links = () => [...results.querySelectorAll("a")];
+
 input.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
-    stopListening();
-    panel.hidden = true;
+    close();
     input.blur();
+  } else if (event.key === "ArrowDown" && links().length) {
+    event.preventDefault();
+    links()[0].focus();
+  } else if (event.key === "Enter" && links().length) {
+    event.preventDefault();
+    links()[0].click();
+  }
+});
+results.addEventListener("keydown", (event) => {
+  const all = links();
+  const at = all.indexOf(document.activeElement);
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    const next = at + (event.key === "ArrowDown" ? 1 : -1);
+    if (next < 0) input.focus();
+    else all[Math.min(next, all.length - 1)].focus();
+  } else if (event.key === "Escape") {
+    close();
+    input.focus();
   }
 });
 document.addEventListener("pointerdown", (event) => {
-  if (!root.contains(event.target)) panel.hidden = true;
+  if (!root.contains(event.target)) close();
 });
 
-// Voice is the main way in, so the microphone opts in to the model too.
+showSetting();
+
+// Each page load starts EmbeddingGemma 2 afresh (pages don't share memory),
+// so with AI features on, start it as soon as the page is idle rather than
+// waiting for the search box.
+if (enabled()) {
+  (window.requestIdleCallback ?? setTimeout)(() => {
+    loadIndex();
+    start();
+  });
+}
+
 mic.addEventListener("click", () => {
   if (voice && !voice.stopped) return stopListening();
-  if (!enabled()) optIn();
   listen();
 });
 
-enableButton.addEventListener("click", () => {
-  optIn();
-  input.focus();
-  search();
+// Turning on downloads 330 MB, so the switch first explains what it does.
+function showExplainer() {
+  close();
+  explain.hidden = false;
+  confirmOn.focus();
+}
+
+function hideExplainer() {
+  if (explain.hidden) return;
+  explain.hidden = true;
+  toggle.focus();
+}
+
+toggle.addEventListener("change", async () => {
+  if (!toggle.checked) return turnOff();
+  remove.hidden = true;
+  if (await downloaded_()) return turnOn();
+  toggle.checked = false;
+  showExplainer();
+});
+confirmOn.addEventListener("click", () => {
+  explain.hidden = true;
+  turnOn();
+});
+notNow.addEventListener("click", hideExplainer);
+explain.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") hideExplainer();
+});
+document.addEventListener("pointerdown", (event) => {
+  if (
+    !explain.hidden &&
+    !explain.contains(event.target) &&
+    !toggle.parentElement.contains(event.target)
+  ) {
+    explain.hidden = true;
+  }
 });
