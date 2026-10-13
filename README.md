@@ -31,21 +31,20 @@ The production site is written to `public/`.
 
 ## Search
 
-The header search box searches the blog and the audio of every video and livestream on the YouTube channel (including This Week in AI) with [EmbeddingGemma 2](https://huggingface.co/onnx-community/embeddinggemma-2-ONNX), running in the visitor's browser, with results updating as they type or speak. Posts are embedded per section as text; videos are embedded straight from their audio in one-minute windows, without transcripts. Visitors opt in with the AI switch beside the search box, which explains the 330 MB download first; turning it off asks whether to delete the model from the browser cache. With it on, the model starts on each page load from the cache, falls back from WebGPU to the CPU if it has to, and falls back to keywords if it can't run at all. The microphone button embeds the visitor's voice with the model's audio encoder, re-ranking live while they talk and stopping after a pause. Before the model is enabled or loaded, and when nothing is close in meaning, typing falls back to keyword (BM25) matches over post text and video titles.
+The header search box searches the blog and every video and livestream on the YouTube channel (including This Week in AI) with [EmbeddingGemma 2](https://huggingface.co/onnx-community/embeddinggemma-2-ONNX), running in the visitor's browser, with results updating as they type or speak.
 
-The index (`assets/search-index.json`) is committed, because building it downloads every episode and takes a couple of hours. Rebuild it after publishing a post or video, which needs Node, ffmpeg and uv:
+- **Index.** Posts are embedded per section, and posts published elsewhere by title and description. Videos are transcribed with Whisper and embedded in one-minute windows every 30 s, each from its transcript and audio interleaved into a single input.
+- **Opt-in.** Visitors turn on the AI switch beside the search box, which explains the 330 MB download first; turning it off asks whether to delete the model from the browser cache. With it on, the model starts from the cache on each page load, falls back from WebGPU to the CPU if it has to, and to keywords if it can't run at all.
+- **Ranking.** Typed searches fuse meaning and keyword (BM25) rankings, separately for articles and videos. Video results show what's said in the matched minute.
+- **Voice.** The microphone embeds the visitor's voice with the model's audio encoder, re-ranking live while they talk and stopping after a pause.
+
+The index (`assets/search-index.json`) is committed, because building it downloads and transcribes every video. Rebuild it after publishing a post or video, which needs uv, ffmpeg and Apple silicon (for Whisper):
 
 ```sh
-cd scripts/search
-npm install
-npm run index
-cd ../..
-uv run scripts/search/transcribe.py
+uv run scripts/search/index.py
 ```
 
-`transcribe.py` adds what's said in each video minute to the index, transcribed with Whisper (`mlx-whisper`, so Apple silicon only). Results show it as a snippet, and keyword search uses it to find moments inside videos.
-
-Downloads and embeddings are cached in `scripts/search/.cache/`, so reruns only process what's new.
+Downloads, transcripts and embeddings are cached in `scripts/search/.cache/`, so reruns only process what's new (`--offline` skips checking YouTube). `uv run scripts/search/eval.py` scores ways of embedding the videos against the test queries in `scripts/search/eval.json`.
 
 ## Test article examples
 

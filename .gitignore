@@ -173,6 +173,5 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# Search spike (scripts/search)
-scripts/search/node_modules/
+# Search index caches (scripts/search)
 scripts/search/.cache/
