@@ -633,8 +633,13 @@ const PRE_ROLL = 0.3 * RATE;
 // stretch rather than every chunk, so results don't churn.
 const MIN_SPEECH = 1.5 * RATE;
 const UPDATE_EVERY = 0.75 * RATE;
-const VOICE_RMS = 0.01;
-const PAUSE_MS = 1500;
+// Speech is louder than both this and NOISE_RATIO times the background level.
+// Listening ends after PAUSE_MS of quiet, once they've talked for MIN_TALK_MS,
+// so a breath between phrases doesn't cut them off.
+const VOICE_RMS = 0.004;
+const NOISE_RATIO = 3;
+const PAUSE_MS = 2500;
+const MIN_TALK_MS = 2000;
 
 const CAPTURE = `registerProcessor("capture", class extends AudioWorkletProcessor {
   process([input]) {
@@ -752,9 +757,19 @@ async function listen() {
     let energy = 0;
     for (const sample of data) energy += sample * sample;
     const now = performance.now();
-    if (Math.sqrt(energy / data.length) > VOICE_RMS) {
+    // Smooth the level over a few tens of milliseconds, and track the room's
+    // background level so speech is whatever stands well clear of it.
+    const rms = Math.sqrt(energy / data.length);
+    session.level = session.level === undefined ? rms : session.level * 0.8 + rms * 0.2;
+    session.floor ??= session.level;
+    if (session.level > Math.max(VOICE_RMS, session.floor * NOISE_RATIO)) {
+      if (!session.speaking) session.spokeAt = now;
       session.speaking = true;
       session.heardAt = now;
+    } else {
+      // Only between words, so talking doesn't raise it. It falls straight
+      // to a quieter room and rises slowly with a louder one.
+      session.floor = Math.min(session.floor * 1.001, session.level);
     }
     session.chunks.push(data);
     session.length += data.length;
@@ -764,7 +779,8 @@ async function listen() {
     while (session.length - session.chunks[0].length > keep) {
       session.length -= session.chunks.shift().length;
     }
-    if (session.speaking && now - session.heardAt > PAUSE_MS) stopListening();
+    const paused = now - session.heardAt > PAUSE_MS;
+    if (session.speaking && paused && now - session.spokeAt > MIN_TALK_MS) stopListening();
     else hear(session);
   };
 
