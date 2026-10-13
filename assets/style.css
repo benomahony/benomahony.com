@@ -944,3 +944,26 @@ footer p {
   position: absolute;
   width: 100%;
 }
+
+.site-search-progress {
+  background: var(--border);
+  border-radius: 999px;
+  height: 0.3rem;
+  margin: -0.25rem 0 0.75rem;
+  overflow: hidden;
+}
+
+.site-search-progress span {
+  background: var(--accent);
+  display: block;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-search-progress span {
+    transition: none;
+  }
+}

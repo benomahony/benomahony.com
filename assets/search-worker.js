@@ -6,6 +6,7 @@ const MODEL = "onnx-community/embeddinggemma-2-ONNX";
 env.allowLocalModels = false;
 
 let extractor;
+let lastProgress = 0;
 
 async function load() {
   const device = (await navigator.gpu?.requestAdapter()) ? "webgpu" : "wasm";
@@ -14,9 +15,10 @@ async function load() {
     // fp16 weights need WebGPU; the CPU fallback uses plain 4-bit.
     dtype: device === "webgpu" ? "q4f16" : "q4",
     progress_callback: (event) => {
-      if (event.status === "progress" && event.file.endsWith(".onnx_data")) {
-        self.postMessage({ type: "progress", loaded: event.loaded, total: event.total });
-      }
+      // Combined progress across all model files, at most ten updates a second.
+      if (event.status !== "progress_total" || performance.now() - lastProgress < 100) return;
+      lastProgress = performance.now();
+      self.postMessage({ type: "progress", loaded: event.loaded, total: event.total });
     },
   });
   // Warm up so the first real search is fast.

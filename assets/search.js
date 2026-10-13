@@ -9,6 +9,8 @@ const panel = root.querySelector(".site-search-panel");
 const enable = root.querySelector(".site-search-enable");
 const enableButton = enable.querySelector("button");
 const status = root.querySelector(".site-search-status");
+const progress = root.querySelector(".site-search-progress");
+let downloaded = 0;
 const results = root.querySelector(".site-search-results");
 
 const LIMIT = 8;
@@ -43,10 +45,16 @@ async function start() {
   worker = new Worker(root.dataset.worker, { type: "module" });
   worker.onmessage = ({ data }) => {
     if (data.type === "progress") {
-      const mb = (bytes) => Math.round(bytes / 1e6);
-      status.textContent = `Downloading the model: ${mb(data.loaded)} of ${mb(data.total)} MB`;
+      // The total grows as each model file starts downloading, so never let
+      // the bar move backwards; only touch the text when the phase changes.
+      progress.hidden = false;
+      downloaded = Math.max(downloaded, data.total ? data.loaded / data.total : 0);
+      progress.firstElementChild.style.transform = `scaleX(${downloaded})`;
+      const text = downloaded < 1 ? "Downloading the model…" : "Starting the model…";
+      if (status.textContent !== text) status.textContent = text;
     } else if (data.type === "ready") {
       ready = true;
+      progress.hidden = true;
       status.textContent = "";
       search();
     } else if (data.type === "embedding") {

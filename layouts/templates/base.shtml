@@ -44,6 +44,7 @@
 								<button class="button primary" type="button">Enable search (about 160 MB, once)</button>
 							</div>
 							<p class="site-search-status" role="status"></p>
+							<div class="site-search-progress" hidden><span></span></div>
 							<ol class="site-search-results"></ol>
 						</div>
 					</div>
