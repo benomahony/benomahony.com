@@ -37,11 +37,14 @@
 				<a href="$site.page('blog').link()">Blog</a>
 				<ctx :if="$build.development">
 					<div class="site-search" role="search" data-index="$site.asset('search-index.json').link()" data-worker="$site.asset('search-worker.js').link()">
-						<input type="search" placeholder="Search" aria-label="Search posts and videos" aria-controls="site-search-panel" autocomplete="off">
+						<div class="site-search-box">
+							<input type="search" placeholder="Search" aria-label="Search posts and videos" aria-controls="site-search-panel" autocomplete="off">
+							<button class="site-search-mic" type="button" aria-label="Search by voice" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+						</div>
 						<div class="site-search-panel" id="site-search-panel" hidden>
 							<div class="site-search-enable">
-								<p>Search my writing and every video on my YouTube channel, including This Week in AI. It runs <a href="https://huggingface.co/onnx-community/embeddinggemma-2-ONNX">EmbeddingGemma 2</a> on your device, matching what's said in the videos directly, so nothing you type leaves your browser.</p>
-								<button class="button primary" type="button">Enable search (about 160 MB, once)</button>
+								<p>Ask out loud or type to search my writing and every video on my YouTube channel, including This Week in AI. It runs <a href="https://huggingface.co/onnx-community/embeddinggemma-2-ONNX">EmbeddingGemma 2</a> on your device, matching what you say against what's said in the videos, so nothing leaves your browser. Until then, typing finds keyword matches.</p>
+								<button class="button primary" type="button">Enable search (about 330 MB, once)</button>
 							</div>
 							<p class="site-search-status" role="status"></p>
 							<div class="site-search-progress" hidden><span></span></div>

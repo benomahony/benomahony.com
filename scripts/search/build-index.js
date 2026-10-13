@@ -111,6 +111,7 @@ async function posts() {
         section: section.heading,
         url: section.url,
         snippet: section.text.slice(0, 220),
+        text: section.text,
         vector: await cached(key, () => embed(processor([doc]))),
       });
     }
