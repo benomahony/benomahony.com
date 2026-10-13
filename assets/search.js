@@ -21,6 +21,9 @@ const progress = root.querySelector(".site-search-progress");
 const results = root.querySelector(".site-search-results");
 
 const LIMIT = 8;
+// Articles get at most this many of the LIMIT places, so a strong video
+// match can't push them out entirely and they can't crowd out videos.
+const ARTICLES = 3;
 const DEBOUNCE_MS = 120;
 // Calibrated scores below this are noise: off-topic queries score around -2,
 // real hits in testing scored 2 to 6.
@@ -289,7 +292,7 @@ function rank(query, { spoken = false, smoothed } = {}) {
     });
   }
 
-  return hits.sort((a, b) => b.score - a.score).slice(0, LIMIT);
+  return hits.sort((a, b) => b.score - a.score);
 }
 
 // --- Keyword ranking (BM25) ------------------------------------------------
@@ -313,7 +316,11 @@ function tokens(text) {
 function bm25(items) {
   const docs = items.map((item, at) => {
     if (item.kind === "post") {
-      return { item, terms: tokens(`${item.title} ${item.section ?? ""} ${item.text}`) };
+      // Titles count twice, so naming a post finds it.
+      return {
+        item,
+        terms: tokens(`${item.title} ${item.title} ${item.section ?? ""} ${item.text}`),
+      };
     }
     const { video, start } = videoOf(item);
     return {
@@ -349,10 +356,12 @@ function keywordRank(query) {
   terms.push([...df.keys()].filter((term) => term.startsWith(last)).slice(0, 20));
 
   const idf = (term) => Math.log(1 + (docs.length - df.get(term) + 0.5) / (df.get(term) + 0.5));
+  const videos = new Set();
   return (
     docs
       .map((doc) => {
         let score = 0;
+        let matched = 0;
         for (const options of terms) {
           // Only the best-scoring expansion of each word counts.
           let best = 0;
@@ -363,18 +372,56 @@ function keywordRank(query) {
             best = Math.max(best, (idf(term) * tf * (K1 + 1)) / norm);
           }
           score += best;
+          if (best) matched++;
         }
-        return { ...doc.item, score };
+        return { ...doc.item, score, matched: matched / terms.length };
       })
       .filter((hit) => hit.score > 0)
       .sort((a, b) => b.score - a.score)
       // One result per video: its best-matching minute.
-      .filter(
-        (hit, i, all) =>
-          hit.kind === "post" || all.findIndex((other) => other.video === hit.video) === i,
-      )
-      .slice(0, LIMIT)
+      .filter((hit) => hit.kind === "post" || (!videos.has(hit.video) && videos.add(hit.video)))
   );
+}
+
+// --- Combining rankings ----------------------------------------------------
+
+// Typed searches fuse the meaning and keyword rankings (reciprocal rank
+// fusion), separately for articles and videos: meaning finds paraphrases,
+// keywords find exact names and titles. A keyword-only match must contain at
+// least half the query's words, so off-topic queries still find nothing.
+const FUSION_K = 60;
+
+function fuse(meaning, words) {
+  const relevant = words.filter((hit) => hit.matched >= 0.5);
+  const fused = new Map();
+  for (const list of [meaning, relevant]) {
+    list.forEach((hit, i) => {
+      const key = hit.kind === "post" ? hit.url : hit.video;
+      // Keep the meaning hit's version (its matched stretch) when both have it.
+      const entry = fused.get(key) ?? { hit, score: 0 };
+      entry.score += 1 / (FUSION_K + i + 1);
+      fused.set(key, entry);
+    });
+  }
+  return [...fused.values()]
+    .sort((a, b) => b.score - a.score)
+    .map(({ hit, score }) => ({ ...hit, score }));
+}
+
+// Group results into articles and videos, the stronger group first.
+function arrange(hits, words = null) {
+  const kind = (k, list) => list.filter((hit) => hit.kind === k);
+  let posts = kind("post", hits);
+  let videos = kind("episode", hits);
+  if (words) {
+    posts = fuse(posts, kind("post", words));
+    videos = fuse(videos, kind("episode", words));
+  }
+  posts = posts.slice(0, ARTICLES);
+  videos = videos.slice(0, LIMIT - posts.length);
+  return (posts[0]?.score ?? -Infinity) >= (videos[0]?.score ?? -Infinity)
+    ? [...posts, ...videos]
+    : [...videos, ...posts];
 }
 
 // --- Snippets --------------------------------------------------------------
@@ -450,7 +497,12 @@ function render(hits, terms = []) {
   const before = new Map([...shown].map(([key, li]) => [key, li.getBoundingClientRect().top]));
   const next = new Map();
   const highlight = terms.join(" ");
-  for (const hit of hits) {
+  const groups = new Set(hits.map((hit) => hit.kind)).size > 1;
+  for (const [i, hit] of hits.entries()) {
+    if (groups && hit.kind !== hits[i - 1]?.kind) {
+      const key = `group:${hit.kind}`;
+      next.set(key, shown.get(key) ?? heading(hit.kind === "post" ? "Articles" : "Videos"));
+    }
     const key = hit.kind === "post" ? hit.url : `${hit.video}@${hit.start}@${hit.at}`;
     const kept = shown.get(key);
     next.set(key, kept?.dataset.highlight === highlight ? kept : result(hit, terms));
@@ -475,6 +527,14 @@ function render(hits, terms = []) {
   }
 }
 
+function heading(text) {
+  const li = document.createElement("li");
+  li.className = "site-search-group";
+  li.setAttribute("role", "presentation");
+  li.textContent = text;
+  return li;
+}
+
 function result(hit, terms) {
   const li = document.createElement("li");
   const a = document.createElement("a");
@@ -483,7 +543,8 @@ function result(hit, terms) {
   const meta = document.createElement("span");
   meta.className = "site-search-meta";
   const show = /^This Week in AI/i.test(hit.title) ? "This Week in AI" : "YouTube";
-  meta.textContent = [hit.kind === "post" ? "Article" : show, hit.section]
+  const article = hit.publication ? `Article on ${hit.publication}` : "Article";
+  meta.textContent = [hit.kind === "post" ? article : show, hit.section]
     .filter(Boolean)
     .join(" · ");
   const title = document.createElement("strong");
@@ -515,6 +576,7 @@ function result(hit, terms) {
     a.addEventListener("blur", () => stopPreview(frame));
   } else {
     a.href = hit.url;
+    if (hit.publication) a.target = "_blank";
   }
   a.append(text);
   li.append(a);
@@ -532,7 +594,7 @@ async function search() {
   await loadIndex();
   if (!ready) {
     // Keywords until the model is ready; the status keeps showing its progress.
-    const hits = keywordRank(query);
+    const hits = arrange(keywordRank(query));
     render(hits, tokens(query));
     if (failed) {
       status.textContent =
@@ -546,9 +608,10 @@ async function search() {
   const { id, vector } = await embed({ query });
   if (id !== latest) return; // A newer keystroke has already been sent.
   if (!vector) return search(); // The model failed; fail() switched to keywords.
-  let hits = rank(vector);
-  const fallback = !hits.length;
-  if (fallback) hits = keywordRank(query);
+  const meaning = rank(vector);
+  const words = keywordRank(query);
+  const fallback = !meaning.length;
+  const hits = fallback ? arrange(words) : arrange(meaning, words);
   render(hits, tokens(query));
   const took = Math.round(performance.now() - started);
   status.textContent = !hits.length
@@ -629,7 +692,7 @@ async function hear(session) {
   if (!vector) return;
   if (id === latest) {
     session.smoothed ??= new Float32Array(index.items.length).fill(NaN);
-    render(rank(vector, { spoken: true, smoothed: session.smoothed }));
+    render(arrange(rank(vector, { spoken: true, smoothed: session.smoothed })));
     // The status is announced to screen readers, so it only changes once
     // listening ends, not on every update.
     if (session.stopped) status.textContent = "Closest to what you said.";

@@ -55,10 +55,17 @@ function cached(key, compute) {
 function frontMatter(text) {
   const header = text.split("---")[1];
   const fields = {};
-  for (const [, key, value] of header.matchAll(/^\.(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"/gm)) {
+  for (const [, key, value] of header.matchAll(/^\s*\.(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"/gm)) {
     fields[key] = value;
   }
   return fields;
+}
+
+function hash(doc) {
+  return createHash("sha256")
+    .update(MODEL + doc)
+    .digest("hex")
+    .slice(0, 32);
 }
 
 function plain(markdown) {
@@ -96,15 +103,29 @@ async function posts() {
     .sort()) {
     const text = readFileSync(join(dir, file), "utf8");
     const meta = frontMatter(text);
-    if (meta.layout !== "post.shtml") continue;
     const slug = file.replace(/\.smd$/, "");
+    // Posts published elsewhere are only a stub here, so they're indexed by
+    // title and description and link straight to the publication.
+    if (meta.layout === "external.shtml") {
+      const doc = `title: ${meta.title} | text: ${meta.description}`;
+      items.push({
+        kind: "post",
+        title: meta.title,
+        section: null,
+        url: meta.external_url,
+        publication: meta.publication,
+        snippet: meta.description,
+        text: meta.description,
+        vector: await cached(hash(doc), () => embed(processor([doc]))),
+      });
+      console.log(`post ${slug} (${meta.publication})`);
+      continue;
+    }
+    if (meta.layout !== "post.shtml") continue;
     for (const section of sections(slug, text)) {
       const title = section.heading ? `${meta.title}: ${section.heading}` : meta.title;
       const doc = `title: ${title} | text: ${section.text}`;
-      const key = createHash("sha256")
-        .update(MODEL + doc)
-        .digest("hex")
-        .slice(0, 32);
+      const key = hash(doc);
       items.push({
         kind: "post",
         title: meta.title,
