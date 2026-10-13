@@ -29,6 +29,20 @@ zine release
 
 The production site is written to `public/`.
 
+## Search spike
+
+The header search box is an experiment, shown only on the `zine` dev server for now (remove the `$build.development` condition in `layouts/templates/base.shtml` to ship it). It searches the blog and the audio of every video and livestream on the YouTube channel (including This Week in AI) with [EmbeddingGemma 2](https://huggingface.co/onnx-community/embeddinggemma-2-ONNX), running in the visitor's browser, with results updating as they type. Posts are embedded per section as text; videos are embedded straight from their audio in one-minute windows, without transcripts.
+
+The index (`assets/search-index.json`) is committed, because building it downloads every episode and takes a couple of hours. Rebuild it after publishing a post or video, which needs Node, ffmpeg and uv:
+
+```sh
+cd scripts/search
+npm install
+npm run index
+```
+
+Downloads and embeddings are cached in `scripts/search/.cache/`, so reruns only process what's new.
+
 ## Test article examples
 
 The Python snippets in the agentic coding article are checked with pytest-examples:

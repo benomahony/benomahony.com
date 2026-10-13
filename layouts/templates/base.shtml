@@ -35,6 +35,20 @@
 				<a href="$site.page('podcasts').link()">Podcasts</a>
 				<a href="$site.page('talks').link()">Talks</a>
 				<a href="$site.page('blog').link()">Blog</a>
+				<ctx :if="$build.development">
+					<div class="site-search" role="search" data-index="$site.asset('search-index.json').link()" data-worker="$site.asset('search-worker.js').link()">
+						<input type="search" placeholder="Search" aria-label="Search posts and videos" aria-controls="site-search-panel" autocomplete="off">
+						<div class="site-search-panel" id="site-search-panel" hidden>
+							<div class="site-search-enable">
+								<p>Search my writing and every video on my YouTube channel, including This Week in AI. It runs <a href="https://huggingface.co/onnx-community/embeddinggemma-2-ONNX">EmbeddingGemma 2</a> on your device, matching what's said in the videos directly, so nothing you type leaves your browser.</p>
+								<button class="button primary" type="button">Enable search (about 160 MB, once)</button>
+							</div>
+							<p class="site-search-status" role="status"></p>
+							<ol class="site-search-results"></ol>
+						</div>
+					</div>
+					<script type="module" src="$site.asset('search.js').link()"></script>
+				</ctx>
 			</nav>
 		</header>
 		<main id="main">

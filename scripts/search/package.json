@@ -1,0 +1,11 @@
+{
+  "name": "benomahony-search-index",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "index": "node build-index.js"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.3.1"
+  }
+}
