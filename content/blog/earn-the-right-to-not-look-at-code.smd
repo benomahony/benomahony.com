@@ -1,0 +1,16 @@
+
+---
+.title = "Earn the right to not look at code",
+.description = "Many people are advocating to speed up by not looking at the code but very few are talking about what is actually necessary for this to be safe.",
+.date = .date("2026-10-14T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.tags = ["agentic-engineering", "engineering-practices"],
+.layout = "post.shtml",
+.draft = true,
+.custom = .{ .related = ["blog/my-10-rules-for-agentic-engineering", "blog/hardening-codebases-for-agentic-coding", "blog/the-45-min-long-lived-feature-branch"] },
+---
+
+# Earn
+
+
+
