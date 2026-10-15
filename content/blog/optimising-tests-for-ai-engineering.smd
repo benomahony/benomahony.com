@@ -1,0 +1,18 @@
+---
+.title = "optimising-tests-for-ai-engineering",
+.description = "Leaving agents alone to write tests is a recipe for disaster. In this article we will lay out the optimisations needed to have confidence in your test suite.",
+.date = .date("2026-10-15T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.tags = ["agentic-engineering"],
+.layout = "post.shtml",
+.draft = true,
+.custom = .{ .related = [] },
+---
+
+
+== Test Desiderata
+== Branch Coverage
+== Mutation testing
+== Speeding up tests
+== Watching tests during AI runs
+
