@@ -9,8 +9,10 @@
 .custom = .{ .related = [] },
 ---
 
-
+= The tests themselves
 == Test Desiderata
+=== Give helpful and actionable error messages
+
 == Branch Coverage
 == Mutation testing
 == Speeding up tests

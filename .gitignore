@@ -56,6 +56,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+.testmondata
 
 # Translations
 *.mo

@@ -1,0 +1,12 @@
+---
+.title = "time to first customer feedback",
+.description = "The most important metric for a new product or feature",
+.date = .date("2026-10-18T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.tags = ["agentic-engineering"],
+.layout = "post.shtml",
+.draft = true,
+.custom = .{ .related = [] },
+---
+
+

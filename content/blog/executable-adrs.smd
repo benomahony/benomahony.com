@@ -1,5 +1,5 @@
 ---
-.title = "Executable ADRs",
+.title = "Optimising ADRs for AI Engineering",
 .description = "An architecture decision record that nothing checks is a suggestion. Give every decision a test that fails when it's broken.",
 .date = .date("2026-10-13T00:00:00"),
 .authors = ["Ben O'Mahony"],
@@ -9,6 +9,8 @@
 .custom = .{ .related = ["blog/my-10-rules-for-agentic-engineering", "blog/hardening-codebases-for-agentic-coding", "blog/the-45-min-long-lived-feature-branch"] },
 ---
 
-== ADRs without a policy are just content
+== ADRs without a policy are just context
 
 == Proposed ADR structure
+
+
