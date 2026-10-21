@@ -1,0 +1,12 @@
+---
+.title = "If your 'software factory' is a pipeline you are doing it wrong",
+.description = "Building software isn't a linear process, it's an iterative one where you discover the domain as you build.",
+.date = .date("2026-10-21T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.tags = ["agentic-engineering"],
+.layout = "post.shtml",
+.draft = true,
+.custom = .{ .related = [] },
+---
+
+
