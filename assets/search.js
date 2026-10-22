@@ -140,6 +140,13 @@ function resetProgress() {
   lastText = 0;
 }
 
+function background(task) {
+  task.catch((error) => {
+    console.error("Search failed:", error);
+    status.textContent = "Search hit a problem. Try again?";
+  });
+}
+
 // Without the model, typing still finds keyword matches; voice needs it.
 function fail(message) {
   console.warn("Search model unavailable:", message);
@@ -155,7 +162,7 @@ function fail(message) {
   transcripts.clear();
   status.textContent =
     "EmbeddingGemma 2 couldn't start on this device, so search matches keywords.";
-  if (input.value.trim()) search();
+  if (input.value.trim()) background(search());
 }
 
 function start() {
@@ -183,9 +190,9 @@ function start() {
       // Anything said while the model loaded is searched now.
       if (voice) {
         if (!voice.stopped) status.textContent = "Listening…";
-        hear(voice);
+        background(hear(voice));
       } else {
-        search();
+        background(search());
       }
     } else if (data.type === "embedding") {
       pending.get(data.id)?.(data.vector);
@@ -733,7 +740,7 @@ async function hear(session) {
   }
   session.transcribing = false;
   // Catch up on anything said while that ran, including after a pause.
-  if (session === voice) hear(session);
+  if (session === voice) background(hear(session));
 }
 
 async function listen() {
@@ -812,7 +819,7 @@ async function listen() {
     }
     const paused = now - session.heardAt > PAUSE_MS;
     if (session.speaking && paused && now - session.spokeAt > MIN_TALK_MS) stopListening();
-    else hear(session);
+    else background(hear(session));
   };
 
   input.value = "";
@@ -980,7 +987,7 @@ function stopListening() {
   }
   // One last pass over everything said. If an embedding is running, it
   // catches up when it returns; if the model is loading, it runs when ready.
-  hear(session);
+  background(hear(session));
 }
 
 // --- Wiring ----------------------------------------------------------------
@@ -1005,7 +1012,7 @@ function turnOn() {
   remember(true);
   open();
   input.focus();
-  search();
+  background(search());
 }
 
 // Stop using EmbeddingGemma 2, back to keywords only. Its files stay in the
@@ -1027,7 +1034,7 @@ async function turnOff() {
   progress.hidden = true;
   resetProgress();
   open();
-  search();
+  background(search());
   if (await downloaded_()) {
     status.textContent = "AI features are off. Delete EmbeddingGemma 2 from this device too?";
     remove.hidden = false;
@@ -1116,7 +1123,7 @@ if (enabled()) {
 
 mic.addEventListener("click", () => {
   if (voice && !voice.stopped) return stopListening();
-  listen();
+  background(listen());
 });
 
 // Turning on downloads about 370 MB, so the switch first explains what it does.

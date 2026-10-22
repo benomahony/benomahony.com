@@ -201,6 +201,68 @@ blockquote {
   padding: 0.15rem 0 0.15rem 1.25rem;
 }
 
+@font-face {
+  font-display: swap;
+  font-family: Caveat;
+  font-weight: 400 700;
+  src: url("fonts/caveat.woff2") format("woff2");
+}
+
+.pullquote {
+  border-block: 1px solid var(--border);
+  margin: 3rem auto;
+  max-width: 36rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.pullquote > p:empty {
+  display: none;
+}
+
+.pullquote blockquote {
+  border: 0;
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+}
+
+.pullquote blockquote p {
+  font-family: Caveat, cursive;
+  font-size: 2.1rem;
+  font-weight: 500;
+  line-height: 1.25;
+  margin: 0 auto;
+  text-wrap: balance;
+}
+
+.pullquote blockquote p::before {
+  content: "\201C";
+}
+
+.pullquote blockquote p::after {
+  content: "\201D";
+}
+
+.pullquote > p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 1.25rem auto 0;
+}
+
+.pullquote .author {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pullquote > p a {
+  display: block;
+  font-style: italic;
+}
+
 code {
   background: var(--code-background);
   border-radius: 0.25rem;

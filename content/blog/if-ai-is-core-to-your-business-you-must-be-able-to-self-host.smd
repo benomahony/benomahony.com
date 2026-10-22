@@ -10,6 +10,6 @@
 ---
 
 > []($block.attrs('pullquote'))
-> If it’s a core business function — do it yourself, no matter what.
+> > If it’s a core business function — do it yourself, no matter what.
 >
-> — [Joel Spolsky](https://www.joelonsoftware.com/2001/10/14/in-defense-of-not-invented-here-syndrome/#:~:text=If%20it%E2%80%99s%20a%20core%20business%20function%20%E2%80%94%20do%20it%20yourself%2C%20no%20matter%20what)
+> [Joel Spolsky]($text.attrs('author')) [In Defense of Not-Invented-Here Syndrome](https://www.joelonsoftware.com/2001/10/14/in-defense-of-not-invented-here-syndrome/#:~:text=If%20it%E2%80%99s%20a%20core%20business%20function%20%E2%80%94%20do%20it%20yourself%2C%20no%20matter%20what)
