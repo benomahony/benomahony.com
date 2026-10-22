@@ -1,0 +1,15 @@
+---
+.title = "If AI Is Core to Your Business, You Must Be Able to Self-Host",
+.description = "Building on Joel Spolsky’s argument that core business functions belong in-house: if AI is central to your business, you must have the expertise and infrastructure to run models yourself.",
+.date = .date("2026-10-22T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.tags = ["agentic-engineering"],
+.layout = "post.shtml",
+.draft = true,
+.custom = .{ .related = [] },
+---
+
+> []($block.attrs('pullquote'))
+> If it’s a core business function — do it yourself, no matter what.
+>
+> — [Joel Spolsky](https://www.joelonsoftware.com/2001/10/14/in-defense-of-not-invented-here-syndrome/#:~:text=If%20it%E2%80%99s%20a%20core%20business%20function%20%E2%80%94%20do%20it%20yourself%2C%20no%20matter%20what)
