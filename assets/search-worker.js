@@ -20,6 +20,7 @@ let device;
 let processor;
 let model;
 let transcriber;
+let whisperAttempted = false;
 let lastProgress = 0;
 
 // Progress summed across the model files, at most ten updates a second.
@@ -45,6 +46,7 @@ async function embed(inputs) {
 
 async function loadOn(target) {
   device = target;
+  self.postMessage({ type: "diagnostic", event: "model-initializing", device });
   files.clear();
   // Text and audio queries; leave out the image encoder.
   const config = await AutoConfig.from_pretrained(MODEL);
@@ -53,6 +55,7 @@ async function loadOn(target) {
   const dtype = device === "webgpu" ? "q4f16" : "q4";
   processor ??= await AutoProcessor.from_pretrained(MODEL);
   await model?.dispose();
+  model = undefined;
   model = await AutoModel.from_pretrained(MODEL, {
     config,
     device,
@@ -76,31 +79,38 @@ async function onCpu(error) {
 
 // Without Whisper, voice search still works; it just can't hear names.
 async function loadWhisper() {
+  self.postMessage({ type: "diagnostic", event: "whisper-loading", device: "wasm" });
   try {
     transcriber = await pipeline("automatic-speech-recognition", WHISPER, {
       device: "wasm",
       dtype: { encoder_model: "q8", decoder_model_merged: "q8" },
-      progress_callback,
     });
     await transcriber(new Float32Array(16000), { language: "english" });
+    self.postMessage({ type: "diagnostic", event: "whisper-ready", device: "wasm" });
   } catch (error) {
+    await transcriber?.dispose();
+    transcriber = undefined;
+    self.postMessage({ type: "diagnostic", event: "whisper-unavailable" });
     console.warn("Whisper unavailable, so spoken video names won't be recognised:", error);
   }
 }
 
 async function load() {
   const gpu = await navigator.gpu?.requestAdapter().catch(() => null);
-  const whisper = loadWhisper();
   try {
     await loadOn(gpu ? "webgpu" : "wasm");
   } catch (error) {
     await onCpu(error);
   }
-  await whisper;
   self.postMessage({ type: "ready", device });
 }
 
 async function transcribe(audio) {
+  // Typed searches never need a second model in memory.
+  if (!whisperAttempted) {
+    whisperAttempted = true;
+    await loadWhisper();
+  }
   if (!transcriber) return "";
   try {
     return (await transcriber(audio, { language: "english" })).text;
@@ -123,7 +133,7 @@ async function query(data) {
   }
 }
 
-self.onmessage = async ({ data }) => {
+async function handle(data) {
   if (data.type === "load") {
     try {
       await load();
@@ -144,4 +154,33 @@ self.onmessage = async ({ data }) => {
     self.postMessage({ type: "failed", message: String(error?.message ?? error) });
     self.postMessage({ type: "embedding", id: data.id, vector: null });
   }
+}
+
+// Async message handlers otherwise overlap while awaiting inference, including
+// disposing/reloading a GPU model while another query is still using it.
+let running = false;
+const queue = [];
+self.onmessage = ({ data }) => {
+  if (data.type === "query") {
+    const waiting = queue.findIndex((message) => message.type === "query");
+    if (waiting !== -1) {
+      const [superseded] = queue.splice(waiting, 1);
+      self.postMessage({ type: "embedding", id: superseded.id, vector: null });
+    }
+  }
+  queue.push(data);
+  void drain();
 };
+
+async function drain() {
+  if (running) return;
+  running = true;
+  try {
+    while (queue.length) await handle(queue.shift());
+  } catch (error) {
+    self.postMessage({ type: "failed", message: String(error?.message ?? error) });
+    queue.length = 0;
+  } finally {
+    running = false;
+  }
+}
