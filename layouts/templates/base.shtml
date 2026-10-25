@@ -65,12 +65,21 @@
 						</div>
 						<div class="site-search-progress" hidden><span></span></div>
 						<ol class="site-search-results"></ol>
+                        <details class="site-search-diagnostics">
+                            <summary>Search diagnostics</summary>
+                            <p>Stored in this tab only. No search text or audio is recorded or sent. Copy this report when reporting a problem. An interrupted operation can mean a reload or browser shutdown; it does not prove a crash.</p>
+                            <button type="button" data-copy>Copy diagnostics</button>
+                            <button type="button" data-clear>Clear history</button>
+                            <p role="status"></p>
+                            <textarea readonly aria-label="Search diagnostic report" rows="8" style="width:100%;box-sizing:border-box"></textarea>
+                        </details>
 						<div class="site-search-ai">
 							<p class="site-search-about">Typing finds keyword matches. Turn on AI features with the AI switch to search by meaning or by voice.</p>
 						</div>
 					</div>
 				</div>
 				<link rel="modulepreload" href="$site.asset('search-names.js').link()">
+                <link rel="modulepreload" href="$site.asset('search-diagnostics.js').link()">
 					<script type="module" src="$site.asset('search.js').link()"></script>
 			</nav>
 		</header>

@@ -7,6 +7,22 @@
 // focusing the box starts the model from the browser cache.
 
 import { namer } from "./search-names.js";
+import { createDiagnostics, errorCategory } from "./search-diagnostics.js";
+
+let diagnosticStorage;
+try { diagnosticStorage = sessionStorage; } catch {}
+const diagnostics = createDiagnostics(diagnosticStorage, {
+  userAgent: navigator.userAgent,
+  webgpu: Boolean(navigator.gpu),
+  deviceMemoryGB: navigator.deviceMemory ?? null,
+  hardwareConcurrency: navigator.hardwareConcurrency ?? null,
+  crossOriginIsolated: globalThis.crossOriginIsolated,
+});
+let loadingDiagnostic;
+window.addEventListener("pagehide", () => diagnostics.stop("page-hidden"));
+document.addEventListener("visibilitychange", () => {
+  diagnostics.record("visibility", { state: document.visibilityState });
+});
 
 const root = document.querySelector(".site-search");
 const input = root.querySelector("input");
@@ -142,6 +158,7 @@ function resetProgress() {
 
 function background(task) {
   task.catch((error) => {
+    diagnostics.record("search-error", { category: errorCategory(error) });
     console.error("Search failed:", error);
     status.textContent = "Search hit a problem. Try again?";
   });
@@ -149,9 +166,13 @@ function background(task) {
 
 // Without the model, typing still finds keyword matches; voice needs it.
 function fail(message) {
+  diagnostics.record("worker-failed", { category: errorCategory(message) });
+  diagnostics.stop("failed");
   console.warn("Search model unavailable:", message);
   failed = true;
   ready = false;
+  worker?.terminate();
+  worker = undefined;
   progress.hidden = true;
   stopListening();
   voice = undefined;
@@ -167,22 +188,33 @@ function fail(message) {
 
 function start() {
   if (worker || failed) return;
+  loadingDiagnostic = diagnostics.begin("model-load");
   status.textContent = "Starting EmbeddingGemma 2…";
   downloaded_().then((cached) => (fromCache = cached));
-  worker = new Worker(root.dataset.worker, { type: "module" });
+  try {
+    worker = new Worker(root.dataset.worker, { type: "module" });
+  } catch (error) {
+    fail(error.message);
+    return;
+  }
   // The worker script or the library it imports couldn't load.
   worker.onerror = (event) => {
     event.preventDefault();
     fail(event.message);
   };
   worker.onmessage = async ({ data }) => {
-    if (data.type === "progress") {
+    if (data.type === "diagnostic") {
+      diagnostics.record(data.event, { device: data.device, category: data.category });
+    } else if (data.type === "progress") {
       showProgress(data);
     } else if (data.type === "fallback") {
+      diagnostics.record("cpu-fallback");
       resetProgress();
       status.textContent =
         "Your GPU couldn't run EmbeddingGemma 2, so switching to its slower CPU version…";
     } else if (data.type === "ready") {
+      diagnostics.end(loadingDiagnostic);
+      diagnostics.record("model-ready", { device: data.device });
       await loadIndex();
       ready = true;
       progress.hidden = true;
@@ -213,8 +245,12 @@ let transcribed = 0;
 
 function transcribe(audio) {
   const id = ++transcribed;
+  const operation = diagnostics.begin("transcription");
   return new Promise((resolve) => {
-    transcripts.set(id, resolve);
+    transcripts.set(id, (text) => {
+      diagnostics.end(operation, text ? "complete" : "empty-or-unavailable");
+      resolve(text);
+    });
     worker.postMessage({ type: "transcribe", id, audio }, [audio.buffer]);
   });
 }
@@ -222,8 +258,12 @@ function transcribe(audio) {
 // Resolves with a null vector if the model fails.
 function embed(message, transfer = []) {
   const id = ++latest;
+  const operation = diagnostics.begin(message.audio ? "audio-embedding" : "text-embedding");
   return new Promise((resolve) => {
-    pending.set(id, (vector) => resolve({ id, vector }));
+    pending.set(id, (vector) => {
+      diagnostics.end(operation, vector ? "complete" : "cancelled-or-failed");
+      resolve({ id, vector });
+    });
     worker.postMessage({ type: "query", id, ...message }, transfer);
   });
 }
@@ -296,10 +336,12 @@ function rank(query, { spoken = false, smoothed } = {}) {
 
   // For each episode, grow its best window into the run of neighbouring
   // windows that also match, so a result covers the whole stretch of talk.
-  const episodes = Map.groupBy(
-    scored.filter((item) => item.kind === "episode"),
-    (item) => item.video,
-  );
+  const episodes = new Map();
+  for (const item of scored) {
+    if (item.kind !== "episode") continue;
+    if (!episodes.has(item.video)) episodes.set(item.video, []);
+    episodes.get(item.video).push(item);
+  }
   for (const windows of episodes.values()) {
     const best = windows.reduce((a, b) => (b.score > a.score ? b : a));
     if (best.score < floor) continue;
@@ -996,7 +1038,7 @@ function open() {
   panel.hidden = false;
   input.setAttribute("aria-expanded", "true");
   showSetting();
-  loadIndex();
+  background(loadIndex());
   if (enabled()) start();
 }
 
@@ -1018,6 +1060,7 @@ function turnOn() {
 // Stop using EmbeddingGemma 2, back to keywords only. Its files stay in the
 // browser cache unless the visitor chooses to delete them.
 async function turnOff() {
+  diagnostics.stop("disabled");
   remember(false);
   showSetting();
   stopListening();
@@ -1074,7 +1117,7 @@ input.addEventListener("input", () => {
   voice = undefined;
   open();
   clearTimeout(timer);
-  timer = setTimeout(search, DEBOUNCE_MS);
+  timer = setTimeout(() => background(search()), DEBOUNCE_MS);
 });
 // Down arrow moves from the box into the results, arrows move between them,
 // Enter opens the top result, and Escape closes.
@@ -1111,15 +1154,7 @@ document.addEventListener("pointerdown", (event) => {
 
 showSetting();
 
-// Each page load starts EmbeddingGemma 2 afresh (pages don't share memory),
-// so with AI features on, start it as soon as the page is idle rather than
-// waiting for the search box.
-if (enabled()) {
-  (window.requestIdleCallback ?? setTimeout)(() => {
-    loadIndex();
-    start();
-  });
-}
+// Load only when search is opened, even when AI was enabled on an earlier page.
 
 mic.addEventListener("click", () => {
   if (voice && !voice.stopped) return stopListening();
@@ -1162,4 +1197,30 @@ document.addEventListener("pointerdown", (event) => {
   ) {
     explain.hidden = true;
   }
+});
+
+
+const diagnosticPanel = root.querySelector(".site-search-diagnostics");
+const diagnosticReport = diagnosticPanel.querySelector("textarea");
+function refreshDiagnostics() {
+  diagnosticReport.value = diagnostics.report();
+}
+diagnosticPanel.addEventListener("toggle", () => {
+  if (diagnosticPanel.open) refreshDiagnostics();
+});
+diagnosticPanel.querySelector("[data-copy]").addEventListener("click", async () => {
+  refreshDiagnostics();
+  try {
+    await navigator.clipboard.writeText(diagnosticReport.value);
+    diagnosticPanel.querySelector("[role=status]").textContent = "Diagnostics copied.";
+  } catch {
+    diagnosticReport.focus();
+    diagnosticReport.select();
+    diagnosticPanel.querySelector("[role=status]").textContent = "Select and copy the report below.";
+  }
+});
+diagnosticPanel.querySelector("[data-clear]").addEventListener("click", () => {
+  diagnostics.clear();
+  refreshDiagnostics();
+  diagnosticPanel.querySelector("[role=status]").textContent = "Diagnostic history cleared.";
 });
