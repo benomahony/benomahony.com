@@ -60,6 +60,7 @@
 						</a>
 					</div>
 				</div>
+				<p class="subscribe-rss">or follow via <a href="$site.page('blog').alternative('rss').link()">RSS</a></p>
 			</section>
 		</article>
 		<aside class="article-toc">

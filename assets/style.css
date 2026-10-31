@@ -520,6 +520,11 @@ footer p {
   font-size: 0.95rem;
   margin: 0 0 1rem;
 }
+.subscribe .subscribe-rss {
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
+}
+
 .subscribe-badges {
   display: flex;
   flex-wrap: wrap;
