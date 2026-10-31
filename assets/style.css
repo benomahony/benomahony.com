@@ -488,8 +488,15 @@ footer p {
   font-family: inherit;
 }
 
-.subscribe .button-row {
-  margin-top: 1rem;
+.subscribe h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.25rem;
+}
+
+.subscribe p {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0 0 1rem;
 }
 
 .text-link {
