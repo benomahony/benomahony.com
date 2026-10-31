@@ -450,6 +450,48 @@ footer p {
   color: var(--accent);
 }
 
+.subscribe {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  margin-top: 3rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.subscribe-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.subscribe-form input {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  flex: 1 1 16rem;
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  min-width: 0;
+  padding: 0.65rem 1.05rem;
+}
+
+.subscribe-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  outline: none;
+}
+
+.subscribe-form .button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.subscribe .button-row {
+  margin-top: 1rem;
+}
+
 .text-link {
   font-weight: 700;
   text-decoration: none;
