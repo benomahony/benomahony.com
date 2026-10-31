@@ -547,6 +547,7 @@ footer p {
 }
 
 .subscribe-row .badge-link {
+  display: flex;
   margin-top: 0;
 }
 
