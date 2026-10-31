@@ -1,0 +1,23 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<meta name="robots" content="noindex">
+</head>
+
+<main id="main">
+	<header class="page-header">
+		<p class="eyebrow">Almost there</p>
+		<h1>Check your inbox to confirm.</h1>
+		<p class="lede">Click the link in the email from me and you're on the list. While you wait, the weekly show is on YouTube and shorter takes are on LinkedIn.</p>
+		<div class="subscribe-badges">
+			<a class="badge-link" href="https://www.youtube.com/@Ben_OMahony?sub_confirmation=1" target="_blank" rel="noreferrer">
+				<img class="youtube-badge youtube-badge-light" src="$site.asset('youtube-black.svg').link()" alt="Subscribe on YouTube">
+				<img class="youtube-badge youtube-badge-dark" src="$site.asset('youtube-white.svg').link()" alt="Subscribe on YouTube">
+			</a>
+			<a class="badge-link" href="https://www.linkedin.com/in/benomahony/" target="_blank" rel="noreferrer">
+				<img class="youtube-badge youtube-badge-light" src="$site.asset('linkedin-black.svg').link()" alt="Follow on LinkedIn">
+				<img class="youtube-badge youtube-badge-dark" src="$site.asset('linkedin-white.svg').link()" alt="Follow on LinkedIn">
+			</a>
+		</div>
+	</header>
+</main>
