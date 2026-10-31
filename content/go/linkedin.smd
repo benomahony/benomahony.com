@@ -1,0 +1,7 @@
+---
+.title = "Ben O'Mahony on LinkedIn",
+.description = "Redirecting to LinkedIn.",
+.date = .date("2026-10-31T00:00:00"),
+.layout = "redirect.shtml",
+.custom = .{ .external_url = "https://www.linkedin.com/in/benomahony/" },
+---
