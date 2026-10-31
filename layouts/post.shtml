@@ -39,7 +39,7 @@
 			</ctx>
 			<section class="subscribe" aria-labelledby="subscribe-heading">
 				<h2 id="subscribe-heading">Follow along</h2>
-				<p>New posts by email, the weekly show on YouTube, and shorter takes on LinkedIn.</p>
+				<p>New posts by email, videos on YouTube, and shorter takes on LinkedIn.</p>
 				<form class="subscribe-form" action="https://app.kit.com/forms/7530505/subscriptions" method="post">
 					<input type="email" name="email_address" placeholder="Email address" aria-label="Email address" autocomplete="email" required>
 					<button class="button primary" type="submit">Subscribe</button>
