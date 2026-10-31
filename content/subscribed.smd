@@ -1,0 +1,7 @@
+---
+.title = "Almost there",
+.description = "Confirm your email, then follow along on YouTube and LinkedIn.",
+.date = .date("2026-10-31T00:00:00"),
+.layout = "subscribed.shtml",
+.custom = .{ .noindex = true },
+---

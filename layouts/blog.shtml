@@ -2,7 +2,6 @@
 
 <head id="head">
 	<meta property="og:type" content="website">
-	<link rel="alternate" type="application/rss+xml" title="Ben O'Mahony's blog" href="$page.alternative('rss').link()">
 </head>
 
 <main id="main">

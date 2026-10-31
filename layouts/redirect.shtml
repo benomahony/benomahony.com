@@ -7,5 +7,5 @@
 </head>
 
 <main id="main">
-	<p>Taking you to <a href="$page.custom.get('external_url')" :text="$page.title"></a> on O’Reilly…</p>
+	<p>Taking you to <a href="$page.custom.get('external_url')" :text="$page.title"></a>…</p>
 </main>
