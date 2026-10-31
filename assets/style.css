@@ -483,9 +483,31 @@ footer p {
   outline: none;
 }
 
-.subscribe-form .button {
+.badge-button {
+  align-items: center;
+  background: #212121;
+  border: 1px solid #212121;
+  border-radius: 999px;
+  color: #ffffff;
   cursor: pointer;
-  font-family: inherit;
+  display: inline-flex;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  gap: 0.5rem;
+  height: 46px;
+  line-height: 1.1;
+  padding: 0 1.1rem 0 1rem;
+  text-align: left;
+}
+
+.badge-button small {
+  display: block;
+  font-size: 9px;
+}
+
+.badge-button strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .subscribe h2 {
@@ -502,6 +524,30 @@ footer p {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
+}
+
+.subscribe-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.subscribe-row .subscribe-form {
+  flex: 1 1 22rem;
+}
+
+.subscribe-row .subscribe-form {
+  align-items: center;
+}
+
+.subscribe-row .subscribe-form input {
+  flex-basis: 10rem;
+  height: 46px;
+}
+
+.subscribe-row .badge-link {
+  margin-top: 0;
 }
 
 .text-link {
@@ -867,6 +913,11 @@ footer p {
 
   .youtube-badge-dark {
     display: block;
+  }
+
+  .badge-button {
+    background: #ffffff;
+    color: #212121;
   }
 }
 
