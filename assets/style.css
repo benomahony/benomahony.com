@@ -533,17 +533,24 @@ footer p {
   gap: 0.6rem;
 }
 
-.subscribe-row .subscribe-form {
-  flex: 1 1 22rem;
+.subscribe {
+  container-type: inline-size;
 }
 
-.subscribe-row .subscribe-form {
-  align-items: center;
+.subscribe-row .subscribe-form,
+.subscribe-row .subscribe-badges {
+  display: contents;
 }
 
 .subscribe-row .subscribe-form input {
-  flex-basis: 10rem;
+  flex: 1 1 8rem;
   height: 46px;
+}
+
+@container (max-width: 36rem) {
+  .subscribe-row .subscribe-form input {
+    flex-basis: 100%;
+  }
 }
 
 .subscribe-row .badge-link {
