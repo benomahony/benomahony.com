@@ -1,8 +1,9 @@
 # Link checking for the built site in public/. See .github/workflows/links.yml.
 
-# O'Reilly's library pages return 403 to automated clients but work in browsers.
+# O'Reilly's library pages return 403 and LinkedIn profiles return 999 to automated clients but work in browsers.
 exclude = [
     '^https://learning\.oreilly\.com/library/',
+    '^https://www\.linkedin\.com/in/',
 ]
 
 max_retries = 3

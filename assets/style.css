@@ -498,6 +498,11 @@ footer p {
   font-size: 0.95rem;
   margin: 0 0 1rem;
 }
+.subscribe-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
 
 .text-link {
   font-weight: 700;
