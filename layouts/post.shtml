@@ -37,7 +37,13 @@
 					</ol>
 				</section>
 			</ctx>
-			<script async data-uid="28c4adcad7" src="https://52sidehustles.kit.com/28c4adcad7/index.js"></script>
+			<section class="subscribe" aria-label="Subscribe">
+				<form class="subscribe-form" action="https://app.kit.com/forms/7530505/subscriptions" method="post">
+					<input type="email" name="email_address" placeholder="Email address" aria-label="Email address" autocomplete="email" required>
+					<button class="button primary" type="submit">Subscribe</button>
+				</form>
+				<p class="button-row"><a class="button secondary external" href="https://www.youtube.com/@Ben_OMahony?sub_confirmation=1" target="_blank" rel="noreferrer">Subscribe on YouTube <span aria-hidden="true">↗</span></a></p>
+			</section>
 		</article>
 		<aside class="article-toc">
 			<p class="article-toc-title">On this page</p>
