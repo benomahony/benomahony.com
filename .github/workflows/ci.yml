@@ -46,3 +46,7 @@ jobs:
           path: public
       - uses: actions/deploy-pages@v4
         id: deployment
+      - name: Draft newsletter for new posts
+        run: uv run scripts/newsletter.py
+        env:
+          KIT_API_KEY: ${{ secrets.KIT_API_KEY }}
