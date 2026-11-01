@@ -20,10 +20,18 @@ jobs:
         uses: kristoff-it/setup-zine@v2
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
       - name: Generate social cards
         run: uv run scripts/cards.py
+      - name: Export Markdown
+        run: zig build publish
       - name: Build site
         run: zine release
+      - name: Verify published HTML and Markdown
+        run: zig build verify
       - name: Check links
         uses: lycheeverse/lychee-action@v2
         with:

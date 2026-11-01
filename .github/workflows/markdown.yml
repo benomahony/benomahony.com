@@ -1,0 +1,28 @@
+name: Verify Markdown publishing
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: kristoff-it/setup-zine@v2
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+      - uses: astral-sh/setup-uv@v5
+      - name: Generate social cards
+        run: uv run scripts/cards.py
+      - name: Test Markdown rules
+        run: zig build test
+      - name: Generate Markdown
+        run: zig build publish
+      - name: Build Zine site
+        run: zine release
+      - name: Verify published HTML and Markdown
+        run: zig build verify

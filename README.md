@@ -8,10 +8,11 @@ Install Zine 0.14.0 and [uv](https://docs.astral.sh/uv/), generate the social ca
 
 ```sh
 uv run scripts/cards.py
+zig build publish
 zine
 ```
 
-Zine rebuilds the site and refreshes the browser as files change.
+Zine rebuilds the HTML site and refreshes the browser as files change. Regenerate Markdown with `zig build publish` after editing an article. Releases always regenerate and verify both formats.
 
 ## Writing
 
@@ -24,7 +25,9 @@ Zine rebuilds the site and refreshes the browser as files change.
 
 ```sh
 uv run scripts/cards.py
+zig build publish
 zine release
+zig build verify
 ```
 
 The production site is written to `public/`.
@@ -54,3 +57,5 @@ The Python snippets in the agentic coding article are checked with pytest-exampl
 uv sync --extra dev
 uv run pytest
 ```
+
+Every published local blog post has both HTML at `/blog/<slug>/` and Markdown at `/blog/<slug>.md`. The Zig publisher in `src/publish.zig` generates the Markdown assets from the same SuperMD source and excludes drafts and external-only entries. Zine copies the whole generated `assets/blog/` directory. The deploy workflow runs `zig build test` and then checks the actual release output with `zig build verify`.

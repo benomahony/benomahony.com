@@ -36,10 +36,20 @@ jobs:
         run: uv run pytest
       - name: Setup Zine
         uses: kristoff-it/setup-zine@v2
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+      - name: Test Markdown publishing
+        run: zig build test
       - name: Generate social cards
         run: uv run scripts/cards.py
+      - name: Export Markdown
+        run: zig build publish
       - name: Build site
         run: zine release
+      - name: Verify published HTML and Markdown
+        run: zig build verify
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

@@ -1,6 +1,9 @@
 # Zine build output
 public/
 
+# Generated Markdown blog assets (src/publish.zig)
+/assets/blog/
+
 # Generated social cards (scripts/cards.py)
 assets/cards/
 
