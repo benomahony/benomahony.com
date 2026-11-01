@@ -13,6 +13,12 @@ repos:
         language: system
         types: [python]
 
+      - id: publish-date
+        name: set date on newly published posts
+        entry: uv run scripts/publish_date.py
+        language: system
+        files: ^content/blog/.*\.smd$
+
       - id: test-blog-examples
         name: test blog examples
         entry: uv run pytest tests/test_blog_examples.py --examples-only
