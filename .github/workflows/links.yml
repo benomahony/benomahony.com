@@ -22,6 +22,8 @@ jobs:
         uses: astral-sh/setup-uv@v5
       - name: Generate social cards
         run: uv run scripts/cards.py
+      - name: Export Markdown
+        run: uv run scripts/export_markdown.py
       - name: Build site
         run: zine release
       - name: Check links
