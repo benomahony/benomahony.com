@@ -54,3 +54,18 @@ The Python snippets in the agentic coding article are checked with pytest-exampl
 uv sync --extra dev
 uv run pytest
 ```
+
+## Pull request previews
+
+Opening or updating a pull request runs the `PR site preview` workflow. It builds a production-style Zine release (without `--drafts`), runs the Markdown publishing tests when `build.zig` exists, and uploads the full site as a downloadable GitHub Actions artifact. Production on GitHub Pages is never touched.
+
+To enable **live links** on every PR, set up a separate Cloudflare Pages **Direct Upload** project:
+
+1. Create a Cloudflare Pages project with the production branch set to `main`, e.g. `benomahony-preview`. Do **not** connect its custom domain to `benomahony.com`.
+2. Add repository secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. The token needs Cloudflare Pages edit/deployment permissions for the preview project.
+3. If you used a different project name, set the repository variable `CLOUDFLARE_PAGES_PROJECT` to that name.
+4. Update or reopen a PR. Its workflow summary and the Cloudflare deployment comment will link to the stable branch preview, `https://pr-<number>.<project>.pages.dev`.
+
+When Cloudflare isn't configured, CI still builds and uploads the site as an artifact; it simply skips public deployment. PRs from forks also skip public deployment because they cannot access secrets. Preview builds remove the production `CNAME`, disallow crawling in `robots.txt`, and set `X-Robots-Tag: noindex`. **Do not put confidential material in preview builds**, since Cloudflare Pages previews are publicly accessible without additional access controls.
+
+The preview uses the same `zine release` rendering as production and excludes drafts. For local viewing of unpublished drafts, continue to use `zine --drafts`.

@@ -1,0 +1,111 @@
+name: PR site preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: write
+
+concurrency:
+  group: site-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Build and preview PR #${{ github.event.pull_request.number }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Zine
+        uses: kristoff-it/setup-zine@v2
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Generate social cards
+        run: uv run scripts/cards.py
+
+      # Pages on main has no build.zig yet; PRs adding Zig publishing get
+      # the same build and output verification as the production workflow.
+      - name: Setup Zig
+        if: ${{ hashFiles('build.zig') != '' }}
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+      - name: Test Markdown publishing
+        if: ${{ hashFiles('build.zig') != '' }}
+        run: zig build test
+      - name: Generate Markdown
+        if: ${{ hashFiles('build.zig') != '' }}
+        run: zig build publish
+
+      - name: Use preview hostname for canonical URLs
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        env:
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PREVIEW_HOST: pr-${{ github.event.pull_request.number }}.${{ vars.CLOUDFLARE_PAGES_PROJECT || 'benomahony-preview' }}.pages.dev
+        run: |
+          if [[ -n "$ACCOUNT_ID" && -n "$API_TOKEN" ]]; then
+            sed -i "s#https://benomahony.com#https://$PREVIEW_HOST#g" zine.ziggy
+          fi
+      # Build exactly the site that would be deployed, not a --drafts build.
+      - name: Build Zine release
+        run: zine release
+      - name: Verify published HTML and Markdown
+        if: ${{ hashFiles('build.zig') != '' }}
+        run: zig build verify
+      - name: Mark preview as non-indexable
+        run: |
+          rm -f public/CNAME
+          printf 'User-agent: *\nDisallow: /\n' > public/robots.txt
+          printf '/*\n  X-Robots-Tag: noindex, nofollow, noarchive\n' > public/_headers
+
+      - name: Upload complete site for inspection
+        id: artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zine-preview-pr-${{ github.event.pull_request.number }}
+          path: public/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Check Cloudflare preview configuration
+        id: cloudflare
+        env:
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [[ -n "$ACCOUNT_ID" && -n "$API_TOKEN" ]]; then
+            echo 'enabled=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'enabled=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      # Repository secrets are deliberately never exposed to fork PRs.
+      - name: Deploy Cloudflare Pages preview
+        id: deploy
+        if: ${{ steps.cloudflare.outputs.enabled == 'true' && github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy public --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'benomahony-preview' }} --branch=pr-${{ github.event.pull_request.number }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Link PR preview
+        env:
+          PREVIEW_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+          IMMUTABLE_URL: ${{ steps.deploy.outputs.deployment-url }}
+          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact-url }}
+        run: |
+          echo '## Zine PR preview' >> "$GITHUB_STEP_SUMMARY"
+          echo "- [Download the verified site build]($ARTIFACT_URL)" >> "$GITHUB_STEP_SUMMARY"
+          if [[ -n "$PREVIEW_URL" ]]; then
+            echo "- [Open the live PR preview]($PREVIEW_URL)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- [Open this specific deployment]($IMMUTABLE_URL)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '- Live preview is not configured. See the README for Cloudflare Pages setup.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo '- Draft articles are excluded and previews are marked noindex.' >> "$GITHUB_STEP_SUMMARY"
