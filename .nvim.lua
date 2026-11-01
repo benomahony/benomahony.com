@@ -36,3 +36,30 @@ vim.api.nvim_create_user_command("NewPost", function(opts)
 end, { nargs = "?", desc = "New benomahony.com blog post" })
 
 vim.keymap.set("n", "<leader>n", "<cmd>NewPost<cr>", { desc = "New blog post" })
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = blog .. "/*.smd",
+	desc = "Set the date when a draft post is published",
+	callback = function(args)
+		local today = ('.date = .date("%sT00:00:00"),'):format(os.date("%Y-%m-%d"))
+		local date_line
+		for i, line in ipairs(vim.api.nvim_buf_get_lines(args.buf, 0, -1, false)) do
+			if line == ".draft = true," or line == today then
+				return
+			end
+			if not date_line and line:match('^%.date = %.date%(".*"%),$') then
+				date_line = i
+			end
+		end
+		if not date_line then
+			return
+		end
+		local path = vim.api.nvim_buf_get_name(args.buf)
+		local committed = vim.fn.system({ "git", "-C", vim.fs.dirname(path), "show", "HEAD:./" .. vim.fs.basename(path) })
+		if vim.v.shell_error ~= 0 or not committed:find("\n%.draft = true,\n") then
+			return
+		end
+		vim.api.nvim_buf_set_lines(args.buf, date_line - 1, date_line, false, { today })
+		vim.notify("Published: date set to " .. os.date("%Y-%m-%d"))
+	end,
+})
