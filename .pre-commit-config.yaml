@@ -14,7 +14,7 @@ repos:
         types: [python]
 
       - id: publish-date
-        name: set date on newly published posts
+        name: newly published posts are dated today
         entry: uv run scripts/publish_date.py
         language: system
         files: ^content/blog/.*\.smd$

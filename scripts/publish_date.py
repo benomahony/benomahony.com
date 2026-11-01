@@ -8,7 +8,6 @@ from datetime import date
 from pathlib import Path
 
 DRAFT = re.compile(r"^\.draft = true,$", re.MULTILINE)
-DATE = re.compile(r'^\.date = \.date\("[^"]*"\),$', re.MULTILINE)
 
 
 def committed(path: Path) -> str:
@@ -18,15 +17,16 @@ def committed(path: Path) -> str:
 
 def main(paths: list[str]) -> int:
     today = f'.date = .date("{date.today().isoformat()}T00:00:00"),'
-    changed = 0
-    for path in map(Path, paths):
-        text = path.read_text()
-        if DRAFT.search(text) or not DRAFT.search(committed(path)) or today in text:
-            continue
-        path.write_text(DATE.sub(today, text, count=1))
-        print(f"{path}: published, date set to {date.today().isoformat()}")
-        changed += 1
-    return 1 if changed else 0
+    stale = [
+        path
+        for path in map(Path, paths)
+        if not DRAFT.search(path.read_text())
+        and DRAFT.search(committed(path))
+        and today not in path.read_text()
+    ]
+    for path in stale:
+        print(f"{path}: published but not dated today, set {today}")
+    return 1 if stale else 0
 
 
 if __name__ == "__main__":
