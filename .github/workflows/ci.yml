@@ -38,6 +38,8 @@ jobs:
         uses: kristoff-it/setup-zine@v2
       - name: Generate social cards
         run: uv run scripts/cards.py
+      - name: Export Markdown
+        run: uv run scripts/export_markdown.py
       - name: Build site
         run: zine release
       - uses: actions/configure-pages@v5
