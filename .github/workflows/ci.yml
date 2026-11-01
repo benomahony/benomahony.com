@@ -40,13 +40,13 @@ jobs:
         run: uv run scripts/cards.py
       - name: Build site
         run: zine release
+      - name: Draft newsletter for newly published posts
+        run: uv run scripts/newsletter.py
+        env:
+          KIT_API_KEY: ${{ secrets.KIT_API_KEY }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
           path: public
       - uses: actions/deploy-pages@v4
         id: deployment
-      - name: Draft newsletter for new posts
-        run: uv run scripts/newsletter.py
-        env:
-          KIT_API_KEY: ${{ secrets.KIT_API_KEY }}
