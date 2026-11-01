@@ -37,6 +37,16 @@
 					</ol>
 				</section>
 			</ctx>
+			<ctx :if="$page.custom.get?('revisions')">
+				<section class="footnotes" aria-labelledby="revisions-heading">
+					<h2 id="revisions-heading" class="eyebrow">Revisions</h2>
+					<ul>
+						<ctx :loop="$if">
+							<li :text="$loop.it"></li>
+						</ctx>
+					</ul>
+				</section>
+			</ctx>
 			<section class="subscribe" aria-labelledby="subscribe-heading">
 				<h2 id="subscribe-heading">Follow along</h2>
 				<p>New posts by email, videos on YouTube, and shorter takes on LinkedIn.</p>
