@@ -2,24 +2,18 @@ name: Website
 
 on:
   push:
-    branches:
-      - master
-      - main
+    branches: [main]
+  pull_request:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: website-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -28,21 +22,36 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v5
       - name: Install Python test dependencies
         run: uv sync --extra dev
       - name: Test article examples
         run: uv run pytest
-      - name: Setup Zine
-        uses: kristoff-it/setup-zine@v2
+      - uses: kristoff-it/setup-zine@v2
       - name: Generate social cards
         run: uv run scripts/cards.py
+      - name: Setup Zig for Markdown publishing
+        if: ${{ hashFiles('build.zig') != '' }}
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+      - name: Test and generate Markdown
+        if: ${{ hashFiles('build.zig') != '' }}
+        run: |
+          zig build test
+          zig build publish
       - name: Build site
         run: zine release
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
+      - name: Verify Markdown publication
+        if: ${{ hashFiles('build.zig') != '' }}
+        run: zig build verify
+
+      # Only same-repository PRs and main have access to deployment credentials.
+      - name: Deploy to Cloudflare Pages
+        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: cloudflare/wrangler-action@v3
         with:
-          path: public
-      - uses: actions/deploy-pages@v4
-        id: deployment
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy public --project-name=benomahony-com --branch=${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'main' }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
