@@ -1,0 +1,13 @@
+.{
+    .name = .benomahony_com,
+    .version = "0.1.0",
+    .fingerprint = 0x72cff7570ff1f877,
+    .minimum_zig_version = "0.17.0",
+    .dependencies = .{
+        .supermd = .{
+            .url = "git+https://github.com/kristoff-it/supermd#d294f18f05b9f8ca908bbbe3778ae313ace629de",
+            .hash = "supermd-0.1.0-3Mco3FK_WADp-glLo0rNAfyuvGa2ksQZD9bY44TxrZ-Q",
+        },
+    },
+    .paths = .{ "build.zig", "build.zig.zon", "src", "tests" },
+}

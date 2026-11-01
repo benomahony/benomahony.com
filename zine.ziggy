@@ -12,6 +12,7 @@
     .static_assets = [
         "CNAME",
         "robots.txt",
+        "blog",
         "fonts/caveat.woff2",
     ],
 }),
