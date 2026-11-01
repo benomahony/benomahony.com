@@ -12,6 +12,7 @@
     .static_assets = [
         "CNAME",
         "robots.txt",
+        "blog/my-10-rules-for-agentic-engineering.md",
         "fonts/caveat.woff2",
     ],
 }),
