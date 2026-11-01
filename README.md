@@ -24,6 +24,7 @@ Zine rebuilds the site and refreshes the browser as files change.
 
 ```sh
 uv run scripts/cards.py
+uv run scripts/export_markdown.py
 zine release
 ```
 
@@ -54,3 +55,5 @@ The Python snippets in the agentic coding article are checked with pytest-exampl
 uv sync --extra dev
 uv run pytest
 ```
+
+The rules article also has a plain Markdown version at `/blog/my-10-rules-for-agentic-engineering.md`. `scripts/export_markdown.py` regenerates it from the SuperMD source, the deploy workflow runs the exporter before Zine, and pytest detects drift.
