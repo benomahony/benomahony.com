@@ -194,6 +194,13 @@ h3 {
   max-width: 100%;
 }
 
+.prose iframe {
+  aspect-ratio: 16 / 9;
+  border: 0;
+  height: auto;
+  width: 100%;
+}
+
 blockquote {
   border-left: 4px solid var(--accent);
   color: var(--muted);

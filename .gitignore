@@ -179,3 +179,7 @@ cython_debug/
 
 # Search index caches (scripts/search)
 scripts/search/.cache/
+
+# Zig build cache and fetched packages
+.zig-cache/
+zig-pkg/

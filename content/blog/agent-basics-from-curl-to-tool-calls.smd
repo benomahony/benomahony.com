@@ -11,7 +11,11 @@
 
 Agent Basics is a new video series about how AI agents actually work. The first episode skips the frameworks entirely and builds up from a single HTTP request to a model calling a tool that Python executes.
 
-[Watch the first episode on YouTube]($link.page('go/agent-basics')).
+```=html
+<iframe src="https://www.youtube-nocookie.com/embed/sHAQnNVy7JI" title="Agent Basics: from curl to tool calls" loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+```
+
+[Watch the first episode on YouTube](https://benomahony.com/go/agent-basics/).
 
 # [Run a model locally]($heading.id('run-a-model-locally'))
 
