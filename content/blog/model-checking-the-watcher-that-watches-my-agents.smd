@@ -1,0 +1,96 @@
+---
+.title = "Model Checking the Watcher That Watches My Agents",
+.description = "I wrote a TLA+ model of overwatch, the tool that runs my tests beside coding agents. It found two bugs, told me what strict and advisory modes should mean, and showed why test runs need a time limit.",
+.date = .date("2026-11-04T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.tags = ["agentic-engineering", "engineering-practices"],
+.layout = "post.shtml",
+.draft = true,
+.custom = .{ .related = ["blog/my-10-rules-for-agentic-engineering", "blog/hardening-codebases-for-agentic-coding", "blog/the-45-min-long-lived-feature-branch"] },
+---
+
+[overwatch](https://github.com/benomahony/overwatch) runs a project's tests beside a coding agent and hands failures back while the agent is still working, so it fixes what it broke before it moves on. It's my answer to $link.page('blog/my-10-rules-for-agentic-engineering').ref('trust-but-verify'): verification can't be a person watching, so the loop has to close itself.
+
+The trouble is that overwatch lives entirely in the timing. The agent edits whenever it likes. Tests take anything from a second to several minutes, and they read files the agent may still be changing. A run that's still going when the next edit lands is out of date before it finishes. Messages to the agent have to wait for the right moment in its turn. I had plenty of example based tests, but each one checks a single interleaving, and the bugs I was worried about live in the ones nobody thinks to write.
+
+So I wrote a formal model.
+
+# [Why TLA+]($heading.id('why-tla'))
+
+[TLA+](https://lamport.azurewebsites.net/tla/tla.html) describes a system as a set of states and the steps between them, and its model checker, TLC, walks every reachable state looking for one that breaks a property you've written down. It doesn't care about values so much as orderings, which is exactly the problem here.
+
+The [spec](https://github.com/benomahony/overwatch/blob/main/spec/Overwatch.tla) models the Claude Code integration: the agent's edits and turns, test runs of any length whose result can come from any version of the code between when they started and when they finished, the 400ms quiet period before a rerun, killing a run that a newer edit has overtaken, and the outbox that holds messages until the agent can take them.
+
+Then come the properties. A few of them:
+
+- The baseline, what the project looked like when the session started, never absorbs the agent's own edits.
+- Every edit is eventually checked.
+- Every new failure eventually reaches the agent.
+
+# [Two bugs on the first run]($heading.id('two-bugs'))
+
+TLC found two violations within seconds, and both were real.
+
+**The baseline swallowed the agent's failures.** overwatch takes the session's first full run as its baseline, so existing failures in a legacy codebase count as backlog rather than something the agent must fix right now. But the agent can start editing while that first run is still going. The run may read the edited code, and its result became the baseline. A failure the agent had just caused was filed as old debt and never reported.
+
+**Edits during the first run were never rechecked.** For watchers that rerun the suite after edits, the rerun hook was only installed once the first run finished. Any edit before then triggered nothing, so the counterexample was simply: start the session, edit twice while the first run is slow, finish the turn, and the broken code is never tested again.
+
+Neither shows up in a test where the first run finishes instantly, which is every test I'd written. The fix was small: remember edits from the moment a watcher is found, rerun once the first run ends, and don't trust a first result that came after an edit. I wrote the failing test first, then the fix, then updated the model to match, and TLC now passes every property. That's $link.page('blog/my-10-rules-for-agentic-engineering').ref('every-failure-becomes-a-ratchet') in practice: the model checks for that bug on every push from now on.
+
+# [What strict and advisory should mean]($heading.id('modes'))
+
+I'd been wanting modes for a while: something lighter for exploring, and something stricter for code that matters. Writing them into the model forced me to say precisely what each one guarantees.
+
+| Mode | Stop is guarded by | Edits are limited by |
+| --- | --- | --- |
+| advisory | nothing | nothing |
+| default | new failures | how far ahead of the tests the agent is |
+| strict | any failure, or no result yet for the current code | that, plus a budget of edits while a failure stands |
+
+The difference between default and strict turned out to be all about stale results. In default, the agent can finish while a test run is still in flight, and if that run then fails, overwatch wakes the session again. In strict, it can't finish until there's a passing result for exactly the code it has now.
+
+The model also checks that the modes nest: whatever advisory guards, default guards too, and whatever default guards, strict guards too. That one property stops the modes drifting apart as the code changes.
+
+```
+ModesNest ==
+    /\ Guard("advisory") => Guard("default")
+    /\ Guard("default") => Guard("strict")
+```
+
+# [Stopping agents from running too far ahead]($heading.id('running-ahead'))
+
+What I really don't want is an agent that piles twenty edits on top of a broken build and leaves the mess behind it. So I added two limits to the model. The agent may be at most a few edits ahead of the last finished result. In strict mode it gets a small budget of edits while a new failure stands, and after that the turn stops and waits for me, rather than blocking its edits, which would block the repair too.
+
+TLC immediately pointed out that the first limit is unsafe on its own. If a test can hang, the agent is blocked from editing forever, and every failure after it goes unreported. Runs eventually end, editing eventually resumes and failures eventually reach the agent all fail without a time limit on test runs. With one, they all hold.
+
+It caught a subtler problem with the time limit too. My first version treated a timeout in the session's first run as inherited, like any other existing failure. That leaves overwatch blind on a suite that always times out: nothing ever finishes, so nothing ever counts as new. A timeout means the result is unknown, not that the code is fine, so it is now never part of the baseline and is always reported.
+
+# [How long can tests take?]($heading.id('how-long'))
+
+TLA+ answers "can this go wrong?", not "how long?", so for the numbers I simulated the same rules over real time, with the gaps between edits taken from my own Claude Code transcripts. In the session I measured, the median gap was about 13 seconds with a heavy tail, so the average was nearer 27.
+
+| Rerun time | Slowdown, 1 edit ahead | 3 ahead | 5 ahead |
+| --- | --- | --- | --- |
+| 5s | 2% | 0% | 0% |
+| 15s | 19% | 3% | 1% |
+| 30s | 58% | 14% | 5% |
+| 60s | 154% | 42% | 21% |
+| 120s | 360% | 112% | 56% |
+
+The rule of thumb that falls out: the slowdown is roughly the rerun time divided by the number of edits allowed ahead times the average gap between edits. My five second unit tests are comfortably fine at any limit. Somewhere past 30 seconds the agent starts spending real time waiting, and with no limit at all a two minute suite reports a failure four and a half minutes after the edit that caused it, by which point the agent has made around ten more.
+
+Two things surprised me. A five minute first run costs half or more of the first turn if the ahead limit applies to it, so the first run needs to be exempt. And overwatch counts every shell command as an edit, so a `grep` restarts the test run. Only counting commands that actually change files would make slow suites much more workable. Test selection, like pytest-testmon rerunning only the tests an edit touches, is what makes longer suites viable at all.
+
+If you want your own numbers, `python3 scripts/timing.py budget` in the overwatch repo fits your transcripts and prints the longest rerun time for a slowdown you choose.
+
+# [Model checking in CI]($heading.id('ci'))
+
+A model that only runs on my laptop will drift from the code, so it runs on every push. I couldn't find a GitHub Action for TLC (everyone writes the download and run steps by hand), so I wrote [tla-check](https://github.com/benomahony/tla-check). It finds every TLC config with a spec beside it, runs TLC, and annotates each violation on the line that defines the broken property, with the counterexample in the job summary.
+
+One gotcha worth knowing: TLC's `v1.8.0` release jar is rebuilt nightly, so a checksum pinned to it breaks within a day. The action pins 1.7.4, the latest release that doesn't change.
+
+# [Takeaways]($heading.id('takeaways'))
+
+Agents make timing bugs more likely, not less. They edit faster and more often than people do, while test runs take as long as ever, so the window where the code and its result disagree is open most of the time. Example based tests check the interleavings you thought of. A model checker checks the ones you didn't.
+
+Formal methods also turned out to be a design tool rather than just a bug finder. Writing the modes down as properties forced me to say what strict actually promises, and TLC told me the time limit wasn't optional before I'd written a line of it.
