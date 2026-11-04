@@ -7,6 +7,8 @@ const assets_dir = "assets/blog";
 const public_dir = "public/blog";
 const Mode = enum { generate, verify };
 
+pub const std_options: std.Options = .{ .log_level = .info };
+
 fn read(io: std.Io, allocator: std.mem.Allocator, path: []const u8) ![]u8 {
     return std.Io.Dir.cwd().readFileAlloc(io, path, allocator, .limited(1024 * 1024));
 }
