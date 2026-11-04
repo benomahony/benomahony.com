@@ -35,5 +35,5 @@ jobs:
       - name: Check links
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --no-progress --config lychee.toml --root-dir "${{ github.workspace }}/public" --remap "^https://benomahony\.com/(.*)$ file://${{ github.workspace }}/public/$1" "public/**/*.html"
+          args: --no-progress --config lychee.toml --root-dir "${{ github.workspace }}/public" --remap "^https://benomahony\.com/(.*)$ file://${{ github.workspace }}/public/\$1" "public/**/*.html"
           fail: true
