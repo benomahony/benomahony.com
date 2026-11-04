@@ -1,4 +1,6 @@
 # Link checking for the built site in public/. See .github/workflows/links.yml.
+# The workflow remaps https://benomahony.com/ to public/ so new pages are checked against
+# this build rather than the live site, which may not be deployed yet.
 
 # O'Reilly's library pages return 403 and LinkedIn profiles return 999 to automated clients but work in browsers.
 exclude = [
