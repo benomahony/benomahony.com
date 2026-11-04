@@ -1,0 +1,7 @@
+---
+.title = "Agent Basics on YouTube",
+.description = "Redirecting to YouTube.",
+.date = .date("2026-11-04T00:00:00"),
+.layout = "redirect.shtml",
+.custom = .{ .external_url = "https://youtu.be/sHAQnNVy7JI" },
+---

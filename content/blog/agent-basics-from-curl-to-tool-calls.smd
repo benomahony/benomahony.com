@@ -1,0 +1,94 @@
+---
+.title = "Agent Basics: from curl to tool calls",
+.description = "The first episode of Agent Basics. No frameworks, just HTTP requests to a local model, structured output and a tool call executed in Python.",
+.date = .date("2026-11-04T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.tags = ["ai-agents"],
+.layout = "post.shtml",
+.draft = false,
+.custom = .{ .related = ["blog/build-your-own-coding-agent", "blog/my-10-rules-for-agentic-engineering", "blog/hardening-codebases-for-agentic-coding"] },
+---
+
+Agent Basics is a new video series about how AI agents actually work. The first episode skips the frameworks entirely and builds up from a single HTTP request to a model calling a tool that Python executes.
+
+[Watch the first episode on YouTube]($link.page('go/agent-basics')).
+
+# [Run a model locally]($heading.id('run-a-model-locally'))
+
+Everything in the episode runs against a model on my own machine, served by LM Studio with an OpenAI compatible API.
+
+```sh
+lms server start
+lms load qwen3.8-27b --context-length 32768
+```
+
+# [A simple request]($heading.id('a-simple-request'))
+
+The model is behind an HTTP endpoint. You send a list of messages, a system prompt and a user prompt, and you get a message back.
+
+```sh
+curl -s http://localhost:1234/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3.8-27b",
+    "messages": [
+      {"role": "system", "content": "You answer only in rhymes."},
+      {"role": "user", "content": "What is your favorite color?"}
+    ]
+  }' | jq '.choices[0].message'
+```
+
+# [Structured output]($heading.id('structured-output'))
+
+Passing a JSON schema in `response_format` constrains the model to return an object your code can parse.
+
+```json
+"response_format": {
+  "type": "json_schema",
+  "json_schema": {
+    "name": "agent_anatomy",
+    "strict": true,
+    "schema": { "type": "object", "properties": { "model": { "type": "string" } } }
+  }
+}
+```
+
+# [Tool calling]($heading.id('tool-calling'))
+
+Describe a function in `tools` and the model can choose to call it. The model returns the function name and its arguments as JSON. It does not run anything.
+
+```json
+"tools": [{
+  "type": "function",
+  "function": {
+    "name": "get_weather",
+    "description": "Get the current temperature for a city",
+    "parameters": {
+      "type": "object",
+      "properties": { "city": { "type": "string" } },
+      "required": ["city"]
+    }
+  }
+}]
+```
+
+# [Executing tools in Python]($heading.id('executing-tools-in-python'))
+
+Read the tool call, run the function, append the result as a `tool` message and ask the model again.
+
+```python
+assistant = complete()
+messages.append(assistant)
+
+call = assistant["tool_calls"][0]
+arguments = json.loads(call["function"]["arguments"])
+result = get_weather(arguments["city"])
+
+messages.append({"role": "tool", "tool_call_id": call["id"], "content": json.dumps(result)})
+print(complete()["content"])
+```
+
+That is the core of every agent. 
+The model requests, your code executes, and the result goes back into the context. 
+Put that in a loop and you have an agent.
+
