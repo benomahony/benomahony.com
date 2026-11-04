@@ -9,7 +9,7 @@
 .custom = .{ .related = ["blog/my-10-rules-for-agentic-engineering", "blog/hardening-codebases-for-agentic-coding", "blog/the-45-min-long-lived-feature-branch"] },
 ---
 
-[overwatch](https://github.com/benomahony/overwatch) runs a project's tests beside a coding agent and hands failures back while the agent is still working, so it fixes what it broke before it moves on. It's my answer to $link.page('blog/my-10-rules-for-agentic-engineering').ref('trust-but-verify'): verification can't be a person watching, so the loop has to close itself.
+[overwatch](https://github.com/benomahony/overwatch) runs a project's tests beside a coding agent and hands failures back while the agent is still working, so it fixes what it broke before it moves on. It's my answer to [trust but verify]($link.page('blog/my-10-rules-for-agentic-engineering').ref('trust-but-verify')): verification can't be a person watching, so the loop has to close itself.
 
 The trouble is that overwatch lives entirely in the timing. The agent edits whenever it likes. Tests take anything from a second to several minutes, and they read files the agent may still be changing. A run that's still going when the next edit lands is out of date before it finishes. Messages to the agent have to wait for the right moment in its turn. I had plenty of example based tests, but each one checks a single interleaving, and the bugs I was worried about live in the ones nobody thinks to write.
 
@@ -35,7 +35,7 @@ TLC found two violations within seconds, and both were real.
 
 **Edits during the first run were never rechecked.** For watchers that rerun the suite after edits, the rerun hook was only installed once the first run finished. Any edit before then triggered nothing, so the counterexample was simply: start the session, edit twice while the first run is slow, finish the turn, and the broken code is never tested again.
 
-Neither shows up in a test where the first run finishes instantly, which is every test I'd written. The fix was small: remember edits from the moment a watcher is found, rerun once the first run ends, and don't trust a first result that came after an edit. I wrote the failing test first, then the fix, then updated the model to match, and TLC now passes every property. That's $link.page('blog/my-10-rules-for-agentic-engineering').ref('every-failure-becomes-a-ratchet') in practice: the model checks for that bug on every push from now on.
+Neither shows up in a test where the first run finishes instantly, which is every test I'd written. The fix was small: remember edits from the moment a watcher is found, rerun once the first run ends, and don't trust a first result that came after an edit. I wrote the failing test first, then the fix, then updated the model to match, and TLC now passes every property. That's [every failure becomes a ratchet]($link.page('blog/my-10-rules-for-agentic-engineering').ref('every-failure-becomes-a-ratchet')) in practice: the model checks for that bug on every push from now on.
 
 # [What strict and advisory should mean]($heading.id('modes'))
 
