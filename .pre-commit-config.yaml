@@ -19,3 +19,10 @@ repos:
         language: system
         files: ^content/blog/.*\.smd$
         pass_filenames: false
+
+      - id: search-index-covers-videos
+        name: search index covers linked videos
+        entry: uv run pytest tests/test_search_index.py
+        language: system
+        files: ^(content/.*\.smd|layouts/.*|assets/search-index\.json)$
+        pass_filenames: false
