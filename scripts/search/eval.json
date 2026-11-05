@@ -1,5 +1,5 @@
 {
- "about": "Retrieval test set for eval.py. Video queries were written from Whisper transcripts of randomly sampled minutes; a hit is a window of the right video starting within 30 s of the sampled moment. Named cases are spoken requests for a whole video by (part of) its title; every video title is also tried in full.",
+ "about": "Retrieval test set for eval.py. Video queries were written from Whisper transcripts of randomly sampled minutes; a hit is a window of the right video starting within 30 s of the sampled moment, or of any moment listed in `also` that covers the same topic. Named cases are spoken requests for a whole video by (part of) its title; every video title is also tried in full.",
  "videos": [
   {
    "query": "Stainless generating SDKs and MCP servers from OpenAPI specs",
@@ -14,7 +14,13 @@
   {
    "query": "vendor lock-in with a single AI provider and enterprise contracts",
    "video": "n48FeyLB-Yw",
-   "start": 480
+   "start": 480,
+   "also": [
+    {
+     "video": "ql3P2cRRR6A",
+     "start": 2640
+    }
+   ]
   },
   {
    "query": "letting Claude Code pick which model to use versus Sakana routing",
@@ -79,7 +85,13 @@
   {
    "query": "coding model pricing and leaderboards",
    "video": "Ys0B6gkV0CA",
-   "start": 660
+   "start": 660,
+   "also": [
+    {
+     "video": "GNuEfqHXdhQ",
+     "start": 1110
+    }
+   ]
   },
   {
    "query": "specifying the interface up front makes generation cheaper and more flexible",
@@ -174,7 +186,13 @@
   {
    "query": "a structured output box as a building block for other things",
    "video": "8Oi8WJ9pO4M",
-   "start": 2070
+   "start": 2070,
+   "also": [
+    {
+     "video": "sHAQnNVy7JI",
+     "start": 150
+    }
+   ]
   },
   {
    "query": "major providers making smaller, focused fine-tuned models",
@@ -234,7 +252,53 @@
   {
    "query": "Anthropic confidentially filing for an IPO",
    "video": "YfMAi8drFU8",
-   "start": 810
+   "start": 810,
+   "also": [
+    {
+     "video": "NaO_beUAdig",
+     "start": 930
+    }
+   ]
+  },
+  {
+   "query": "a system prompt that makes the model only answer in rhymes",
+   "video": "sHAQnNVy7JI",
+   "start": 60
+  },
+  {
+   "query": "Python running the requested tool and appending its result to the messages",
+   "video": "sHAQnNVy7JI",
+   "start": 360
+  },
+  {
+   "query": "AI labs vertically integrating and locking customers in to become profitable",
+   "video": "NaO_beUAdig",
+   "start": 750
+  },
+  {
+   "query": "investor notes saying enterprise AI adoption is lacking",
+   "video": "NaO_beUAdig",
+   "start": 1140
+  },
+  {
+   "query": "a robot dog that failed for lack of adoption",
+   "video": "ql3P2cRRR6A",
+   "start": 1290
+  },
+  {
+   "query": "governments providing services in the languages of their constituents",
+   "video": "ql3P2cRRR6A",
+   "start": 3150
+  },
+  {
+   "query": "learning different stacks and skill sets makes you a more effective engineer",
+   "video": "GNuEfqHXdhQ",
+   "start": 2280
+  },
+  {
+   "query": "editing generated images as separate elements rather than pixel by pixel",
+   "video": "GNuEfqHXdhQ",
+   "start": 3240
   }
  ],
  "posts": [
@@ -285,6 +349,14 @@
   {
    "query": "workshop format with short build sprints and demos",
    "url": "/blog/the-45-min-long-lived-feature-branch/#workshop-structure"
+  },
+  {
+   "query": "send a chat completions request to a local model with curl",
+   "url": "/blog/agent-basics-from-curl-to-tool-calls/#a-simple-request"
+  },
+  {
+   "query": "make the model reply with JSON that matches a schema",
+   "url": "/blog/agent-basics-from-curl-to-tool-calls/#structured-output"
   }
  ],
  "offtopic": [
@@ -333,6 +405,10 @@
   {
    "query": "the 30th of July episode",
    "video": "vlzJ6EE7Tsc"
+  },
+  {
+   "query": "the agent fundamentals video",
+   "video": "sHAQnNVy7JI"
   }
  ]
 }

@@ -1,0 +1,30 @@
+{
+ "mixed": {
+  "MRR": 0.8068,
+  "cases": 55,
+  "off-topic shown": 0,
+  "top1": 0.7455,
+  "top5": 0.8909
+ },
+ "names: full titles": {
+  "cases": 43,
+  "correct": 40,
+  "wrong": 0
+ },
+ "names: partial names": {
+  "cases": 11,
+  "correct": 9,
+  "wrong": 0
+ },
+ "names: topics": {
+  "cases": 55,
+  "correct": 55,
+  "wrong": 0
+ },
+ "posts among posts": {
+  "MRR": 0.7917,
+  "cases": 14,
+  "top1": 0.6429,
+  "top5": 1.0
+ }
+}
