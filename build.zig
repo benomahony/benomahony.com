@@ -1,18 +1,19 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
-    const supermd_dep = b.dependency("supermd", .{ .target = b.graph.host, .optimize = .Debug });
+    const optimize = b.standardOptimizeOption(.{});
+    const supermd_dep = b.dependency("supermd", .{ .target = b.graph.host, .optimize = optimize });
     const supermd = supermd_dep.module("supermd");
     const markdown = b.createModule(.{
         .root_source_file = b.path("src/markdown.zig"),
         .target = b.graph.host,
-        .optimize = .Debug,
+        .optimize = optimize,
     });
 
     const tests_module = b.createModule(.{
         .root_source_file = b.path("tests/markdown_test.zig"),
         .target = b.graph.host,
-        .optimize = .Debug,
+        .optimize = optimize,
     });
     markdown.addImport("supermd", supermd);
     tests_module.addImport("markdown", markdown);
@@ -26,7 +27,7 @@ pub fn build(b: *std.Build) void {
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/publish.zig"),
             .target = b.graph.host,
-            .optimize = .Debug,
+            .optimize = optimize,
         }),
     });
 
