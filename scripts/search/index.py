@@ -105,9 +105,13 @@ def cached_vectors(name: str, compute) -> np.ndarray:
 def text_vectors(texts: list[str]) -> np.ndarray:
     """Embed texts, caching each by content."""
     keys = [hashlib.sha256((MODEL + t).encode()).hexdigest()[:32] for t in texts]
-    missing = [t for t, k in zip(texts, keys) if not (CACHE / "vectors" / f"text-{k}.npy").exists()]
+    missing = [
+        t
+        for t, k in zip(texts, keys, strict=True)
+        if not (CACHE / "vectors" / f"text-{k}.npy").exists()
+    ]
     if missing:
-        for t, v in zip(missing, embed(missing)):
+        for t, v in zip(missing, embed(missing), strict=True):
             k = hashlib.sha256((MODEL + t).encode()).hexdigest()[:32]
             cached_vectors(f"text-{k}", lambda v=v: v)
     return np.stack([np.load(CACHE / "vectors" / f"text-{k}.npy") for k in keys])
@@ -150,7 +154,9 @@ def sections(slug: str, text: str) -> list[dict]:
     for part in parts:
         text = plain("\n".join(part["lines"]))
         if len(text) > 40:
-            out.append({"heading": part["heading"], "text": text, "url": f"/blog/{slug}/{part['anchor']}"})
+            out.append(
+                {"heading": part["heading"], "text": text, "url": f"/blog/{slug}/{part['anchor']}"}
+            )
     return out
 
 
@@ -162,27 +168,35 @@ def posts() -> list[dict]:
         if meta.get("layout") == "external.shtml":
             # Published elsewhere: only the title and description live here,
             # and the result links straight to the publication.
-            items.append({
-                "kind": "post",
-                "title": meta["title"],
-                "section": None,
-                "url": meta["external_url"],
-                "publication": meta["publication"],
-                "text": meta["description"],
-            })
+            items.append(
+                {
+                    "kind": "post",
+                    "title": meta["title"],
+                    "section": None,
+                    "url": meta["external_url"],
+                    "publication": meta["publication"],
+                    "text": meta["description"],
+                }
+            )
             docs.append(document(meta["title"], meta["description"]))
         elif meta.get("layout") == "post.shtml":
             for section in sections(file.stem, text):
-                title = f"{meta['title']}: {section['heading']}" if section["heading"] else meta["title"]
-                items.append({
-                    "kind": "post",
-                    "title": meta["title"],
-                    "section": section["heading"],
-                    "url": section["url"],
-                    "text": section["text"],
-                })
+                title = (
+                    f"{meta['title']}: {section['heading']}"
+                    if section["heading"]
+                    else meta["title"]
+                )
+                items.append(
+                    {
+                        "kind": "post",
+                        "title": meta["title"],
+                        "section": section["heading"],
+                        "url": section["url"],
+                        "text": section["text"],
+                    }
+                )
                 docs.append(document(title, section["text"]))
-    for item, vector in zip(items, text_vectors(docs)):
+    for item, vector in zip(items, text_vectors(docs), strict=True):
         item["vector"] = vector
     print(f"{len(items)} post sections")
     return items
@@ -199,7 +213,10 @@ def episodes(offline: bool) -> list[dict]:
         with yt_dlp.YoutubeDL({"extract_flat": True, "quiet": True}) as ydl:
             for tab in CHANNEL_TABS:
                 for entry in ydl.extract_info(f"{CHANNEL}/{tab}", download=False)["entries"]:
-                    listed[entry["id"]] = {"id": entry["id"], "title": " ".join(entry["title"].split())}
+                    listed[entry["id"]] = {
+                        "id": entry["id"],
+                        "title": " ".join(entry["title"].split()),
+                    }
         path.write_text(json.dumps(list(listed.values()), indent=1))
     return json.loads(path.read_text())
 
@@ -229,7 +246,20 @@ def audio(video: str) -> Path:
 
 def samples(path: Path) -> np.ndarray:
     pcm = subprocess.run(
-        ["ffmpeg", "-v", "error", "-i", str(path), "-ac", "1", "-ar", str(RATE), "-f", "f32le", "-"],
+        [
+            "ffmpeg",
+            "-v",
+            "error",
+            "-i",
+            str(path),
+            "-ac",
+            "1",
+            "-ar",
+            str(RATE),
+            "-f",
+            "f32le",
+            "-",
+        ],
         check=True,
         capture_output=True,
     ).stdout
@@ -262,7 +292,9 @@ def transcript(video: str) -> list[dict]:
     # vectors, so stop instead. Delete the cached transcript to redo it.
     foreign = sum(bool(re.search(r"[^\x00-ɏ -⁯]", s["text"])) for s in kept)
     if foreign > len(kept) * 0.02:
-        raise SystemExit(f"{path} has {foreign}/{len(kept)} non-Latin segments; delete it to re-transcribe")
+        raise SystemExit(
+            f"{path} has {foreign}/{len(kept)} non-Latin segments; delete it to re-transcribe"
+        )
     return kept
 
 
@@ -279,12 +311,16 @@ def windows(episode: dict, variant: str) -> list[dict]:
     texts = [document(episode["title"], said(segments, s, s + WINDOW) or "none") for s in starts]
 
     def mixed():
-        return embed([{"text": f"{t} <|audio|>", "audio": c} for t, c in zip(texts, clips)])
+        return embed(
+            [{"text": f"{t} <|audio|>", "audio": c} for t, c in zip(texts, clips, strict=True)]
+        )
 
     def heard():
         return embed([{"audio": c} for c in clips])
 
-    unit = lambda v: v / np.linalg.norm(v, axis=1, keepdims=True)
+    def unit(v):
+        return v / np.linalg.norm(v, axis=1, keepdims=True)
+
     if variant == "mixed":
         vectors = cached_vectors(f"{video}-{WINDOW}-{HOP}-mixed", mixed)
     elif variant == "text":
@@ -303,7 +339,7 @@ def windows(episode: dict, variant: str) -> list[dict]:
             "text": said(segments, s, s + HOP),
             "vector": v,
         }
-        for s, v in zip(starts, vectors)
+        for s, v in zip(starts, vectors, strict=True)
     ]
 
 
@@ -328,22 +364,53 @@ def videos(offline: bool, variant: str, limit: int | None) -> list[dict]:
 # query. Recording each passage's mean and spread against a bank of unrelated
 # queries lets the browser rank by how unusually well a passage matches.
 BANK = [
-    "latest frontier model release", "open-weight models", "model pricing and cost per token",
-    "benchmarks and leaderboards", "AI regulation and policy", "copyright and training data",
-    "coding agents in the terminal", "agent frameworks and harnesses",
-    "evaluating LLM applications", "retrieval-augmented generation", "vector databases",
-    "fine-tuning small language models", "GPU shortages and data centres",
-    "chip makers and acquisitions", "AI startups raising money",
-    "jailbreaks and prompt injection", "AI safety research", "hallucinations in production",
-    "voice assistants and speech models", "image and video generation",
-    "robotics and embodied AI", "self-driving cars", "AI in healthcare", "AI in education",
-    "enterprise AI adoption", "developer productivity", "pair programming with AI",
-    "testing and continuous integration", "platform engineering",
-    "observability and telemetry", "data products and governance", "knowledge management",
-    "consulting and client work", "hiring and careers in tech", "remote work",
-    "open source licensing", "cloud providers", "mobile apps", "privacy and on-device AI",
-    "search engines", "social media", "the weather this week", "football results",
-    "cooking dinner", "travel plans", "a funny story", "music and podcasts",
+    "latest frontier model release",
+    "open-weight models",
+    "model pricing and cost per token",
+    "benchmarks and leaderboards",
+    "AI regulation and policy",
+    "copyright and training data",
+    "coding agents in the terminal",
+    "agent frameworks and harnesses",
+    "evaluating LLM applications",
+    "retrieval-augmented generation",
+    "vector databases",
+    "fine-tuning small language models",
+    "GPU shortages and data centres",
+    "chip makers and acquisitions",
+    "AI startups raising money",
+    "jailbreaks and prompt injection",
+    "AI safety research",
+    "hallucinations in production",
+    "voice assistants and speech models",
+    "image and video generation",
+    "robotics and embodied AI",
+    "self-driving cars",
+    "AI in healthcare",
+    "AI in education",
+    "enterprise AI adoption",
+    "developer productivity",
+    "pair programming with AI",
+    "testing and continuous integration",
+    "platform engineering",
+    "observability and telemetry",
+    "data products and governance",
+    "knowledge management",
+    "consulting and client work",
+    "hiring and careers in tech",
+    "remote work",
+    "open source licensing",
+    "cloud providers",
+    "mobile apps",
+    "privacy and on-device AI",
+    "search engines",
+    "social media",
+    "the weather this week",
+    "football results",
+    "cooking dinner",
+    "travel plans",
+    "a funny story",
+    "music and podcasts",
 ]
 
 
@@ -374,18 +441,24 @@ def main() -> None:
     # int8 with a per-vector scale, so the browser ranks by dot product.
     scales = np.abs(unit).max(axis=1) / 127
     packed = np.round(unit / scales[:, None]).astype(np.int8)
-    for item, m, s in zip(items, mean, std):
+    for item, m, s in zip(items, mean, std, strict=True):
         item["mean"] = round(float(m), 4)
         item["std"] = round(float(s), 4)
 
-    OUT.write_text(json.dumps({
-        "model": BROWSER_MODEL,
-        "dims": DIMS,
-        "variant": args.variant,
-        "items": items,
-        "scales": [float(f"{s:.6g}") for s in scales],
-        "vectors": base64.b64encode(packed.tobytes()).decode(),
-    }, separators=(",", ":"), ensure_ascii=False))
+    OUT.write_text(
+        json.dumps(
+            {
+                "model": BROWSER_MODEL,
+                "dims": DIMS,
+                "variant": args.variant,
+                "items": items,
+                "scales": [float(f"{s:.6g}") for s in scales],
+                "vectors": base64.b64encode(packed.tobytes()).decode(),
+            },
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+    )
     print(f"{len(items)} items -> {OUT}")
 
 
