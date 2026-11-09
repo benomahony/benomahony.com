@@ -89,9 +89,10 @@ async function loadWhisper() {
 }
 
 async function load() {
-  const gpu = await navigator.gpu?.requestAdapter().catch(() => null);
   const whisper = loadWhisper();
   try {
+    // requestAdapter's own failure means no GPU, not a failed load.
+    const gpu = await navigator.gpu?.requestAdapter().catch(() => null);
     await loadOn(gpu ? "webgpu" : "wasm");
   } catch (error) {
     await onCpu(error);
@@ -123,7 +124,7 @@ async function query(data) {
   }
 }
 
-self.onmessage = async ({ data }) => {
+self.addEventListener("message", async ({ data }) => {
   if (data.type === "load") {
     try {
       await load();
@@ -144,4 +145,4 @@ self.onmessage = async ({ data }) => {
     self.postMessage({ type: "failed", message: String(error?.message ?? error) });
     self.postMessage({ type: "embedding", id: data.id, vector: null });
   }
-};
+});
