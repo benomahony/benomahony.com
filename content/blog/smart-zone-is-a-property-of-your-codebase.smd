@@ -1,0 +1,191 @@
+---
+.title = "The Smart Zone Is a Property of Your Codebase",
+.date = .date("2026-11-05T00:00:00"),
+.authors = ["Ben O'Mahony"],
+.layout = "post.shtml",
+.draft = true,
+---
+
+Matt Pocock keeps talking about the smart zone.
+The framing comes from Dex Horthy at HumanLayer.
+The idea is simple.
+A model reasons well up to a certain amount of context.
+Past that point it gets worse.
+Matt puts the line at roughly 150k tokens.
+
+The observation is real, but the causality is inverted. 
+
+## A number without a codebase
+
+Treating 150k as a universal threshold assumes the cost of orientation is fixed.
+It is not.
+The tokens an agent consumes before it can make a useful change depend on what it has to read.
+What it has to read depends on the codebase.
+
+So a smart zone of 150k tokens tells you something.
+It tells you about the codebases it was measured on.
+It does not tell you about models in general.
+
+## An accidental measurement
+
+Giles Edwards-Alexander published [an experiment on the economic benefit of refactoring](https://martinfowler.com/articles/exploring-gen-ai/refactoring-economic-benefit.html).
+He built a substantial application entirely with agents.
+Around 150,000 lines, mostly Rust.
+Nobody reviewed the code.
+The data access layer grew into a single file of 17,155 lines.
+
+He then refactored that file in small, strictly behaviour preserving steps.
+After each step he gave a fresh subagent exactly the same feature request and measured how many tokens it consumed.
+Fresh agents do not learn, so each run is comparable.
+
+The baseline change consumed 159,564 input tokens.
+After the final step the same change consumed 27,360.
+That is an 83% reduction.
+
+Look at those two numbers again.
+The baseline sits almost exactly on Matt's threshold.
+The refactored codebase lands around 25k.
+Same model.
+Same task.
+Same accompanying documentation.
+The only thing that moved was the structure of the code.
+
+The total amount of code barely changed.
+The data access layer stayed at roughly 16,500 lines throughout.
+The saving came from the agent being able to find the smallest set of files it needed and read only those.
+Giles notes that splitting the file at random would probably not have helped.
+The earlier steps removed duplication and named the repeating core.
+Only then did the split pay off.
+
+## Comprehension cost
+
+Here is the inversion.
+The smart zone threshold is not a constant of the model.
+It is a measure of how well intent is compressed into the code.
+
+Call it comprehension cost.
+The number of tokens an agent must consume before it can make a correct change.
+A codebase with clear module boundaries, a ubiquitous language, precise types and tests that state intent has a low comprehension cost.
+A tangled one has a high cost.
+
+This turns a folk threshold into a score.
+You can track it.
+You can watch it go down when you refactor and up when you let things rot.
+
+## Markdown is expansion, not compression
+
+The common response to high comprehension cost is to write more markdown.
+AGENTS.md.
+Architecture notes.
+Module summaries.
+People believe they are compressing understanding for the agent.
+
+They are doing the opposite.
+A summary is lossy.
+It drops precision to save space.
+So the agent reads the summary, learns roughly where to look, and then reads the code anyway to find out what is actually true.
+Total context goes up, not down.
+
+It gets worse with time.
+Code is checked by the compiler and the tests.
+Prose is checked by nobody.
+The summary drifts.
+A drifted summary is not merely useless.
+It is actively misleading, and the agent has no way to know.
+
+This part is argument, not measurement.
+Giles held the documentation constant.
+His experiment says nothing directly about whether the markdown helped or hurt.
+It does show that structure alone moved the cost by a factor of six.
+
+## Grep beats prose
+
+If the aim is retrieval, the best index you have is precise names in the code.
+Grep is exact.
+It is cheap.
+It is never stale.
+
+A markdown file describing where things live is a slower and less reliable search index layered over the real one.
+Every hour spent writing it would be better spent renaming things so that the search works.
+
+Good naming is search engine optimisation for agents.
+
+## Where intent should live
+
+Put intent where tooling can check it.
+
+* Names that carry domain meaning.
+* Types that make illegal states unrepresentable.
+* Module boundaries that follow bounded contexts.
+* Tests that state what the system must do.
+
+Each of these is both documentation and constraint.
+Each is verified on every build.
+
+## What prose is still for
+
+Code is poor at one thing.
+It cannot easily record why an alternative was rejected.
+Decision records and the reasons behind awkward constraints can earn their tokens.
+
+The test is simple.
+Does the prose carry information the code cannot?
+If it only restates the code, delete it.
+
+## What the evidence does and does not show
+
+I want to be careful here.
+
+Giles ran one experiment.
+One representative change.
+One greenfield codebase with a single developer.
+Rust.
+Token counts were approximated from character counts.
+The curve was not monotonic.
+Two middle steps made the change more expensive than the baseline.
+Output tokens barely moved at all.
+A result in Rust is not evidence about TypeScript or Python.
+
+The refactoring was not free either.
+Giles puts the upper bound at five million tokens, and that bound includes other work.
+At that bound, the saving pays back after fewer than forty changes to the same area.
+Whether that is a good deal depends on how often you touch the code.
+
+So the experiment supports the direction of my claim.
+It does not establish its size or its generality.
+
+## An experiment worth running
+
+Here is what I would like to see.
+
+Take a fixed set of tasks.
+Run them against several codebases of differing structural quality.
+Measure tokens consumed before the first correct change.
+Judge correctness with binary pass or fail checks, never with a model asked for a score.
+Then run every task again with the markdown layer removed.
+
+Two results would falsify the thesis.
+If comprehension cost barely moves with structural quality, the universal smart zone wins.
+If removing the markdown consistently raises the cost, my claim about expansion is wrong.
+
+## The ceiling is still there
+
+None of this says context degradation vanishes.
+Long context effects are real and documented.
+The ceiling exists.
+
+The claim is that the floor moves.
+A well structured codebase spends less of the budget on orientation and more on the task.
+It stays further from the ceiling for longer.
+
+## Earn the smart zone
+
+If your agent needs 150k tokens before it does anything useful, that number is feedback about your code.
+Remove duplication.
+Name the core.
+Tighten the types.
+Draw the boundaries where the domain draws them.
+Then delete the markdown that only restates the code.
+
+The smart zone is not given to you by the model.
+You earn it.
