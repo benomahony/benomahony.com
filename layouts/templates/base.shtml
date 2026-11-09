@@ -73,6 +73,11 @@
 					</div>
 				</div>
 				<link rel="modulepreload" href="$site.asset('search-names.js').link()">
+				<link rel="modulepreload" href="$site.asset('search-rank.js').link()">
+				<link rel="modulepreload" href="$site.asset('search-results.js').link()">
+				<link rel="modulepreload" href="$site.asset('search-download.js').link()">
+				<link rel="modulepreload" href="$site.asset('search-voice.js').link()">
+				<link rel="modulepreload" href="$site.asset('search-setting.js').link()">
 					<script type="module" src="$site.asset('search.js').link()"></script>
 			</nav>
 		</header>
