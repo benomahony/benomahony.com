@@ -19,6 +19,6 @@
 		</header>
 		<p class="lede" :text="$page.description"></p>
 		<p>Originally published on <strong :text="$page.custom.get('publication')"></strong>.</p>
-		<a class="button primary" href="$page.custom.get('external_url')">Read the article <span aria-hidden="true">↗</span></a>
+		<a class="button primary" href="$page.custom.get('external_url')"><span :text="$page.custom.getOr('link_text', 'Read the article')"></span> <span aria-hidden="true">↗</span></a>
 	</article>
 </main>
