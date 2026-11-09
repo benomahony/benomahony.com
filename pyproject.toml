@@ -19,6 +19,7 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["scripts"]
 python_files = ["test_*.py", "*_test.py", "*.md"]
 addopts = [
     "--strict-markers",

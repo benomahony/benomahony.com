@@ -41,6 +41,8 @@ import torch
 import yt_dlp
 from sentence_transformers import SentenceTransformer
 
+from frontmatter import front_matter
+
 HERE = Path(__file__).parent
 ROOT = HERE.parent.parent
 CACHE = HERE / ".cache"
@@ -118,11 +120,6 @@ def text_vectors(texts: list[str]) -> np.ndarray:
 
 
 # --- Blog posts --------------------------------------------------------------
-
-
-def front_matter(text: str) -> dict[str, str]:
-    header = text.split("---")[1]
-    return dict(re.findall(r'^\s*\.(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"', header, re.M))
 
 
 def plain(markdown: str) -> str:
@@ -346,15 +343,18 @@ def windows(episode: dict, variant: str) -> list[dict]:
 def videos(offline: bool, variant: str, limit: int | None) -> list[dict]:
     items = []
     for episode in episodes(offline)[:limit]:
-        if offline and not (CACHE / "audio" / f"{episode['id']}.opus").exists():
+        video = episode["id"]
+        if offline and not (CACHE / "audio" / f"{video}.opus").exists():
             continue
         try:
             found = windows(episode, variant)
-        except Exception as error:  # A video that won't download is skipped, not fatal.
-            print(f"skipped {episode['id']} {episode['title']}: {error}")
+        except (
+            yt_dlp.utils.DownloadError
+        ) as error:  # A video that won't download is skipped, not fatal.
+            print(f"skipped {video} {episode['title']}: {error}")
             continue
         items.extend(found)
-        print(f"video {episode['id']} {episode['title']} ({len(found)} windows)")
+        print(f"video {video} {episode['title']} ({len(found)} windows)")
     return items
 
 

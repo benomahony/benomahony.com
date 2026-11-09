@@ -13,6 +13,7 @@ import re
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
+from search.frontmatter import front_matter
 
 ROOT = Path(__file__).resolve().parent.parent
 POSTS = ROOT / "content" / "blog"
@@ -36,12 +37,6 @@ LOGO_SCALE = 8
 
 def font(weight: str, size: int) -> ImageFont.FreeTypeFont:
     return ImageFont.truetype(FONTS / f"Inter-{weight}.ttf", size)
-
-
-def front_matter(path: Path) -> dict[str, str]:
-    text = path.read_text()
-    header = text.split("---", 2)[1]
-    return dict(re.findall(r'^\.(\w+)\s*=\s*"((?:[^"\\]|\\.)*)"', header, re.M))
 
 
 def wrap(draw: ImageDraw.ImageDraw, text: str, face: ImageFont.FreeTypeFont) -> list[str]:
@@ -93,7 +88,7 @@ def render(title: str) -> Image.Image:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for post in sorted(POSTS.glob("*.smd")):
-        meta = front_matter(post)
+        meta = front_matter(post.read_text())
         if meta.get("layout") != "post.shtml":
             continue
         render(meta["title"]).save(OUT / f"{post.stem}.png", optimize=True)
