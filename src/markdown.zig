@@ -53,30 +53,31 @@ pub fn parse(source: []const u8) !Page {
     };
 }
 
-fn portable(ast: supermd.Ast) !void {
-    const root = ast.md.root;
+/// Reject a directive that has no portable Markdown form, unwrapping heading anchors that do.
+fn checkDirective(n: supermd.Node, directive: *supermd.Directive) !void {
+    switch (directive.kind) {
+        .heading => {
+            if (n.nodeType() != .HEADING) return error.UnsupportedSuperMdDirective;
+            const first = n.firstChild() orelse return error.UnsupportedSuperMdDirective;
+            if (first.nodeType() != .LINK) return error.UnsupportedSuperMdDirective;
+            const link = first.link() orelse return error.UnsupportedSuperMdDirective;
+            if (!std.mem.startsWith(u8, link, "$heading.")) return error.UnsupportedSuperMdDirective;
+            try first.replaceWithChild();
+        },
+        // Ordinary HTTP(S) links remain valid Markdown links.
+        .link => {
+            if (n.nodeType() != .LINK) return;
+            const link = n.link() orelse return error.UnsupportedSuperMdDirective;
+            if (std.mem.startsWith(u8, link, "$")) return error.UnsupportedSuperMdDirective;
+        },
+        else => return error.UnsupportedSuperMdDirective,
+    }
+}
+
+fn portable(root: supermd.Node) !void {
     var node = root.firstChild();
     while (node) |n| {
-        if (n.getDirective()) |directive| {
-            switch (directive.kind) {
-                .heading => {
-                    if (n.nodeType() != .HEADING) return error.UnsupportedSuperMdDirective;
-                    const first = n.firstChild() orelse return error.UnsupportedSuperMdDirective;
-                    if (first.nodeType() != .LINK) return error.UnsupportedSuperMdDirective;
-                    const link = first.link() orelse return error.UnsupportedSuperMdDirective;
-                    if (!std.mem.startsWith(u8, link, "$heading.")) return error.UnsupportedSuperMdDirective;
-                    try first.replaceWithChild();
-                },
-                // Ordinary HTTP(S) links remain valid Markdown links.
-                .link => {
-                    if (n.nodeType() == .LINK) {
-                        const link = n.link() orelse return error.UnsupportedSuperMdDirective;
-                        if (std.mem.startsWith(u8, link, "$")) return error.UnsupportedSuperMdDirective;
-                    }
-                },
-                else => return error.UnsupportedSuperMdDirective,
-            }
-        }
+        if (n.getDirective()) |directive| try checkDirective(n, directive);
         node = n.next(root);
     }
 }
@@ -89,8 +90,9 @@ pub fn render(allocator: std.mem.Allocator, page: Page) ![]u8 {
     const ast = try supermd.Ast.init(allocator, page.body, parser, .{});
     defer ast.deinit(allocator);
     if (ast.errors.len != 0) return error.InvalidSuperMd;
-    try portable(ast);
-    const raw = c.cmark_render_commonmark(ast.md.root.n, c.CMARK_OPT_DEFAULT, 0) orelse return error.OutOfMemory;
+    const root = ast.md.root;
+    try portable(root);
+    const raw = c.cmark_render_commonmark(root.n, c.CMARK_OPT_DEFAULT, 0) orelse return error.OutOfMemory;
     defer c.cmark_get_default_mem_allocator().*.free.?(raw);
     const converted = std.mem.trim(u8, std.mem.span(raw), "\n");
     return std.fmt.allocPrint(allocator, "# {s}\n\n{s}\n", .{ page.title, converted });
