@@ -41,7 +41,7 @@ import torch
 import yt_dlp
 from sentence_transformers import SentenceTransformer
 
-from frontmatter import front_matter
+from frontmatter import front_matter, is_draft
 
 HERE = Path(__file__).parent
 ROOT = HERE.parent.parent
@@ -161,6 +161,9 @@ def posts() -> list[dict]:
     items, docs = [], []
     for file in sorted((ROOT / "content" / "blog").glob("*.smd")):
         text = file.read_text()
+        # Drafts aren't built, so indexing one would publish its text.
+        if is_draft(text):
+            continue
         meta = front_matter(text)
         if meta.get("layout") == "external.shtml":
             # Published elsewhere: only the title and description live here,

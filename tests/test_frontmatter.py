@@ -1,4 +1,5 @@
-from search.frontmatter import front_matter
+import pytest
+from search.frontmatter import front_matter, is_draft
 
 
 def test_reads_top_level_and_nested_string_fields():
@@ -29,3 +30,14 @@ def test_escaped_quotes_stay_in_the_value():
 
 def test_body_is_not_read_as_frontmatter():
     assert "layout" not in front_matter('---\n.title = "T",\n---\n\n.layout = "post.shtml"\n')
+
+
+def test_draft_flag():
+    assert is_draft('---\n.title = "T",\n.draft = true,\n---\n')
+    assert not is_draft('---\n.title = "T",\n.draft = false,\n---\n')
+    assert not is_draft('---\n.title = "T",\n---\n\n.draft = true,\n')
+
+
+def test_invalid_draft_value_fails_closed():
+    with pytest.raises(ValueError):
+        is_draft("---\n.draft = sometimes,\n---\n")

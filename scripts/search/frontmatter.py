@@ -12,3 +12,18 @@ def front_matter(text: str) -> dict[str, str]:
     for name, value in FIELD.findall(text.split("---", 2)[1]):
         fields.setdefault(name, value)
     return fields
+
+
+DRAFT = re.compile(r"^\.draft\s*=\s*(\S+?),?\s*$", re.M)
+
+
+def is_draft(text: str) -> bool:
+    """Whether the page's top-level `.draft` is true. Anything other than true
+    or false is rejected, like the Markdown publisher's parser."""
+    found = DRAFT.search(text.split("---", 2)[1])
+    if not found:
+        return False
+    value = found[1]
+    if value not in ("true", "false"):
+        raise ValueError(f"invalid .draft value: {value}")
+    return value == "true"
