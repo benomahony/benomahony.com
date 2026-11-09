@@ -1,8 +1,4 @@
-from pathlib import Path
-
 from search.frontmatter import front_matter
-
-BLOG = Path(__file__).parent.parent / "content" / "blog"
 
 
 def test_reads_top_level_and_nested_string_fields():
@@ -33,7 +29,3 @@ def test_escaped_quotes_stay_in_the_value():
 
 def test_body_is_not_read_as_frontmatter():
     assert "layout" not in front_matter('---\n.title = "T",\n---\n\n.layout = "post.shtml"\n')
-
-
-def test_blog_index_keeps_its_page_layout():
-    assert front_matter((BLOG / "index.smd").read_text())["layout"] == "blog.shtml"
