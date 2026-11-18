@@ -15,11 +15,11 @@
 	<section class="course-list" aria-label="Courses">
 		<article class="course-card">
 			<div class="course-copy">
-				<p class="card-kicker">Intensive · Live course</p>
-				<h2>Intensive Agentic Engineering</h2>
-				<p>Turn coding agents into a reliable part of how your team ships. Set up the codebase, guardrails, and feedback loops that let agents produce software you can review, test, and trust.</p>
-				<ul class="tag-list"><li>Agentic engineering</li><li>Guardrails</li><li>Reliability</li></ul>
-				<a class="button secondary external" href="$site.page('go/intensive-agentic-engineering-course').link()" target="_blank" rel="noreferrer">View on O’Reilly <span aria-hidden="true">↗</span></a>
+				<p class="card-kicker">O’Reilly Intensive · 5 weeks · Starts 26 Jan 2027</p>
+				<h2>Agentic Engineering</h2>
+				<p>Your coding agent works in a demo. Would you let it commit? In a small team of peers, take a coding agent from its first baseline to a ship decision you can defend: evaluation benchmarks, a sandboxed runtime, red teaming, and a release readiness review, with weekly live workshops and feedback from me.</p>
+				<ul class="tag-list"><li>Coding agents</li><li>Evaluations</li><li>Production readiness</li></ul>
+				<a class="button secondary external" href="$site.page('go/intensive-agentic-engineering-course').link()" target="_blank" rel="noreferrer">Enroll on O’Reilly <span aria-hidden="true">↗</span></a>
 			</div>
 		</article>
 		<article class="course-card">
