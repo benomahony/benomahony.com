@@ -28,7 +28,7 @@
 		<super>
 	</head>
 	<body id="body">
-		<a class="site-banner" href="$site.page('go/intensive-agentic-engineering-course').link()"><span class="site-banner-label">New O’Reilly Intensive</span> <strong>Agentic Engineering</strong> from 26 Jan 2027. Early bird $750 off for the first five. <span class="site-banner-cta">Enroll now <span aria-hidden="true">→</span></span></a>
+		<a class="site-banner" href="$site.page('go/intensive-agentic-engineering-course').link()"><span class="site-banner-label">New O’Reilly Intensive</span> <strong>Agentic Engineering</strong>, five weeks live with me from 26 Jan 2027 <span class="site-banner-cta">Enroll now <span aria-hidden="true">→</span></span></a>
 		<header class="site-header">
 			<a class="site-name" href="$site.page('').link()">Ben O'Mahony</a>
 			<nav aria-label="Primary navigation">
