@@ -15,6 +15,15 @@
 	<section class="course-list" aria-label="Courses">
 		<article class="course-card">
 			<div class="course-copy">
+				<p class="card-kicker">Intensive · Live course</p>
+				<h2>Intensive Agentic Engineering</h2>
+				<p>Turn coding agents into a reliable part of how your team ships. Set up the codebase, guardrails, and feedback loops that let agents produce software you can review, test, and trust.</p>
+				<ul class="tag-list"><li>Agentic engineering</li><li>Guardrails</li><li>Reliability</li></ul>
+				<a class="button secondary external" href="$site.page('go/intensive-agentic-engineering-course').link()" target="_blank" rel="noreferrer">View on O’Reilly <span aria-hidden="true">↗</span></a>
+			</div>
+		</article>
+		<article class="course-card">
+			<div class="course-copy">
 				<p class="card-kicker">Intermediate · Live course</p>
 				<h2>Hardening Codebases for Agentic Coding</h2>
 				<p>Learn how to create executable guardrails that make AI-generated changes easier to review, test, debug, and trust. Topics range from assertions and property-based testing to architecture checks and CI quality gates.</p>
