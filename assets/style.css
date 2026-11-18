@@ -50,6 +50,43 @@ a:hover {
   padding: 1.5rem 0 1rem;
 }
 
+.site-banner {
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 0 0 0.75rem 0.75rem;
+  border-top: 0;
+  color: var(--text);
+  display: block;
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.site-banner:hover {
+  color: var(--text);
+}
+
+.site-banner-label {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-right: 0.35rem;
+  text-transform: uppercase;
+}
+
+.site-banner-cta {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
+
+.site-banner:hover .site-banner-cta {
+  color: var(--accent-hover);
+}
+
 .site-name {
   color: var(--text);
   font-size: 1.05rem;
@@ -791,6 +828,16 @@ footer p {
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.course-card-featured {
+  background: var(--accent-soft);
+  border: 2px solid var(--accent);
+  grid-column: 1 / -1;
+}
+
+.course-card-featured .tag-list li {
+  background: var(--surface);
 }
 
 .course-copy h2,
