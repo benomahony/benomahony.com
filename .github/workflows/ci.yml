@@ -39,7 +39,7 @@ jobs:
         with:
           node-version: 24
       - name: Test search
-        run: node --test tests/
+        run: node --test "tests/*.test.mjs"
       - name: Setup Zine
         uses: kristoff-it/setup-zine@ecfe04402bfa943fb0dc59e097e81c858a8ad9d9 # v2
       - name: Setup Zig
